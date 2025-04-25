@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+    <!-- Lado Esquerdo Superior -->
+    <g id="lado-esquerdo-superior">
+        <!-- Lab Info 01 -->
+        <g class="room" data-room-id="lab-info-01">
+            <rect x="50" y="50" width="150" height="100" fill="#ffffff" stroke="#333" stroke-width="1"/>
+            <text x="125" y="85" text-anchor="middle" class="room-label" font-size="12">LABORATÓRIO</text>
+            <text x="125" y="100" text-anchor="middle" class="room-label" font-size="12">INFORMÁTICA 01</text>
+        </g>
+
+        <!-- Lab Info 03 -->
+        <g class="room" data-room-id="lab-info-03">
+            <rect x="200" y="50" width="150" height="100" fill="#ffffff" stroke="#333" stroke-width="1"/>
+            <text x="275" y="85" text-anchor="middle" class="room-label" font-size="12">LABORATÓRIO</text>
+            <text x="275" y="100" text-anchor="middle" class="room-label" font-size="12">INFORMÁTICA 03</text>
+        </g>
+
+        <!-- Lab Info 05 -->
+        <g class="room" data-room-id="lab-info-05">
+            <rect x="350" y="50" width="150" height="100" fill="#ffffff" stroke="#333" stroke-width="1"/>
+            <text x="425" y="85" text-anchor="middle" class="room-label" font-size="12">LABORATÓRIO</text>
+            <text x="425" y="100" text-anchor="middle" class="room-label" font-size="12">INFORMÁTICA 05</text>
+        </g>
+    </g>
+
+    <!-- Corredor Central -->
+    <rect class="corridor" x="50" y="170" width="1100" height="60" fill="#333333"/>
+    
+    <!-- Escadas -->
+    <g class="stairs">
+        <rect x="550" y="150" width="100" height="100" fill="#4d4d4d"/>
+        <line x1="550" y1="160" x2="650" y2="160" stroke="#fff" stroke-width="1"/>
+        <line x1="550" y1="170" x2="650" y2="170" stroke="#fff" stroke-width="1"/>
+        <line x1="550" y1="180" x2="650" y2="180" stroke="#fff" stroke-width="1"/>
+        <line x1="550" y1="190" x2="650" y2="190" stroke="#fff" stroke-width="1"/>
+        <line x1="550" y1="200" x2="650" y2="200" stroke="#fff" stroke-width="1"/>
+        <text x="600" y="240" text-anchor="middle" fill="#fff" font-size="12">ESCADAS</text>
+    </g>
+
+    <!-- Lado Direito Superior -->
+    <g id="lado-direito-superior">
+        <!-- Lab Hardware -->
+        <g class="room" data-room-id="lab-hardware">
+            <rect x="700" y="50" width="150" height="100" fill="#ffffff" stroke="#333" stroke-width="1"/>
+            <text x="775" y="85" text-anchor="middle" class="room-label" font-size="12">LABORATÓRIO</text>
+            <text x="775" y="100" text-anchor="middle" class="room-label" font-size="12">HARDWARE</text>
+        </g>
+
+        <!-- Lab Redes -->
+        <g class="room" data-room-id="lab-redes">
+            <rect x="850" y="50" width="150" height="100" fill="#ffffff" stroke="#333" stroke-width="1"/>
+            <text x="925" y="85" text-anchor="middle" class="room-label" font-size="12">LABORATÓRIO</text>
+            <text x="925" y="100" text-anchor="middle" class="room-label" font-size="12">REDES</text>
+        </g>
+
+        <!-- Lab IoT -->
+        <g class="room" data-room-id="lab-iot">
+            <rect x="1000" y="50" width="150" height="100" fill="#ffffff" stroke="#333" stroke-width="1"/>
+            <text x="1075" y="85" text-anchor="middle" class="room-label" font-size="12">LABORATÓRIO</text>
+            <text x="1075" y="100" text-anchor="middle" class="room-label" font-size="12">IoT</text>
+        </g>
+    </g>
+
+    <!-- Lado Esquerdo Inferior -->
+    <g id="lado-esquerdo-inferior">
+        <!-- Lab Info 02 -->
+        <g class="room" data-room-id="lab-info-02">
+            <rect x="50" y="250" width="150" height="100" fill="#ffffff" stroke="#333" stroke-width="1"/>
+            <text x="125" y="285" text-anchor="middle" class="room-label" font-size="12">LABORATÓRIO</text>
+            <text x="125" y="300" text-anchor="middle" class="room-label" font-size="12">INFORMÁTICA 02</text>
+        </g>
+
+        <!-- Lab Info 04 -->
+        <g class="room" data-room-id="lab-info-04">
+            <rect x="200" y="250" width="150" height="100" fill="#ffffff" stroke="#333" stroke-width="1"/>
+            <text x="275" y="285" text-anchor="middle" class="room-label" font-size="12">LABORATÓRIO</text>
+            <text x="275" y="300" text-anchor="middle" class="room-label" font-size="12">INFORMÁTICA 04</text>
+        </g>
+
+        <!-- Lab Info 06 -->
+        <g class="room" data-room-id="lab-info-06">
+            <rect x="350" y="250" width="150" height="100" fill="#ffffff" stroke="#333" stroke-width="1"/>
+            <text x="425" y="285" text-anchor="middle" class="room-label" font-size="12">LABORATÓRIO</text>
+            <text x="425" y="300" text-anchor="middle" class="room-label" font-size="12">INFORMÁTICA 06</text>
+        </g>
+    </g>
+
+    <!-- Lado Direito Inferior -->
+    <g id="lado-direito-inferior">
+        <!-- Biblioteca -->
+        <g class="room" data-room-id="biblioteca">
+            <rect x="700" y="250" width="450" height="100" fill="#ffffff" stroke="#333" stroke-width="1"/>
+            <text x="925" y="285" text-anchor="middle" class="room-label" font-size="12">BIBLIOTECA</text>
+            <text x="925" y="300" text-anchor="middle" class="room-label" font-size="12">E SALA DE ESTUDOS</text>
+        </g>
+    </g>
+</svg> 

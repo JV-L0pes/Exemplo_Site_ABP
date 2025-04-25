@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semestres - FATEC</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/semestres.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar de navegação -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="image/CPS-removebg-preview.png" alt="Logo CPS">
+                </div>
+                <button id="collapse-btn" class="collapse-btn" title="Colapsar menu">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="home.html">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="docentes.html">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>Docentes</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="grade-horarios.html">
+                    <i class="fas fa-book"></i>
+                    <span>Aulas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="mapa-interativo.html">
+                    <i class="fas fa-door-open"></i>
+                    <span>Salas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="semestres.html" class="active">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Semestres</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="disciplinas.html">
+                    <i class="fas fa-laptop-code"></i>
+                    <span>Disciplinas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="cursos.html">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Cursos</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="configuracoes.html">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Conteúdo principal -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="logo-container">
+                    <img src="image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
+                    <p>Gerenciamento de Semestres</p>
+                </div>
+                
+                <div class="header-actions">
+                    <a href="#" class="notification-btn" title="Notificações">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                    
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">Administrador</div>
+                            <div class="user-role">Gerente do Sistema</div>
+                        </div>
+                    </div>
+                    
+                    <button id="toggle-menu" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="breadcrumb">
+                <div class="breadcrumb-item">
+                    <a href="home.html">
+                        <i class="fas fa-home"></i> Início
+                    </a>
+                </div>
+                <div class="breadcrumb-item active">
+                    Semestres
+                </div>
+            </div>
+
+            <!-- Área de conteúdo de Semestres -->
+            <div class="semestres-container">
+                <div class="semestres-header">
+                    <h2>
+                        <i class="fas fa-calendar-alt"></i>
+                        Gerenciar Semestres
+                    </h2>
+                </div>
+                
+                <div class="semestres-search">
+                    <input type="text" placeholder="Buscar semestre..." id="search-semestre">
+                    <button class="btn-search"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="semestres-list">
+                    <!-- Exemplo de card de semestre -->
+                    <div class="semestre-card">
+                        <div class="semestre-header">
+                            <div class="semestre-info">
+                                <h3>2º Semestre 2024</h3>
+                                <span class="badge badge-primary">Em andamento</span>
+                            </div>
+                        </div>
+                        <div class="semestre-details">
+                            <div class="semestre-detail">
+                                <span class="detail-label">Nível:</span>
+                                <span class="detail-value">2</span>
+                            </div>
+                            <div class="semestre-detail">
+                                <span class="detail-label">Ano:</span>
+                                <span class="detail-value">2024</span>
+                            </div>
+                            <div class="semestre-detail">
+                                <span class="detail-label">Curso:</span>
+                                <span class="detail-value">DSM</span>
+                            </div>
+                            <div class="semestre-detail">
+                                <span class="detail-label">Turno:</span>
+                                <span class="detail-value">Noturno</span>
+                            </div>
+                        </div>
+                        <div class="semestre-actions">
+                            <button class="btn-edit" onclick="editarSemestre(1)">
+                                <i class="fas fa-edit"></i>
+                                Alterar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/toast.js"></script>
+</body>
+</html> 

@@ -1,0 +1,260 @@
+/* Estilos gerais do container */
+.grade-container {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.grade-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.grade-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.grade-header h2 i {
+    color: #007bff;
+}
+
+.grade-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+
+/* Estilos da grade de horários */
+.grade-content {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.grade-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.grade-table th {
+    background-color: #f8f9fa;
+    padding: 15px;
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+.grade-table td {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    position: relative;
+}
+
+.aula-cell {
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.aula-cell:hover {
+    transform: scale(1.02);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Cores das disciplinas */
+.aula-cell.tecnicas { background-color: #e6ccff; }
+.aula-cell.desenvolvimento { background-color: #ffffcc; }
+.aula-cell.matematica { background-color: #cce6ff; }
+.aula-cell.estrutura { background-color: #e6f3ff; }
+.aula-cell.engenharia { background-color: #ccffff; }
+.aula-cell.bd { background-color: #ffcccc; }
+
+/* Estilos dos docentes */
+.docentes-section {
+    margin-top: 30px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.docentes-section h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.docentes-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.docentes-table td {
+    padding: 10px 15px;
+    border: 1px solid #dee2e6;
+}
+
+/* Estilos do modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-dialog {
+    width: 100%;
+    max-width: 500px;
+    margin: 1.75rem auto;
+    position: relative;
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #333;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.form-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 1rem;
+}
+
+.form-select:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .grade-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .grade-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .grade-table {
+        font-size: 14px;
+    }
+
+    .aula-cell {
+        padding: 5px;
+    }
+} 

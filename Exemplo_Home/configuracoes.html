@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - FATEC</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/configuracoes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar de navegação -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="image/CPS-removebg-preview.png" alt="Logo CPS">
+                </div>
+                <button id="collapse-btn" class="collapse-btn" title="Colapsar menu">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="home.html">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="docentes.html">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>Docentes</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="grade-horarios.html">
+                    <i class="fas fa-book"></i>
+                    <span>Aulas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="mapa-interativo.html">
+                    <i class="fas fa-door-open"></i>
+                    <span>Salas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="semestres.html">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Semestres</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="disciplinas.html">
+                    <i class="fas fa-laptop-code"></i>
+                    <span>Disciplinas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="cursos.html">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Cursos</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="configuracoes.html" class="active">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Conteúdo principal -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="logo-container">
+                    <img src="image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
+                    <p>Configurações do Sistema</p>
+                </div>
+                
+                <div class="header-actions">
+                    <a href="#" class="notification-btn" title="Notificações">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                    
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">Administrador</div>
+                            <div class="user-role">Gerente do Sistema</div>
+                        </div>
+                    </div>
+                    
+                    <button id="toggle-menu" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="breadcrumb">
+                <div class="breadcrumb-item">
+                    <a href="home.html">
+                        <i class="fas fa-home"></i> Início
+                    </a>
+                </div>
+                <div class="breadcrumb-item active">
+                    Configurações
+                </div>
+            </div>
+
+            <!-- Área de conteúdo de Configurações -->
+            <div class="configuracoes-container">
+                <div class="configuracoes-header">
+                    <h2>
+                        <i class="fas fa-cog"></i>
+                        Configurações do Sistema
+                    </h2>
+                </div>
+                
+                <div class="configuracoes-grid">
+                    <!-- Configurações de Usuário -->
+                    <div class="config-card">
+                        <div class="config-header">
+                            <i class="fas fa-user-cog"></i>
+                            <h3>Configurações de Usuário</h3>
+                        </div>
+                        <div class="config-content">
+                            <div class="config-item">
+                                <label>Nome de Usuário</label>
+                                <input type="text" value="Administrador" class="config-input">
+                            </div>
+                            <div class="config-item">
+                                <label>Email</label>
+                                <input type="email" value="admin@fatec.sp.gov.br" class="config-input">
+                            </div>
+                            <div class="config-item">
+                                <label>Senha</label>
+                                <input type="password" value="********" class="config-input">
+                            </div>
+                            <button class="btn-save">Salvar Alterações</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Configurações de Notificações -->
+                    <div class="config-card">
+                        <div class="config-header">
+                            <i class="fas fa-bell"></i>
+                            <h3>Configurações de Notificações</h3>
+                        </div>
+                        <div class="config-content">
+                            <div class="config-item">
+                                <label>Notificações por Email</label>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" checked>
+                                </div>
+                            </div>
+                            <div class="config-item">
+                                <label>Notificações de Sistema</label>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" checked>
+                                </div>
+                            </div>
+                            <div class="config-item">
+                                <label>Notificações de Atualizações</label>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox">
+                                </div>
+                            </div>
+                            <button class="btn-save">Salvar Alterações</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Configurações de Aparência -->
+                    <div class="config-card">
+                        <div class="config-header">
+                            <i class="fas fa-paint-brush"></i>
+                            <h3>Configurações de Aparência</h3>
+                        </div>
+                        <div class="config-content">
+                            <div class="config-item">
+                                <label>Tema</label>
+                                <select class="config-input">
+                                    <option value="light">Claro</option>
+                                    <option value="dark">Escuro</option>
+                                    <option value="system">Sistema</option>
+                                </select>
+                            </div>
+                            <div class="config-item">
+                                <label>Fonte</label>
+                                <select class="config-input">
+                                    <option value="roboto">Roboto</option>
+                                    <option value="arial">Arial</option>
+                                    <option value="times">Times New Roman</option>
+                                </select>
+                            </div>
+                            <button class="btn-save">Salvar Alterações</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Configurações de Sistema -->
+                    <div class="config-card">
+                        <div class="config-header">
+                            <i class="fas fa-server"></i>
+                            <h3>Configurações de Sistema</h3>
+                        </div>
+                        <div class="config-content">
+                            <div class="config-item">
+                                <label>Backup Automático</label>
+                                <select class="config-input">
+                                    <option value="daily">Diário</option>
+                                    <option value="weekly">Semanal</option>
+                                    <option value="monthly">Mensal</option>
+                                </select>
+                            </div>
+                            <div class="config-item">
+                                <label>Logs do Sistema</label>
+                                <select class="config-input">
+                                    <option value="all">Todos</option>
+                                    <option value="errors">Apenas Erros</option>
+                                    <option value="none">Nenhum</option>
+                                </select>
+                            </div>
+                            <button class="btn-save">Salvar Alterações</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/configuracoes.js"></script>
+</body>
+</html> 

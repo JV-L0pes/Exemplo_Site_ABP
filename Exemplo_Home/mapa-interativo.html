@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Interativo - FATEC</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/mapa-interativo.css">
+    <link rel="stylesheet" href="css/salas.css">
+    <link rel="stylesheet" href="css/toast.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Modal de Edição de Sala -->
+    <div id="room-edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Sala</h2>
+                <button class="close" onclick="closeRoomEditModal()">&times;</button>
+            </div>
+            <form class="edit-form" onsubmit="saveRoomDetails(event)">
+                <div class="form-group">
+                    <label for="edit-room-name">Nome da Sala</label>
+                    <input type="text" id="edit-room-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-room-type">Tipo</label>
+                    <select id="edit-room-type" name="type" required>
+                        <option value="sala-de-aula">Sala de Aula</option>
+                        <option value="laboratorio">Laboratório</option>
+                        <option value="auditorio">Auditório</option>
+                        <option value="administrativo">Administrativo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-room-capacity">Capacidade</label>
+                    <input type="number" id="edit-room-capacity" name="capacity" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-room-status">Status</label>
+                    <select id="edit-room-status" name="status" required>
+                        <option value="disponivel">Disponível</option>
+                        <option value="ocupada">Ocupada</option>
+                        <option value="manutencao">Manutenção</option>
+                        <option value="reservada">Reservada</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-room-professor">Professor</label>
+                    <input type="text" id="edit-room-professor" name="professor">
+                </div>
+                <div class="form-group">
+                    <label for="edit-room-turma">Turma</label>
+                    <input type="text" id="edit-room-turma" name="turma">
+                </div>
+                <div class="form-group">
+                    <label for="edit-room-turno">Turno</label>
+                    <select id="edit-room-turno" name="turno">
+                        <option value="">Selecione...</option>
+                        <option value="manha">Manhã</option>
+                        <option value="tarde">Tarde</option>
+                        <option value="noite">Noite</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-room-materia">Matéria</label>
+                    <input type="text" id="edit-room-materia" name="materia">
+                </div>
+                <div class="form-group">
+                    <label>Recursos</label>
+                    <div class="resources-list">
+                        <label><input type="checkbox" name="resources" value="Projetor"> Projetor</label>
+                        <label><input type="checkbox" name="resources" value="Computadores"> Computadores</label>
+                        <label><input type="checkbox" name="resources" value="Ar Condicionado"> Ar Condicionado</label>
+                        <label><input type="checkbox" name="resources" value="Lousa Digital"> Lousa Digital</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit-room-observations">Observações</label>
+                    <textarea id="edit-room-observations" name="observations" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeRoomEditModal()" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Informações da Sala -->
+    <div id="room-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-room-name">Nome da Sala</h3>
+                <button onclick="closeRoomModal()" class="close-button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="room-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Disciplina:</span>
+                        <span id="modal-room-disciplina">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Docente:</span>
+                        <span id="modal-room-docente">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Curso:</span>
+                        <span id="modal-room-curso">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Nível do Curso:</span>
+                        <span id="modal-room-nivel">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status:</span>
+                        <span id="modal-room-status" class="status-badge">-</span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button onclick="editRoom()" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button onclick="closeRoomModal()" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar de navegação -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="image/CPS-removebg-preview.png" alt="Logo CPS">
+                </div>
+                <button id="collapse-btn" class="collapse-btn" title="Colapsar menu">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="home.html">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="docentes.html">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>Docentes</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="grade-horarios.html">
+                    <i class="fas fa-book"></i>
+                    <span>Aulas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="mapa-interativo.html" class="active">
+                    <i class="fas fa-door-open"></i>
+                    <span>Salas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="semestres.html">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Semestres</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="disciplinas.html">
+                    <i class="fas fa-laptop-code"></i>
+                    <span>Disciplinas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="cursos.html">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Cursos</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="configuracoes.html">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Conteúdo principal -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="logo-container">
+                    <img src="image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
+                    <p>Mapa Interativo</p>
+                </div>
+                
+                <div class="header-actions">
+                    <a href="#" class="notification-btn" title="Notificações">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                    
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">Administrador</div>
+                            <div class="user-role">Gerente do Sistema</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="breadcrumb">
+                <div class="breadcrumb-item">
+                    <a href="home.html">
+                        <i class="fas fa-home"></i> Início
+                    </a>
+                </div>
+                <div class="breadcrumb-item active">
+                    Mapa Interativo
+                </div>
+            </div>
+
+            <!-- Área do Mapa Interativo -->
+            <div class="mapa-container">
+                <div class="mapa-header">
+                    <h2>MAPA INTERATIVO</h2>
+                    <div class="mapa-actions">
+                        <button class="btn btn-primary btn-export">
+                            <i class="fas fa-file-export"></i>
+                            EXPORTAR CSV
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="floor-selector">
+                            <select id="floor-selector" class="btn btn-floor" onchange="loadFloorMap(this.value)">
+                                <option value="0">TÉRREO</option>
+                                <option value="1">1º ANDAR</option>
+                                <option value="2">2º ANDAR</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mapa-content">
+                    <div id="map-content" class="mapa-svg">
+                        <!-- SVG do mapa será inserido aqui -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/mapa-interativo.js"></script>
+</body>
+</html> 

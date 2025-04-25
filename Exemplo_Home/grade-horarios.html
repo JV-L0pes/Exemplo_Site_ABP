@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade de Horários - FATEC</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/grade-horarios.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar de navegação -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="image/CPS-removebg-preview.png" alt="Logo CPS">
+                </div>
+                <button id="collapse-btn" class="collapse-btn" title="Colapsar menu">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="home.html">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="docentes.html">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>Docentes</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="grade-horarios.html" class="active">
+                    <i class="fas fa-book"></i>
+                    <span>Aulas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="mapa-interativo.html">
+                    <i class="fas fa-door-open"></i>
+                    <span>Salas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="semestres.html">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Semestres</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="disciplinas.html">
+                    <i class="fas fa-laptop-code"></i>
+                    <span>Disciplinas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="cursos.html">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Cursos</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="configuracoes.html">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Conteúdo principal -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="logo-container">
+                    <img src="image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
+                    <p>Grade de Horários</p>
+                </div>
+                
+                <div class="header-actions">
+                    <a href="#" class="notification-btn" title="Notificações">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                    
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">Administrador</div>
+                            <div class="user-role">Gerente do Sistema</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="breadcrumb">
+                <div class="breadcrumb-item">
+                    <a href="home.html">
+                        <i class="fas fa-home"></i> Início
+                    </a>
+                </div>
+                <div class="breadcrumb-item active">
+                    Grade de Horários
+                </div>
+            </div>
+
+            <!-- Área da Grade de Horários -->
+            <div class="grade-container">
+                <div class="grade-header">
+                    <h2>
+                        <i class="fas fa-calendar-alt"></i>
+                        Grade de Horários
+                    </h2>
+                    <div class="grade-actions">
+                        <select class="btn btn-secondary">
+                            <option value="DSM">DSM</option>
+                            <option value="GEO">GEO</option>
+                            <option value="MAR">MAR</option>
+                        </select>
+                        <select class="btn btn-secondary">
+                            <option value="1">1º Nível</option>
+                            <option value="2" selected>2º Nível</option>
+                            <option value="3">3º Nível</option>
+                        </select>
+                        <select class="btn btn-secondary">
+                            <option value="noite">Período Noturno</option>
+                            <option value="manha">Período Matutino</option>
+                            <option value="tarde">Período Vespertino</option>
+                        </select>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-file-export"></i>
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grade-content">
+                    <table class="grade-table">
+                        <thead>
+                            <tr>
+                                <th>Horário</th>
+                                <th>Segunda</th>
+                                <th>Terça</th>
+                                <th>Quarta</th>
+                                <th>Quinta</th>
+                                <th>Sexta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Será preenchido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="docentes-section">
+                    <h4>Docentes</h4>
+                    <table class="docentes-table">
+                        <tbody>
+                            <!-- Será preenchido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Aula</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="form-group">
+                            <label>Disciplina</label>
+                            <select class="form-select" name="disciplina" required>
+                                <option value="">Selecione a disciplina</option>
+                                <!-- Opções serão preenchidas via JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Professor</label>
+                            <select class="form-select" name="professor" required>
+                                <option value="">Selecione o professor</option>
+                                <!-- Opções serão preenchidas via JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Sala</label>
+                            <select class="form-select" name="sala" required>
+                                <option value="">Selecione a sala</option>
+                                <!-- Opções serão preenchidas via JavaScript -->
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveEdit">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/grade-horarios.js"></script>
+</body>
+</html> 

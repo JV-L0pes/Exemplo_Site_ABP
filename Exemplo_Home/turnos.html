@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turnos - FATEC</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="image/CPS-removebg-preview.png" alt="Logo CPS">
+                </div>
+                <button id="collapse-btn" class="collapse-btn" title="Colapsar menu">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="home.html">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="docentes.html">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>Docentes</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="grade-horarios.html" class="has-submenu">
+                    <i class="fas fa-book"></i>
+                    <span>Aulas</span>
+                    <i class="fas fa-chevron-right submenu-icon"></i>
+                </a>
+                <ul class="submenu">
+                    <li><a href="#">Horários</a></li>
+                    <li><a href="#">DSM</a></li>
+                    <li><a href="#">GEO</a></li>
+                    <li><a href="#">MAR</a></li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="mapa-interativo.html">
+                    <i class="fas fa-door-open"></i>
+                    <span>Salas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="semestres.html">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Semestres</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="disciplinas.html">
+                    <i class="fas fa-laptop-code"></i>
+                    <span>Disciplinas</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="cursos.html">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Cursos</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="turnos.html" class="active">
+                    <i class="fas fa-clock"></i>
+                    <span>Turnos</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-item">
+                <a href="configuracoes.html">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Conteúdo principal -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="logo-container">
+                    <img src="image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
+                    <p>Gerenciamento de Turnos</p>
+                </div>
+                
+                <div class="header-actions">
+                    <a href="#" class="notification-btn" title="Notificações">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                    
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">Administrador</div>
+                            <div class="user-role">Gerente do Sistema</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="breadcrumb">
+                <div class="breadcrumb-item">
+                    <a href="home.html">
+                        <i class="fas fa-home"></i> Início
+                    </a>
+                </div>
+                <div class="breadcrumb-item active">
+                    Turnos
+                </div>
+            </div>
+
+            <!-- Área de conteúdo de Turnos -->
+            <div class="turnos-container">
+                <div class="turnos-header">
+                    <h2>
+                        <i class="fas fa-clock"></i>
+                        Gerenciar Turnos
+                    </h2>
+                    <button class="btn btn-primary btn-add">
+                        <i class="fas fa-plus"></i>
+                        Adicionar Turno
+                    </button>
+                </div>
+                
+                <div class="turnos-list">
+                    <!-- Exemplo de card de turno -->
+                    <div class="turno-card">
+                        <div class="turno-header">
+                            <h3>Matutino</h3>
+                        </div>
+                        <div class="turno-actions">
+                            <button class="btn-edit" onclick="editarTurno(1)">
+                                <i class="fas fa-edit"></i>
+                                Alterar
+                            </button>
+                            <button class="btn-delete" onclick="confirmarExclusao(1)">
+                                <i class="fas fa-trash"></i>
+                                Excluir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/toast.js"></script>
+</body>
+</html> 
