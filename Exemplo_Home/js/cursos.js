@@ -154,7 +154,4 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Inicializar a página
     renderCursos();
-    
-    // Atualizar acessos recentes
-    updateRecentAccess('cursos');
 }); 

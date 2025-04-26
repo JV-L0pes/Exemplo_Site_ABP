@@ -2,32 +2,35 @@
  * Script para o Painel Administrativo da FATEC
  */
 document.addEventListener("DOMContentLoaded", function() {
-    // Elementos
-    const container = document.querySelector(".container");
-    const sidebar = document.querySelector(".sidebar");
-    const collapseBtn = document.getElementById("collapse-btn");
-    const menuToggle = document.getElementById("toggle-menu");
-    const submenuLinks = document.querySelectorAll(".has-submenu");
-    const adminButtons = document.querySelectorAll(".admin-button");
-    const entityContainer = document.getElementById("entity-container");
-    const mapEditor = document.getElementById("map-editor");
-    const entityTitle = document.getElementById("entity-title");
-    const entityType = document.getElementById("entity-type");
-    const entityList = document.getElementById("entity-list");
-    const addEntityBtn = document.getElementById("add-entity");
-    const searchInput = document.getElementById("search-entity");
-    const modal = document.getElementById("entity-modal");
-    const confirmModal = document.getElementById("confirm-modal");
-    const modalAction = document.getElementById("modal-action");
-    const modalEntityType = document.getElementById("modal-entity-type");
-    const formContainer = document.querySelector(".form-container");
-    const entityForm = document.getElementById("entity-form");
-    const closeModalBtns = document.querySelectorAll(".close-modal");
-    const cancelBtn = document.getElementById("btn-cancel");
-    const cancelDeleteBtn = document.getElementById("btn-cancel-delete");
-    const confirmDeleteBtn = document.getElementById("btn-confirm-delete");
-    const breadcrumb = document.getElementById("current-section");
-    
+    // Cache de elementos DOM
+    const DOM = {
+        container: document.querySelector(".container"),
+        sidebar: document.querySelector(".sidebar"),
+        collapseBtn: document.getElementById("collapse-btn"),
+        menuToggle: document.getElementById("toggle-menu"),
+        submenuLinks: document.querySelectorAll(".has-submenu"),
+        adminButtons: document.querySelectorAll(".admin-button"),
+        entityContainer: document.getElementById("entity-container"),
+        mapEditor: document.getElementById("map-editor"),
+        entityTitle: document.getElementById("entity-title"),
+        entityType: document.getElementById("entity-type"),
+        entityList: document.getElementById("entity-list"),
+        addEntityBtn: document.getElementById("add-entity"),
+        searchInput: document.getElementById("search-entity"),
+        formContainer: document.querySelector(".form-container"),
+        entityForm: document.getElementById("entity-form"),
+        breadcrumb: document.getElementById("current-section")
+    };
+
+    // Estado da aplicação
+    const state = {
+        currentEntity: "",
+        currentEntityId: null,
+        deletingEntityId: null,
+        isCollapsed: false,
+        mapEntity: null
+    };
+
     // Dados simulados para demonstração
     const mockData = {
         docentes: [
@@ -58,54 +61,143 @@ document.addEventListener("DOMContentLoaded", function() {
         ]
     };
 
-    // Variáveis de estado
-    let currentEntity = "";
-    let currentEntityId = null;
-    let deletingEntityId = null;
-    let isCollapsed = false;
-    let mapEntity = null;
-    
+    // Funções de utilidade
+    const utils = {
+        formatDate: (dateStr) => {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('pt-BR');
+        },
+        
+        sanitizeHTML: (str) => {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        },
+        
+        validateForm: (formData) => {
+            const errors = [];
+            // Implementar validação específica para cada tipo de entidade
+            return errors;
+        }
+    };
+
+    // Gerenciamento de UI
+    const UI = {
+        updateBreadcrumb: (text) => {
+            if (DOM.breadcrumb) {
+                DOM.breadcrumb.textContent = text;
+            }
+        },
+        
+        toggleLoading: (show) => {
+            const loader = document.querySelector('.loader');
+            if (loader) {
+                loader.style.display = show ? 'flex' : 'none';
+            }
+        }
+    };
+
+    // Gerenciamento de dados
+    const DataManager = {
+        getEntity: (entityName, id) => {
+            return mockData[entityName]?.find(item => item.id === id);
+        },
+        
+        updateEntity: (entityName, id, data) => {
+            const index = mockData[entityName]?.findIndex(item => item.id === id);
+            if (index !== -1) {
+                mockData[entityName][index] = { ...mockData[entityName][index], ...data };
+                return true;
+            }
+            return false;
+        },
+        
+        deleteEntity: (entityName, id) => {
+            const index = mockData[entityName]?.findIndex(item => item.id === id);
+            if (index !== -1) {
+                mockData[entityName].splice(index, 1);
+                return true;
+            }
+            return false;
+        }
+    };
+
+    // Event Handlers
+    const EventHandlers = {
+        handleEdit: (entityId) => {
+            state.currentEntityId = entityId;
+            const entity = DataManager.getEntity(state.currentEntity, entityId);
+            
+            if (entity) {
+                DOM.formContainer.classList.add('active');
+                createEntityForm(true);
+                console.log('Editando ' + utils.sanitizeHTML(entity.nome));
+            }
+        },
+        
+        handleDelete: (entityId) => {
+            const entity = DataManager.getEntity(state.currentEntity, entityId);
+            
+            if (entity) {
+                const confirmDelete = confirm(`Tem certeza que deseja excluir ${utils.sanitizeHTML(entity.nome)}?`);
+                if (confirmDelete) {
+                    UI.toggleLoading(true);
+                    try {
+                        if (DataManager.deleteEntity(state.currentEntity, entityId)) {
+                            showEntityList(state.currentEntity);
+                            console.log('Item excluído com sucesso');
+                        }
+                    } catch (error) {
+                        console.error('Erro ao excluir item');
+                    } finally {
+                        UI.toggleLoading(false);
+                    }
+                }
+            }
+        }
+    };
+
     // Função para inicializar o estado da sidebar (verificar localStorage)
     function initSidebarState() {
-        isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-        if (isCollapsed) {
-            container.classList.add('collapsed');
+        state.isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (state.isCollapsed) {
+            DOM.container.classList.add('collapsed');
         }
     }
     
     // Toggle do colapso da sidebar
-    if (collapseBtn) {
-        collapseBtn.addEventListener("click", function() {
-            isCollapsed = !isCollapsed;
-            container.classList.toggle("collapsed", isCollapsed);
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
+    if (DOM.collapseBtn) {
+        DOM.collapseBtn.addEventListener("click", function() {
+            state.isCollapsed = !state.isCollapsed;
+            DOM.container.classList.toggle("collapsed", state.isCollapsed);
+            localStorage.setItem('sidebarCollapsed', state.isCollapsed);
         });
     }
     
     // Toggle do menu lateral em dispositivos móveis
-    if (menuToggle) {
-        menuToggle.addEventListener("click", function() {
-            sidebar.classList.toggle("active");
+    if (DOM.menuToggle) {
+        DOM.menuToggle.addEventListener("click", function() {
+            DOM.sidebar.classList.toggle("active");
         });
     }
     
     // Fechar sidebar ao clicar fora dela em dispositivos móveis
     document.addEventListener("click", function(e) {
         const isMobile = window.innerWidth <= 768;
-        if (isMobile && sidebar.classList.contains("active") && 
+        if (isMobile && DOM.sidebar.classList.contains("active") && 
             !e.target.closest(".sidebar") && !e.target.closest(".menu-toggle")) {
-            sidebar.classList.remove("active");
+            DOM.sidebar.classList.remove("active");
         }
     });
     
     // Toggle dos submenus
-    if (submenuLinks) {
-        submenuLinks.forEach(link => {
+    if (DOM.submenuLinks) {
+        DOM.submenuLinks.forEach(link => {
             link.addEventListener("click", function(e) {
                 e.preventDefault();
                 
                 // Em modo colapsado, não fazemos nada - o hover cuidará disso
-                if (isCollapsed) return;
+                if (state.isCollapsed) return;
                 
                 // Em modo normal, alternamos a classe .open
                 this.classList.toggle("open");
@@ -125,28 +217,28 @@ document.addEventListener("DOMContentLoaded", function() {
             // Atualiza o breadcrumb
             const sectionName = this.dataset.section;
             if (sectionName) {
-                breadcrumb.textContent = sectionName.charAt(0).toUpperCase() + sectionName.slice(1);
+                UI.updateBreadcrumb(sectionName.charAt(0).toUpperCase() + sectionName.slice(1));
                 
                 // Esconde todas as seções
-                entityContainer.classList.remove('active');
-                mapEditor.classList.remove('active');
+                DOM.entityContainer.classList.remove('active');
+                DOM.mapEditor.classList.remove('active');
                 
                 // Se for seção de mapas, mostra o editor
                 if (sectionName === 'mapas') {
-                    mapEditor.classList.add('active');
+                    DOM.mapEditor.classList.add('active');
                 }
             }
             
             // Fecha o menu móvel
             if (window.innerWidth <= 768) {
-                sidebar.classList.remove("active");
+                DOM.sidebar.classList.remove("active");
             }
         });
     });
     
     // Manipulação dos botões administrativos
-    if (adminButtons) {
-        adminButtons.forEach(button => {
+    if (DOM.adminButtons) {
+        DOM.adminButtons.forEach(button => {
             button.addEventListener("click", function() {
                 const entityName = this.getAttribute("data-entity");
                 
@@ -154,14 +246,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 this.classList.add('clicked');
                 setTimeout(() => this.classList.remove('clicked'), 200);
                 
-                if (entityName === 'mapas' && mapEditor) {
-                    entityContainer.classList.remove('active');
-                    mapEditor.classList.add('active');
-                    breadcrumb.textContent = 'Editor de Mapas';
-                } else if (entityContainer) {
+                if (entityName === 'mapas' && DOM.mapEditor) {
+                    DOM.entityContainer.classList.remove('active');
+                    DOM.mapEditor.classList.add('active');
+                    UI.updateBreadcrumb('Editor de Mapas');
+                } else if (DOM.entityContainer) {
                     showEntityList(entityName);
-                    breadcrumb.textContent = entityName.charAt(0).toUpperCase() + entityName.slice(1);
-                    if (mapEditor) mapEditor.classList.remove('active');
+                    UI.updateBreadcrumb(entityName.charAt(0).toUpperCase() + entityName.slice(1));
+                    if (DOM.mapEditor) DOM.mapEditor.classList.remove('active');
                 }
             });
         });
@@ -169,17 +261,17 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Função para exibir a lista de entidades
     function showEntityList(entityName) {
-        if (!entityContainer || !entityTitle || !entityType || !entityList) return;
+        if (!DOM.entityContainer || !DOM.entityTitle || !DOM.entityType || !DOM.entityList) return;
         
-        currentEntity = entityName;
-        entityContainer.classList.add("active");
+        state.currentEntity = entityName;
+        DOM.entityContainer.classList.add("active");
         
         // Atualizar acessos recentes
         updateRecentAccess(entityName);
         
         // Atualizar o título e ícone
         let icon = 'list';
-        entityType.textContent = entityName.charAt(0).toUpperCase() + entityName.slice(1);
+        DOM.entityType.textContent = entityName.charAt(0).toUpperCase() + entityName.slice(1);
         
         // Definir ícone baseado na entidade
         switch(entityName) {
@@ -190,27 +282,27 @@ document.addEventListener("DOMContentLoaded", function() {
             case 'cursos': icon = 'graduation-cap'; break;
         }
         
-        entityTitle.innerHTML = `<i class="fas fa-${icon}"></i> Gerenciar <span id="entity-type"> ${entityType.textContent}</span>`;
+        DOM.entityTitle.innerHTML = `<i class="fas fa-${icon}"></i> Gerenciar <span id="entity-type"> ${DOM.entityType.textContent}</span>`;
         
         // Limpar a lista atual
-        entityList.innerHTML = "";
+        DOM.entityList.innerHTML = "";
         
         // Renderizar os cards com base no tipo de entidade
-        if (mockData[currentEntity]) {
-            mockData[currentEntity].forEach(item => {
+        if (mockData[entityName]) {
+            mockData[entityName].forEach(item => {
                 const card = createEntityCard(item);
-                entityList.appendChild(card);
+                DOM.entityList.appendChild(card);
             });
         }
         
         // Configurar o input de busca
-        if (searchInput) {
-            searchInput.placeholder = `Buscar ${entityType.textContent.toLowerCase()}...`;
+        if (DOM.searchInput) {
+            DOM.searchInput.placeholder = `Buscar ${DOM.entityType.textContent.toLowerCase()}...`;
         }
         
         // Adicionar animação de entrada aos cards
         setTimeout(() => {
-            const cards = entityList.querySelectorAll('.entity-card');
+            const cards = DOM.entityList.querySelectorAll('.entity-card');
             cards.forEach((card, index) => {
                 setTimeout(() => {
                     card.style.opacity = '1';
@@ -231,9 +323,28 @@ document.addEventListener("DOMContentLoaded", function() {
         
         let cardContent = "";
         let iconClass = "";
+        let showActions = true;
+        let showAddButton = true;
+        let showEditButton = true;
+        let showDeleteButton = true;
+        let showImportButton = false;
+        
+        // Controle de botões baseado no tipo de entidade
+        switch (state.currentEntity) {
+            case 'adm':
+                showActions = false;
+                break;
+            case 'semestres':
+                showAddButton = false;
+                showDeleteButton = false;
+                break;
+            case 'docentes':
+                showImportButton = true;
+                break;
+        }
         
         // Construir o conteúdo do card com base no tipo de entidade
-        switch (currentEntity) {
+        switch (state.currentEntity) {
             case "docentes":
                 iconClass = "fas fa-chalkboard-teacher";
                 cardContent = `
@@ -277,11 +388,11 @@ document.addEventListener("DOMContentLoaded", function() {
                         </div>
                         <div class="entity-detail">
                             <span class="detail-label">Início</span>
-                            <span class="detail-value">${formatDate(entity.inicio)}</span>
+                            <span class="detail-value">${utils.formatDate(entity.inicio)}</span>
                         </div>
                         <div class="entity-detail">
                             <span class="detail-label">Fim</span>
-                            <span class="detail-value">${formatDate(entity.fim)}</span>
+                            <span class="detail-value">${utils.formatDate(entity.fim)}</span>
                         </div>
                     </div>
                 `;
@@ -368,78 +479,100 @@ document.addEventListener("DOMContentLoaded", function() {
                 break;
         }
         
-        // Adicionar ações (editar/excluir) ao card
-        cardContent += `
-            <div class="entity-actions">
-                <button class="btn btn-icon btn-edit" data-id="${entity.id}" title="Editar">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-icon btn-delete" data-id="${entity.id}" title="Excluir">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </div>
-        `;
+        // Adicionar ações (editar/excluir) ao card se permitido
+        if (showActions) {
+            let actionsHtml = '<div class="entity-actions">';
+            
+            // Botão de importar CSV (apenas para docentes)
+            if (showImportButton) {
+                actionsHtml += `
+                    <button class="btn btn-icon btn-import" title="Importar CSV">
+                        <i class="fas fa-file-import"></i>
+                    </button>`;
+            }
+            
+            // Botão de adicionar
+            if (showAddButton) {
+                actionsHtml += `
+                    <button class="btn btn-icon btn-add" title="Adicionar">
+                        <i class="fas fa-plus"></i>
+                    </button>`;
+            }
+            
+            // Botão de editar
+            if (showEditButton) {
+                actionsHtml += `
+                    <button class="btn btn-icon btn-edit" data-id="${entity.id}" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>`;
+            }
+            
+            // Botão de excluir
+            if (showDeleteButton) {
+                actionsHtml += `
+                    <button class="btn btn-icon btn-delete" data-id="${entity.id}" title="Excluir">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>`;
+            }
+            
+            actionsHtml += '</div>';
+            cardContent += actionsHtml;
+        }
         
         card.innerHTML = cardContent;
         
         // Adicionar eventos aos botões
-        const editBtn = card.querySelector(".btn-edit");
-        const deleteBtn = card.querySelector(".btn-delete");
-        
-        if (editBtn) {
-            editBtn.addEventListener("click", function() {
-                openEditModal(entity.id);
-            });
-        }
-        
-        if (deleteBtn) {
-            deleteBtn.addEventListener("click", function() {
-                openDeleteModal(entity.id);
-            });
+        if (showActions) {
+            // Evento de importar CSV
+            const importBtn = card.querySelector(".btn-import");
+            if (importBtn) {
+                importBtn.addEventListener("click", function() {
+                    handleImportCSV();
+                });
+            }
+            
+            // Evento de adicionar
+            const addBtn = card.querySelector(".btn-add");
+            if (addBtn) {
+                addBtn.addEventListener("click", function() {
+                    handleAdd();
+                });
+            }
+            
+            // Evento de editar
+            const editBtn = card.querySelector(".btn-edit");
+            if (editBtn) {
+                editBtn.addEventListener("click", function() {
+                    const entityId = parseInt(this.dataset.id);
+                    EventHandlers.handleEdit(entityId);
+                });
+            }
+            
+            // Evento de excluir
+            const deleteBtn = card.querySelector(".btn-delete");
+            if (deleteBtn) {
+                deleteBtn.addEventListener("click", function() {
+                    const entityId = parseInt(this.dataset.id);
+                    EventHandlers.handleDelete(entityId);
+                });
+            }
         }
         
         return card;
     }
     
-    // Função para abrir o modal de adição/edição
-    function openModal(isEdit = false) {
-        if (!modal || !modalAction || !modalEntityType || !formContainer) return;
-        
-        modal.classList.add("active");
-        
-        if (isEdit) {
-            modalAction.textContent = "Editar";
-        } else {
-            modalAction.textContent = "Adicionar";
-        }
-        
-        // Definir o tipo de entidade no título
-        let entityName = currentEntity.charAt(0).toUpperCase() + currentEntity.slice(1);
-        // Remover o "s" final para singular
-        if (entityName.endsWith("s")) {
-            entityName = entityName.slice(0, -1);
-        }
-        modalEntityType.textContent = entityName;
-        
-        // Limpar o formulário anterior
-        formContainer.innerHTML = "";
-        
-        // Criar formulário baseado no tipo de entidade
-        createEntityForm(isEdit);
-    }
-    
     // Função para criar o formulário dinâmico baseado no tipo de entidade
     function createEntityForm(isEdit) {
-        if (!formContainer) return;
+        if (!DOM.formContainer) return;
         
         let formHTML = "";
         let entity = null;
         
-        if (isEdit && currentEntityId) {
-            entity = mockData[currentEntity].find(item => item.id === currentEntityId);
+        if (isEdit && state.currentEntityId) {
+            entity = DataManager.getEntity(state.currentEntity, state.currentEntityId);
         }
         
-        switch (currentEntity) {
+        switch (state.currentEntity) {
             case "docentes":
                 formHTML = `
                     <div class="form-group">
@@ -589,199 +722,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 break;
         }
         
-        formContainer.innerHTML = formHTML;
-    }
-    
-    // Função para abrir o modal de edição
-    function openEditModal(id) {
-        currentEntityId = id;
-        openModal(true);
-    }
-    
-    // Função para abrir o modal de confirmação de exclusão
-    function openDeleteModal(id) {
-        if (!confirmModal) return;
-        
-        deletingEntityId = id;
-        confirmModal.classList.add("active");
-        
-        // Obter o nome da entidade para mostrar no modal
-        const entity = mockData[currentEntity].find(item => item.id === id);
-        let entityName = "";
-        
-        switch (currentEntity) {
-            case "docentes":
-                entityName = entity.nome;
-                break;
-            case "semestres":
-                entityName = `${entity.ano}.${entity.periodo}`;
-                break;
-            case "salas":
-                entityName = entity.nome;
-                break;
-            case "disciplinas":
-                entityName = entity.nome;
-                break;
-            case "cursos":
-                entityName = entity.nome;
-                break;
-        }
-        
-        const confirmMessage = document.getElementById("confirm-message");
-        if (confirmMessage) {
-            confirmMessage.textContent = 
-                `Tem certeza que deseja excluir "${entityName}"? Esta ação não pode ser desfeita.`;
-        }
-    }
-    
-    // Fechar modais
-    function closeModals() {
-        if (modal) modal.classList.remove('show');
-        if (confirmModal) confirmModal.classList.remove('show');
-        if (formContainer) formContainer.innerHTML = '';
-    }
-
-    // Fechar modais ao clicar no botão de fechar
-    if (closeModalBtns) {
-        closeModalBtns.forEach(btn => {
-            btn.addEventListener('click', closeModals);
-        });
-    }
-
-    // Fechar modais ao clicar no botão de cancelar
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', closeModals);
-    }
-
-    // Fechar modal de confirmação ao clicar no botão de cancelar
-    if (cancelDeleteBtn) {
-        cancelDeleteBtn.addEventListener('click', closeModals);
-    }
-    
-    // Manipulação do formulário
-    if (entityForm) {
-        entityForm.addEventListener("submit", function(e) {
-            e.preventDefault();
-            
-            // Simular o salvamento
-            if (currentEntityId) {
-                // É uma edição
-                const entityIndex = mockData[currentEntity].findIndex(item => item.id === currentEntityId);
-                if (entityIndex !== -1) {
-                    // Exibir toast de sucesso
-                    showToast(`${currentEntity.charAt(0).toUpperCase() + currentEntity.slice(1, -1)} editado com sucesso!`, "success");
-                    
-                    // Atualizar a interface após salvamento
-                    showEntityList(currentEntity);
-                }
-            } else {
-                // É uma adição
-                // Exibir toast de sucesso
-                showToast(`Novo ${currentEntity.charAt(0).toUpperCase() + currentEntity.slice(1, -1)} adicionado com sucesso!`, "success");
-                
-                // Atualizar a interface após salvamento
-                showEntityList(currentEntity);
-            }
-            
-            // Fechar o modal
-            closeModals();
-        });
-    }
-    
-    // Evento para o botão de adicionar entidade
-    if (addEntityBtn) {
-        addEntityBtn.addEventListener("click", function() {
-            openModal(false);
-        });
-    }
-    
-    // Evento para confirmar a exclusão
-    if (confirmDeleteBtn) {
-        confirmDeleteBtn.addEventListener("click", function() {
-            if (deletingEntityId) {
-                // Exibir toast de sucesso
-                showToast(`${currentEntity.charAt(0).toUpperCase() + currentEntity.slice(1, -1)} excluído com sucesso!`, "success");
-                
-                // Atualizar a interface após exclusão
-                showEntityList(currentEntity);
-                
-                // Fechar o modal
-                closeModals();
-            }
-        });
-    }
-    
-    // Função para formatar datas
-    function formatDate(dateStr) {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('pt-BR');
-    }
-    
-    // Função para exibir toast de notificação
-    function showToast(message, type = "info") {
-        // Verificar se já existe um toast container
-        let toastContainer = document.querySelector('.toast-container');
-        if (!toastContainer) {
-            toastContainer = document.createElement('div');
-            toastContainer.className = 'toast-container';
-            document.body.appendChild(toastContainer);
-        }
-        
-        // Criar o toast
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        
-        // Ícone baseado no tipo
-        let icon = 'info-circle';
-        if (type === 'success') icon = 'check-circle';
-        if (type === 'warning') icon = 'exclamation-circle';
-        if (type === 'error') icon = 'times-circle';
-        
-        // Conteúdo do toast
-        toast.innerHTML = `
-            <div class="toast-icon">
-                <i class="fas fa-${icon}"></i>
-            </div>
-            <div class="toast-content">
-                ${message}
-            </div>
-            <button class="toast-close">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        
-        // Adicionar ao container
-        toastContainer.appendChild(toast);
-        
-        // Animação de entrada
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 10);
-        
-        // Adicionar evento para fechar o toast
-        toast.querySelector('.toast-close').addEventListener('click', () => {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                toast.remove();
-            }, 300);
-        });
-        
-        // Auto-fechar após 5 segundos
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    if (toast.parentNode) toast.remove();
-                }, 300);
-            }
-        }, 5000);
+        DOM.formContainer.innerHTML = formHTML;
     }
     
     // Inicializar a busca
-    if (searchInput) {
-        searchInput.addEventListener("input", function() {
+    if (DOM.searchInput) {
+        DOM.searchInput.addEventListener("input", function() {
             const searchTerm = this.value.toLowerCase();
-            const cards = entityList.querySelectorAll(".entity-card");
+            const cards = DOM.entityList.querySelectorAll(".entity-card");
             
             cards.forEach(card => {
                 const text = card.textContent.toLowerCase();
@@ -794,121 +742,19 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    // Adicionar CSS para toast (alternativa a criar um arquivo separado)
-    function addToastStyles() {
-        const style = document.createElement('style');
-        style.textContent = `
-            .toast-container {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                z-index: 9999;
-            }
-            
-            .toast {
-                background-color: white;
-                border-radius: var(--border-radius);
-                box-shadow: var(--shadow-md);
-                padding: 15px;
-                display: flex;
-                align-items: center;
-                min-width: 300px;
-                max-width: 400px;
-                transform: translateX(120%);
-                opacity: 0;
-                transition: transform 0.3s ease, opacity 0.3s ease;
-            }
-            
-            .toast.show {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            
-            .toast-icon {
-                margin-right: 15px;
-                font-size: 1.2rem;
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-            }
-            
-            .toast-content {
-                flex: 1;
-            }
-            
-            .toast-close {
-                background: transparent;
-                border: none;
-                color: var(--text-light);
-                cursor: pointer;
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: background-color 0.2s ease;
-            }
-            
-            .toast-close:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-            }
-            
-            .toast-info {
-                border-left: 4px solid var(--info);
-            }
-            
-            .toast-info .toast-icon {
-                color: var(--info);
-            }
-            
-            .toast-success {
-                border-left: 4px solid var(--success);
-            }
-            
-            .toast-success .toast-icon {
-                color: var(--success);
-            }
-            
-            .toast-warning {
-                border-left: 4px solid var(--warning);
-            }
-            
-            .toast-warning .toast-icon {
-                color: var(--warning);
-            }
-            
-            .toast-error {
-                border-left: 4px solid var(--danger);
-            }
-            
-            .toast-error .toast-icon {
-                color: var(--danger);
-            }
-            
-            .admin-button.clicked {
-                animation: pulse 0.3s ease;
-            }
-            
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(0.95); }
-                100% { transform: scale(1); }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
     // Inicializar as funções
-    initSidebarState();
-    addToastStyles();
+    function init() {
+        initSidebarState();
+        updateDashboardStats();
+        updateRecentActivities();
+        
+        if (document.getElementById('recent-access')) {
+            renderRecentAccess();
+        }
+    }
+
+    // Iniciar a aplicação
+    init();
 
     // Função para atualizar as estatísticas do dashboard
     function updateDashboardStats() {
@@ -964,13 +810,6 @@ document.addEventListener("DOMContentLoaded", function() {
             `).join('');
         }
     }
-
-    // Inicializar o dashboard quando a página carregar
-    updateDashboardStats();
-    updateRecentActivities();
-    
-    // Atualizar estatísticas a cada 5 minutos
-    setInterval(updateDashboardStats, 300000);
 
     // Função para gerenciar acessos recentes
     function updateRecentAccess(entityName) {
@@ -1033,8 +872,8 @@ document.addEventListener("DOMContentLoaded", function() {
             card.addEventListener('click', function() {
                 const entityName = this.getAttribute('data-entity');
                 showEntityList(entityName);
-                if (breadcrumb) {
-                    breadcrumb.textContent = entityName.charAt(0).toUpperCase() + entityName.slice(1);
+                if (DOM.breadcrumb) {
+                    DOM.breadcrumb.textContent = entityName.charAt(0).toUpperCase() + entityName.slice(1);
                 }
             });
             
@@ -1042,8 +881,85 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Inicializar acessos recentes quando a página carregar
-    if (document.getElementById('recent-access')) {
-        renderRecentAccess();
+    // Função para lidar com importação de CSV
+    function handleImportCSV() {
+        // Criar input de arquivo invisível
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.csv';
+        fileInput.style.display = 'none';
+        
+        // Adicionar ao DOM
+        document.body.appendChild(fileInput);
+        
+        // Trigger click no input
+        fileInput.click();
+        
+        // Lidar com a seleção do arquivo
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const csvData = e.target.result;
+                        processCSV(csvData);
+                    } catch (error) {
+                        console.error('Erro ao processar arquivo CSV');
+                    }
+                };
+                reader.readAsText(file);
+            }
+            
+            // Limpar input
+            document.body.removeChild(fileInput);
+        });
+    }
+
+    // Função para processar o CSV
+    function processCSV(csvData) {
+        try {
+            // Dividir linhas
+            const lines = csvData.split('\n');
+            if (lines.length < 2) throw new Error('CSV inválido');
+            
+            // Obter cabeçalhos
+            const headers = lines[0].split(',').map(h => h.trim());
+            
+            // Processar dados
+            const docentes = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                const values = lines[i].split(',').map(v => v.trim());
+                const docente = {};
+                
+                headers.forEach((header, index) => {
+                    if (header === 'disciplinas') {
+                        docente[header] = values[index].split(';').map(d => d.trim());
+                    } else {
+                        docente[header] = values[index];
+                    }
+                });
+                
+                docentes.push(docente);
+            }
+            
+            // Adicionar docentes ao mockData
+            docentes.forEach(docente => {
+                const newId = Math.max(...mockData.docentes.map(d => d.id)) + 1;
+                mockData.docentes.push({
+                    id: newId,
+                    ...docente
+                });
+            });
+            
+            // Atualizar a lista
+            showEntityList('docentes');
+            console.log('Docentes importados com sucesso');
+            
+        } catch (error) {
+            console.error('Erro ao processar arquivo CSV');
+        }
     }
 });

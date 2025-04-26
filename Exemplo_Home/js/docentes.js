@@ -18,12 +18,11 @@ function carregarDados() {
         const dados = localStorage.getItem('docentes');
         if (dados) {
             docentes = JSON.parse(dados);
-            console.log('Dados carregados:', docentes);
-        } else {
-            console.log('Nenhum dado encontrado no localStorage');
         }
+        console.log('Dados carregados:', docentes);
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
+        docentes = [];
     }
 }
 
@@ -35,12 +34,6 @@ function clearForm() {
     form.reset();
     docenteEditando = null;
 
-    // Resetar título do modal
-    const modalTitle = document.querySelector('#modalDocente .modal-title');
-    if (modalTitle) {
-        modalTitle.textContent = 'Adicionar Docente';
-    }
-
     // Resetar texto do botão de submit
     const submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) {
@@ -48,387 +41,33 @@ function clearForm() {
     }
 }
 
-// Função para abrir o modal
-function openModal() {
-    const modal = document.querySelector('.modal-overlay');
-    if (modal) {
-        modal.classList.add('active');
-        modal.style.display = 'flex';
+// Função para mostrar mensagens no console
+function logMessage(message, type = 'info') {
+    switch(type) {
+        case 'error':
+            console.error(message);
+            break;
+        case 'warning':
+            console.warn(message);
+            break;
+        default:
+            console.log(message);
     }
 }
 
-// Função para fechar o modal
-function closeModal() {
-    const modal = document.querySelector('.modal-overlay');
-    if (modal) {
-        modal.classList.remove('active');
-        modal.style.display = 'none';
-        clearForm();
-    }
-}
-
-// Função para editar docente
-function editarDocente(docente) {
-    if (!docente || !docente.id) {
-        alert("Erro: Docente inválido");
-        return;
-    }
-
-    docenteEditando = docente;
+// Funções para gerenciar docentes
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM carregado, iniciando...');
     
-    const form = document.getElementById("formDocente");
-    if (!form) {
-        alert("Erro: Formulário não encontrado");
-        return;
-    }
-
-    // Preencher o formulário com os dados do docente
-    form.querySelector('input[name="nome"]').value = docente.nome || '';
-    form.querySelector('input[name="email"]').value = docente.email || '';
-    form.querySelector('select[name="curso"]').value = docente.curso || '';
-
-    // Atualizar título do modal
-    const modalTitle = document.querySelector('#modalDocente .modal-title');
-    if (modalTitle) {
-        modalTitle.textContent = 'Editar Docente';
-    }
-
-    // Atualizar texto do botão de submit
-    const submitBtn = form.querySelector('button[type="submit"]');
-    if (submitBtn) {
-        submitBtn.textContent = 'Atualizar';
-    }
-
-    openModal();
-}
-
-// Função para mostrar notificações
-function showToast(message, type = 'info') {
-    // Criar ou obter o container de toasts
-    let container = document.querySelector('.toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-    }
-
-    // Criar o toast
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-        <p class="toast-message">${message}</p>
-        <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
-    `;
-
-    // Adicionar ao container
-    container.appendChild(toast);
-
-    // Remover após 8 segundos com animação suave
-    setTimeout(() => {
-        toast.style.animation = 'toastFadeOut 0.8s ease-in-out forwards';
-        setTimeout(() => {
-            if (toast && toast.parentElement) {
-                toast.remove();
-            }
-        }, 800);
-    }, 8000);
-
-    // Parar a animação de saída se o mouse estiver sobre o toast
-    toast.addEventListener('mouseenter', () => {
-        toast.style.animation = 'none';
-    });
-
-    // Retomar a animação de saída quando o mouse sair
-    toast.addEventListener('mouseleave', () => {
-        toast.style.animation = 'toastFadeOut 0.8s ease-in-out forwards';
-        setTimeout(() => {
-            if (toast && toast.parentElement) {
-                toast.remove();
-            }
-        }, 800);
-    });
-}
-
-// Função para confirmar exclusão
-function confirmarExclusao(id) {
-    if (!id) {
-        showToast("Erro: ID do docente não fornecido", "error");
-        return;
-    }
-
-    const docente = docentes.find(d => d.id === id);
-    if (!docente) {
-        showToast("Erro: Docente não encontrado", "error");
-        return;
-    }
-
-    // Atualizar mensagem de confirmação com o nome do docente
-    const mensagemConfirmacao = document.querySelector('#modalConfirmacao .modal-body p');
-    if (mensagemConfirmacao) {
-        mensagemConfirmacao.textContent = `Tem certeza que deseja excluir o(a) docente ${docente.nome}?`;
-    }
-
-    // Configurar botão de confirmação
-    const btnConfirmar = document.querySelector('#modalConfirmacao .btn-danger');
-    if (btnConfirmar) {
-        btnConfirmar.onclick = () => {
-            docentes = docentes.filter(d => d.id !== id);
-            salvarDados();
-            renderDocentes();
-            closeModalConfirmacao();
-            showToast("Docente excluído com sucesso!", "success");
-        };
-    }
-
-    // Abrir modal de confirmação
-    const modalConfirmacao = document.getElementById("modalConfirmacao");
-    if (modalConfirmacao) {
-        modalConfirmacao.style.display = 'flex';
-        modalConfirmacao.classList.add("active");
-    }
-}
-
-function closeModalConfirmacao() {
-    const modalConfirmacao = document.getElementById("modalConfirmacao");
-    if (modalConfirmacao) {
-        modalConfirmacao.style.display = 'none';
-        modalConfirmacao.classList.remove("active");
-    }
-}
-
-document.addEventListener("DOMContentLoaded", function() {
     // Carregar dados salvos
     carregarDados();
-
-    // Elementos
-    const docentesList = document.getElementById("docentes-list");
-    console.log('Estado inicial do docentesList:', {
-        exists: !!docentesList,
-        id: docentesList?.id,
-        innerHTML: docentesList?.innerHTML
-    });
-
-    const addDocenteBtn = document.querySelector(".btn-add");
-    const importBtn = document.querySelector(".btn-import");
-    const exportBtn = document.querySelector(".btn-export");
+    
+    // Configurar busca
     const searchInput = document.getElementById("search-docente");
-    const modalDocente = document.getElementById("modalDocente");
-    const modalConfirmacao = document.getElementById("modalConfirmacao");
-    const formDocente = document.getElementById("formDocente");
-    const btnConfirmDelete = document.getElementById("btnConfirmDelete");
-    
-    console.log('Elementos carregados:', { 
-        docentesList: !!docentesList,
-        addDocenteBtn: !!addDocenteBtn,
-        modalDocente: !!modalDocente,
-        modalConfirmacao: !!modalConfirmacao,
-        formDocente: !!formDocente,
-        btnConfirmDelete: !!btnConfirmDelete
-    });
-
-    if (!docentesList) {
-        console.error('Elemento docentes-list não encontrado! Verifique o ID no HTML.');
-        return;
-    }
-
-    if (!formDocente) {
-        console.error('Formulário de docente não encontrado! Verifique o ID no HTML.');
-        return;
-    }
-    
-    // Função para renderizar os cards de docentes
-    function renderDocentes() {
-        if (!docentesList) {
-            console.error('Lista de docentes não encontrada no DOM');
-            return;
-        }
-        
-        console.log('Iniciando renderização de docentes:', docentes);
-        docentesList.innerHTML = "";
-        
-        if (docentes.length === 0) {
-            console.log('Nenhum docente para renderizar');
-            docentesList.innerHTML = '<div class="no-docentes">Nenhum docente cadastrado</div>';
-            return;
-        }
-        
-        docentes.forEach(docente => {
-            console.log('Renderizando docente:', docente);
-            const card = createDocenteCard(docente);
-            docentesList.appendChild(card);
-        });
-    }
-    
-    // Função para criar um card de docente
-    function createDocenteCard(docente) {
-        console.log('Criando card para docente:', docente);
-        const card = document.createElement("div");
-        card.className = "docente-card";
-        card.dataset.id = docente.id;
-        
-        // Garantir que os valores não sejam undefined
-        const nome = docente.nome || '';
-        const email = docente.email || '';
-        const curso = docente.curso || '';
-        
-        card.innerHTML = `
-            <div class="docente-header">
-                <div class="docente-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="docente-info">
-                    <h3>${nome}</h3>
-                    <p>${email}</p>
-                </div>
-            </div>
-            <div class="docente-details">
-                <div class="docente-detail">
-                    <span class="detail-label">Curso</span>
-                    <span class="detail-value">${curso}</span>
-                </div>
-            </div>
-            <div class="docente-actions">
-                <button class="btn btn-icon btn-edit" title="Editar">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-icon btn-delete" title="Excluir">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </div>
-        `;
-        
-        // Adicionar eventos aos botões
-        const editBtn = card.querySelector(".btn-edit");
-        const deleteBtn = card.querySelector(".btn-delete");
-        
-        editBtn.addEventListener("click", () => editarDocente(docente));
-        deleteBtn.addEventListener("click", () => confirmarExclusao(docente.id));
-        
-        return card;
-    }
-    
-    // Event listener para o botão de adicionar docente
-    if (addDocenteBtn) {
-        addDocenteBtn.addEventListener("click", function(e) {
-            e.preventDefault();
-            docenteEditando = null;
-            const modalTitle = modalDocente.querySelector("h3");
-            modalTitle.textContent = "Adicionar Docente";
-            clearForm();
-            openModal();
-        });
-    }
-    
-    // Event listener para o formulário de docente
-    if (formDocente) {
-        formDocente.addEventListener("submit", function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            
-            // Validação dos campos
-            const nome = formData.get("nome");
-            const email = formData.get("email");
-            const curso = formData.get("curso");
-            
-            if (!nome || !email || !curso) {
-                showToast("Por favor, preencha todos os campos obrigatórios.", "error");
-                return;
-            }
-            
-            // Validação de email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showToast("Por favor, insira um email válido.", "error");
-                return;
-            }
-            
-            const novoDocente = {
-                id: docenteEditando ? docenteEditando.id : Date.now(),
-                nome: nome.trim(),
-                email: email.trim(),
-                curso: curso
-            };
-            
-            if (docenteEditando) {
-                // Atualizar docente existente
-                const index = docentes.findIndex(d => d.id === docenteEditando.id);
-                if (index !== -1) {
-                    docentes[index] = novoDocente;
-                }
-            } else {
-                // Adicionar novo docente
-                docentes.push(novoDocente);
-            }
-            
-            salvarDados();
-            renderDocentes();
-            closeModal();
-            
-            // Feedback visual com toast
-            const mensagem = docenteEditando ? 
-                "Docente atualizado com sucesso!" : 
-                "Docente adicionado com sucesso!";
-            showToast(mensagem, "success");
-        });
-    }
-    
-    // Event listener para o botão de confirmar exclusão
-    if (btnConfirmDelete) {
-        btnConfirmDelete.addEventListener("click", function() {
-            if (docenteEditando) {
-                // Remover o docente
-                docentes = docentes.filter(d => d.id !== docenteEditando.id);
-                
-                // Salvar dados
-                salvarDados();
-                
-                // Atualizar a lista
-                renderDocentes();
-                
-                // Fechar o modal
-                modalConfirmacao.classList.remove("active");
-                modalConfirmacao.style.display = 'none';
-                
-                // Mostrar mensagem de sucesso
-                showToast("Docente excluído com sucesso!", "success");
-            }
-        });
-    }
-    
-    // Event listeners para fechar modais
-    document.querySelectorAll(".modal-close, .btn-cancel").forEach(btn => {
-        btn.addEventListener("click", function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeModal();
-        });
-    });
-
-    // Fechar modal ao clicar fora dele
-    document.querySelectorAll(".modal-overlay").forEach(overlay => {
-        overlay.addEventListener("click", function(e) {
-            if (e.target === this) {
-                const modal = this;
-                modal.classList.remove("active");
-                modal.style.display = 'none';
-            }
-        });
-
-        // Prevenir que cliques dentro do modal fechem ele
-        const modal = overlay.querySelector('.modal');
-        if (modal) {
-            modal.addEventListener("click", function(e) {
-                e.stopPropagation();
-            });
-        }
-    });
-
-    // Event listener para busca
     if (searchInput) {
         searchInput.addEventListener("input", function() {
             const searchTerm = this.value.toLowerCase();
-            const cards = docentesList.querySelectorAll(".docente-card");
+            const cards = document.querySelectorAll('.docente-card');
             
             cards.forEach(card => {
                 const nome = card.querySelector("h3").textContent.toLowerCase();
@@ -443,29 +82,73 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
     }
-    
-    // Inicializar a página
-    renderDocentes();
 });
 
+// Funções para controle do Modal de Edição
+function abrirModalEditarDocente(docente) {
+    const modal = document.getElementById('modal-editar-docente');
+    const form = document.getElementById('form-editar-docente');
+    
+    // Preencher o formulário com os dados do docente
+    document.getElementById('edit-id').value = docente.id;
+    document.getElementById('edit-nome').value = docente.nome;
+    document.getElementById('edit-email').value = docente.email;
+    document.getElementById('edit-curso').value = docente.curso;
+    
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function fecharModalEditarDocente() {
+    const modal = document.getElementById('modal-editar-docente');
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
+    limparFormularioEdicao();
+}
+
+function limparFormularioEdicao() {
+    const form = document.getElementById('form-editar-docente');
+    form.reset();
+}
+
 // Função para editar docente
-function editDocente(id) {
-    // Aqui você deve implementar a lógica para buscar os dados do docente
-    // e preencher o formulário no modal
-    openModal();
+function editarDocente(id) {
+    const docente = docentes.find(d => d.id === id);
+    if (!docente) {
+        console.error('Erro: Docente não encontrado');
+        return;
+    }
+    abrirModalEditarDocente(docente);
+}
+
+// Funções para controle do Modal de Deleção
+function abrirModalConfirmarDelecao(docente) {
+    const modal = document.getElementById('modal-confirmar-delecao');
+    const nomeDocente = document.getElementById('nome-docente-delete');
+    
+    nomeDocente.textContent = docente.nome;
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
+    // Armazenar o ID do docente para uso posterior
+    modal.dataset.docenteId = docente.id;
+}
+
+function fecharModalConfirmarDelecao() {
+    const modal = document.getElementById('modal-confirmar-delecao');
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
+    delete modal.dataset.docenteId;
 }
 
 // Função para confirmar exclusão
-function confirmDelete(id) {
-    // Aqui você pode adicionar o ID do docente a ser excluído em um campo hidden
-    const modalConfirm = document.querySelector('#modalConfirmacao');
-    if (modalConfirm) {
-        const hiddenInput = modalConfirm.querySelector('input[name="docenteId"]');
-        if (hiddenInput) {
-            hiddenInput.value = id;
-        }
-        openModal();
+function confirmarExclusao(id) {
+    const docente = docentes.find(d => d.id === id);
+    if (!docente) {
+        console.error('Erro: Docente não encontrado');
+        return;
     }
+    abrirModalConfirmarDelecao(docente);
 }
 
 // Função para exportar para CSV
@@ -473,34 +156,268 @@ function exportToCSV() {
     // Implemente a lógica de exportação para CSV aqui
 }
 
-// Event listener para o formulário de importação CSV
-const formImportCSV = document.querySelector('#formImportCSV');
-if (formImportCSV) {
-    formImportCSV.addEventListener('submit', function(e) {
-        e.preventDefault();
-        // Implemente a lógica de importação CSV aqui
-        closeModal();
-    });
-}
-
-// Event listener para o formulário de confirmação de exclusão
-const formConfirmDelete = document.querySelector('#formConfirmDelete');
-if (formConfirmDelete) {
-    formConfirmDelete.addEventListener('submit', function(e) {
-        e.preventDefault();
-        // Implemente a lógica de exclusão aqui
-        closeModal();
-    });
-}
-
-function saveDocente() {
-    // ... existing code ...
-}
-
+// Função para importar CSV
 function importCSV() {
-    // ... existing code ...
+    // Implemente a lógica de importação CSV aqui
 }
 
-function deleteDocente() {
-    // ... existing code ...
-} 
+// Funções para controle do Modal
+function abrirModalAdicionarDocente() {
+    const modal = document.getElementById('modal-adicionar-docente');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden'; // Previne rolagem do body
+}
+
+function fecharModalAdicionarDocente() {
+    const modal = document.getElementById('modal-adicionar-docente');
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto'; // Restaura rolagem do body
+    limparFormularioDocente();
+}
+
+function limparFormularioDocente() {
+    const form = document.getElementById('form-adicionar-docente');
+    form.reset();
+}
+
+// Função para mostrar mensagem e manter visível enquanto o modal estiver aberto
+function logMessageAndKeepVisible(message, type = 'info') {
+    logMessage(message, type);
+}
+
+// Função para renderizar os cards dos docentes
+function renderDocentes() {
+    console.log('Iniciando renderização dos docentes');
+    const docentesList = document.getElementById('docentes-list');
+    if (!docentesList) {
+        console.error('Elemento docentes-list não encontrado');
+        return;
+    }
+
+    console.log('Docentes a serem renderizados:', docentes);
+
+    // Limpar lista atual
+    docentesList.innerHTML = '';
+
+    // Criar cards para cada docente
+    docentes.forEach(docente => {
+        console.log('Criando card para docente:', docente);
+        const card = document.createElement('div');
+        card.className = 'docente-card';
+        card.innerHTML = `
+            <div class="docente-header">
+                <div class="docente-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="docente-info">
+                    <h3>${docente.nome}</h3>
+                    <p>${docente.email}</p>
+                </div>
+            </div>
+            <div class="docente-details">
+                <div class="docente-detail">
+                    <span class="detail-label">Curso:</span>
+                    <span class="detail-value">${docente.curso}</span>
+                </div>
+            </div>
+            <div class="docente-actions">
+                <button class="btn-icon btn-edit" onclick="editarDocente(${docente.id})" title="Editar">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-icon btn-delete" onclick="confirmarExclusao(${docente.id})" title="Excluir">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        docentesList.appendChild(card);
+    });
+}
+
+// Event Listeners para o Modal
+document.addEventListener('DOMContentLoaded', function() {
+    // Botão para abrir o modal
+    const btnAdicionar = document.querySelector('.btn-add');
+    if (btnAdicionar) {
+        btnAdicionar.addEventListener('click', abrirModalAdicionarDocente);
+    }
+
+    // Botões para fechar o modal
+    const closeModal = document.querySelector('.close-modal');
+    const btnCancelar = document.getElementById('cancelar-adicionar');
+    
+    if (closeModal) {
+        closeModal.addEventListener('click', fecharModalAdicionarDocente);
+    }
+    
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', fecharModalAdicionarDocente);
+    }
+
+    // Fechar modal ao clicar fora dele
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('modal-adicionar-docente');
+        if (event.target === modal) {
+            fecharModalAdicionarDocente();
+        }
+    });
+
+    // Manipular envio do formulário
+    const form = document.getElementById('form-adicionar-docente');
+    const btnSalvar = document.getElementById('salvar-docente');
+    
+    if (btnSalvar) {
+        btnSalvar.addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            // Obter dados do formulário
+            const formData = new FormData(form);
+            const docenteData = {
+                nome: formData.get('nome'),
+                email: formData.get('email'),
+                curso: formData.get('curso')
+            };
+            
+            // Validar email institucional
+            if (!docenteData.email.endsWith('@fatec.sp.gov.br')) {
+                console.error('Erro: O email deve ser institucional (@fatec.sp.gov.br)');
+                return;
+            }
+            
+            // Adicionar à lista de docentes
+            docentes.push({
+                id: Date.now(), // Gerar ID único
+                ...docenteData
+            });
+            
+            // Salvar dados
+            salvarDados();
+            
+            // Atualizar interface
+            renderDocentes();
+            
+            // Mostrar mensagem de sucesso
+            console.log('Docente adicionado com sucesso!');
+            
+            // Fechar o modal
+            fecharModalAdicionarDocente();
+        });
+    }
+
+    // Renderizar docentes ao carregar a página
+    renderDocentes();
+});
+
+// Event Listeners para o Modal de Edição
+document.addEventListener('DOMContentLoaded', function() {
+    // Botões para fechar o modal de edição
+    const closeModalEditar = document.querySelector('#modal-editar-docente .close-modal');
+    const btnCancelarEditar = document.getElementById('cancelar-editar');
+    
+    if (closeModalEditar) {
+        closeModalEditar.addEventListener('click', fecharModalEditarDocente);
+    }
+    
+    if (btnCancelarEditar) {
+        btnCancelarEditar.addEventListener('click', fecharModalEditarDocente);
+    }
+
+    // Fechar modal de edição ao clicar fora dele
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('modal-editar-docente');
+        if (event.target === modal) {
+            fecharModalEditarDocente();
+        }
+    });
+
+    // Manipular envio do formulário de edição
+    const btnSalvarEdicao = document.getElementById('salvar-edicao');
+    if (btnSalvarEdicao) {
+        btnSalvarEdicao.addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('form-editar-docente');
+            const formData = new FormData(form);
+            const docenteData = {
+                id: parseInt(formData.get('id')),
+                nome: formData.get('nome'),
+                email: formData.get('email'),
+                curso: formData.get('curso')
+            };
+            
+            // Validar email institucional
+            if (!docenteData.email.endsWith('@fatec.sp.gov.br')) {
+                console.error('Erro: O email deve ser institucional (@fatec.sp.gov.br)');
+                return;
+            }
+            
+            // Atualizar docente na lista
+            const index = docentes.findIndex(d => d.id === docenteData.id);
+            if (index !== -1) {
+                docentes[index] = docenteData;
+                
+                // Salvar dados
+                salvarDados();
+                
+                // Atualizar interface
+                renderDocentes();
+                
+                // Mostrar mensagem de sucesso
+                console.log('Docente atualizado com sucesso!');
+                
+                // Fechar o modal
+                fecharModalEditarDocente();
+            } else {
+                console.error('Erro ao atualizar docente');
+            }
+        });
+    }
+});
+
+// Event Listeners para o Modal de Deleção
+document.addEventListener('DOMContentLoaded', function() {
+    // Botões para fechar o modal de deleção
+    const closeModalDelecao = document.querySelector('#modal-confirmar-delecao .close-modal');
+    const btnCancelarDelecao = document.getElementById('cancelar-delecao');
+    
+    if (closeModalDelecao) {
+        closeModalDelecao.addEventListener('click', fecharModalConfirmarDelecao);
+    }
+    
+    if (btnCancelarDelecao) {
+        btnCancelarDelecao.addEventListener('click', fecharModalConfirmarDelecao);
+    }
+
+    // Fechar modal de deleção ao clicar fora dele
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('modal-confirmar-delecao');
+        if (event.target === modal) {
+            fecharModalConfirmarDelecao();
+        }
+    });
+
+    // Manipular confirmação de deleção
+    const btnConfirmarDelecao = document.getElementById('confirmar-delecao');
+    if (btnConfirmarDelecao) {
+        btnConfirmarDelecao.addEventListener('click', function() {
+            const modal = document.getElementById('modal-confirmar-delecao');
+            const docenteId = parseInt(modal.dataset.docenteId);
+            
+            if (docenteId) {
+                // Remover docente da lista
+                docentes = docentes.filter(d => d.id !== docenteId);
+                
+                // Salvar dados
+                salvarDados();
+                
+                // Atualizar interface
+                renderDocentes();
+                
+                // Mostrar mensagem de sucesso
+                console.log('Docente removido com sucesso!');
+                
+                // Fechar o modal
+                fecharModalConfirmarDelecao();
+            }
+        });
+    }
+}); 

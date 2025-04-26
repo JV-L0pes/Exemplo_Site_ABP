@@ -144,7 +144,4 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Inicializar a página
     renderSemestres();
-    
-    // Atualizar acessos recentes
-    updateRecentAccess('semestres');
 }); 

@@ -79,163 +79,6 @@ h1 {
     background-color: #45a049;
 }
 
-/* Estilos do Modal */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-}
-
-.modal.active {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    padding: 25px;
-    width: 90%;
-    max-width: 600px;
-    position: relative;
-    animation: modalFadeIn 0.3s ease;
-    overflow: hidden;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-}
-
-.modal-header h2 {
-    margin: 0;
-    color: #333;
-    font-size: 1.5rem;
-    font-weight: 500;
-}
-
-.close {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    font-size: 24px;
-    color: #666;
-    cursor: pointer;
-    transition: color 0.3s;
-    background: none;
-    border: none;
-    padding: 0;
-    width: 24px;
-    height: 24px;
-    line-height: 24px;
-    text-align: center;
-}
-
-.close:hover {
-    color: #333;
-}
-
-.edit-form {
-    overflow-y: auto;
-    max-height: 70vh;
-    padding-right: 10px;
-}
-
-.edit-form::-webkit-scrollbar {
-    width: 6px;
-}
-
-.edit-form::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-}
-
-.edit-form::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 3px;
-}
-
-.edit-form::-webkit-scrollbar-thumb:hover {
-    background: #666;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: #333;
-    font-weight: 500;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(227, 6, 19, 0.1);
-}
-
-.resources-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 10px;
-    padding: 10px;
-    background-color: #f5f5f5;
-    border-radius: 4px;
-}
-
-.resources-list label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: normal;
-    margin: 0;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-}
-
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 .info-row {
     margin-bottom: 15px;
 }
@@ -575,76 +418,10 @@ h1 {
     opacity: 0.9;
 }
 
-/* Modal do Mapa */
-.map-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.map-modal-content {
-    background-color: white;
-    padding: 30px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-}
-
-.map-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.map-modal-body {
-    margin-bottom: 20px;
-}
-
-.map-form-group {
-    margin-bottom: 15px;
-}
-
-.map-form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-
-.map-form-group input,
-.map-form-group select,
-.map-form-group textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.map-modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
 /* Responsividade */
 @media (max-width: 768px) {
     .rooms-list {
         grid-template-columns: 1fr;
-    }
-
-    .modal-content {
-        margin: 20px;
-        padding: 20px;
     }
 
     .form-group input,
@@ -660,11 +437,6 @@ h1 {
 
     .map-container {
         padding: 10px;
-    }
-    
-    .map-modal-content {
-        width: 95%;
-        padding: 15px;
     }
 }
 
@@ -764,79 +536,6 @@ h1 {
     fill: #1565c0;
     font-weight: bold;
 }
-
-/* Modal de Edição de Sala */
-.room-edit-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-}
-
-.room-edit-content {
-    position: relative;
-    background: #fff;
-    margin: 5% auto;
-    padding: 20px;
-    width: 90%;
-    max-width: 600px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.room-edit-form {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.form-group.full-width {
-    grid-column: 1 / -1;
-}
-
-.form-group label {
-    font-weight: 500;
-    color: #333;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.form-group textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.status-disponivel { background: #e8f5e9; color: #2e7d32; }
-.status-ocupada { background: #e3f2fd; color: #1565c0; }
-.status-manutencao { background: #fff3e0; color: #f57c00; }
-.status-reservada { background: #f3e5f5; color: #7b1fa2; }
-.status-restrita { background: #ffebee; color: #c62828; }
 
 /* Estilos para o sistema de notificações toast */
 .toast-container {
@@ -1011,35 +710,4 @@ h1 {
     width: 16px;
     height: 16px;
     cursor: pointer;
-}
-
-/* Ajustes adicionais para o modal */
-.modal h2 {
-    margin: 0 0 20px 0;
-    color: #333;
-    font-size: 24px;
-}
-
-.edit-form {
-    max-height: calc(100vh - 200px);
-    overflow-y: auto;
-    padding-right: 10px;
-}
-
-.edit-form::-webkit-scrollbar {
-    width: 8px;
-}
-
-.edit-form::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.edit-form::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.edit-form::-webkit-scrollbar-thumb:hover {
-    background: #666;
 } 

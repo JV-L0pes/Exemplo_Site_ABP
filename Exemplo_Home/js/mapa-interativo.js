@@ -15,14 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fecha os modais quando clicar fora deles
-    window.addEventListener('click', (event) => {
-        const editModal = document.getElementById('room-edit-modal');
-        if (event.target === editModal) {
-            closeRoomEditModal();
-        }
-    });
-
     // Funcionalidade da Sidebar
     const collapseBtn = document.getElementById('collapse-btn');
     const container = document.querySelector('.container');
@@ -96,11 +88,10 @@ async function loadFloorMap(floor) {
             // Adiciona cursor pointer se não tiver
             room.style.cursor = 'pointer';
             
-            // Adiciona evento de clique único que seleciona e abre o modal
+            // Adiciona evento de clique único que seleciona a sala
             room.addEventListener('click', () => {
                 console.log('Sala clicada:', room);
                 selectRoomOnMap(room);
-                openRoomEditModal(roomId);
             });
             
             // Adiciona classe room se não tiver
@@ -109,10 +100,8 @@ async function loadFloorMap(floor) {
             }
         });
         
-        showToast(`Mapa do ${displayName} carregado`, 'success');
     } catch (error) {
         console.error('Erro ao carregar mapa:', error);
-        showToast(error.message, 'error');
     }
 }
 
@@ -134,73 +123,12 @@ function selectRoomOnMap(roomElement) {
     const roomDetails = getRoomDetails(roomId);
     
     if (!roomDetails) {
-        showToast('Detalhes da sala não encontrados', 'error');
+        console.error('Detalhes da sala não encontrados');
         return;
     }
     
-    // Atualiza o modal com as informações
-    document.getElementById('modal-room-name').textContent = roomDetails.name;
-    document.getElementById('modal-room-disciplina').textContent = roomDetails.disciplina || '-';
-    document.getElementById('modal-room-docente').textContent = roomDetails.docente || '-';
-    document.getElementById('modal-room-curso').textContent = roomDetails.curso || '-';
-    document.getElementById('modal-room-nivel').textContent = roomDetails.nivel || '-';
-    document.getElementById('modal-room-status').textContent = roomDetails.status;
-    document.getElementById('modal-room-status').className = `status-badge status-${roomDetails.status.toLowerCase()}`;
-}
-
-function openRoomEditModal(roomId) {
-    const modal = document.getElementById('room-edit-modal');
-    if (!modal) return;
-    
-    const details = getRoomDetails(roomId);
-    if (!details) {
-        showToast('Erro ao carregar detalhes da sala', 'error');
-        return;
-    }
-    
-    // Preenche o formulário com os dados da sala
-    document.getElementById('edit-room-name').value = details.name || '';
-    document.getElementById('edit-room-type').value = 'sala-de-aula'; // valor padrão
-    document.getElementById('edit-room-capacity').value = '40'; // valor padrão
-    document.getElementById('edit-room-status').value = details.status ? details.status.toLowerCase() : 'disponivel';
-    document.getElementById('edit-room-professor').value = details.docente || '';
-    document.getElementById('edit-room-turma').value = details.curso || '';
-    document.getElementById('edit-room-turno').value = '';
-    document.getElementById('edit-room-materia').value = details.disciplina || '';
-    
-    // Exibe o modal
-    modal.classList.add('show');
-}
-
-function closeRoomEditModal() {
-    const modal = document.getElementById('room-edit-modal');
-    if (!modal) return;
-    
-    modal.classList.remove('show');
-}
-
-function saveRoomDetails(event) {
-    event.preventDefault();
-    try {
-        // Implementar a lógica de salvamento aqui
-        showToast('Alterações salvas com sucesso!', 'success');
-        closeRoomEditModal();
-    } catch (error) {
-        showToast('Erro ao salvar alterações', 'error');
-    }
-}
-
-// Sistema de Notificações Toast
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.style.animation = 'fadeOut 0.3s ease-out forwards';
-        setTimeout(() => toast.remove(), 5000);
-    }, 5000);
+    // Atualiza o painel de informações
+    updateRoomInfoPanel(roomDetails);
 }
 
 // Dados Mock para Teste
@@ -454,7 +382,7 @@ function exportarCSV() {
     link.download = 'salas.csv';
     link.click();
     
-    showToast('Dados exportados com sucesso!', 'success');
+    console.log('Dados exportados com sucesso!');
 }
 
 // Função auxiliar para gerar CSV

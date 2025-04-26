@@ -7,129 +7,11 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/mapa-interativo.css">
     <link rel="stylesheet" href="css/salas.css">
-    <link rel="stylesheet" href="css/toast.css">
+    <link rel="stylesheet" href="css/profile-dropdown.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Modal de Edição de Sala -->
-    <div id="room-edit-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Editar Sala</h2>
-                <button class="close" onclick="closeRoomEditModal()">&times;</button>
-            </div>
-            <form class="edit-form" onsubmit="saveRoomDetails(event)">
-                <div class="form-group">
-                    <label for="edit-room-name">Nome da Sala</label>
-                    <input type="text" id="edit-room-name" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="edit-room-type">Tipo</label>
-                    <select id="edit-room-type" name="type" required>
-                        <option value="sala-de-aula">Sala de Aula</option>
-                        <option value="laboratorio">Laboratório</option>
-                        <option value="auditorio">Auditório</option>
-                        <option value="administrativo">Administrativo</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="edit-room-capacity">Capacidade</label>
-                    <input type="number" id="edit-room-capacity" name="capacity" required>
-                </div>
-                <div class="form-group">
-                    <label for="edit-room-status">Status</label>
-                    <select id="edit-room-status" name="status" required>
-                        <option value="disponivel">Disponível</option>
-                        <option value="ocupada">Ocupada</option>
-                        <option value="manutencao">Manutenção</option>
-                        <option value="reservada">Reservada</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="edit-room-professor">Professor</label>
-                    <input type="text" id="edit-room-professor" name="professor">
-                </div>
-                <div class="form-group">
-                    <label for="edit-room-turma">Turma</label>
-                    <input type="text" id="edit-room-turma" name="turma">
-                </div>
-                <div class="form-group">
-                    <label for="edit-room-turno">Turno</label>
-                    <select id="edit-room-turno" name="turno">
-                        <option value="">Selecione...</option>
-                        <option value="manha">Manhã</option>
-                        <option value="tarde">Tarde</option>
-                        <option value="noite">Noite</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="edit-room-materia">Matéria</label>
-                    <input type="text" id="edit-room-materia" name="materia">
-                </div>
-                <div class="form-group">
-                    <label>Recursos</label>
-                    <div class="resources-list">
-                        <label><input type="checkbox" name="resources" value="Projetor"> Projetor</label>
-                        <label><input type="checkbox" name="resources" value="Computadores"> Computadores</label>
-                        <label><input type="checkbox" name="resources" value="Ar Condicionado"> Ar Condicionado</label>
-                        <label><input type="checkbox" name="resources" value="Lousa Digital"> Lousa Digital</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="edit-room-observations">Observações</label>
-                    <textarea id="edit-room-observations" name="observations" rows="3"></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" onclick="closeRoomEditModal()" class="btn-secondary">Cancelar</button>
-                    <button type="submit" class="btn-primary">Salvar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal de Informações da Sala -->
-    <div id="room-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-room-name">Nome da Sala</h3>
-                <button onclick="closeRoomModal()" class="close-button">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="room-details">
-                    <div class="detail-row">
-                        <span class="detail-label">Disciplina:</span>
-                        <span id="modal-room-disciplina">-</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Docente:</span>
-                        <span id="modal-room-docente">-</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Curso:</span>
-                        <span id="modal-room-curso">-</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Nível do Curso:</span>
-                        <span id="modal-room-nivel">-</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Status:</span>
-                        <span id="modal-room-status" class="status-badge">-</span>
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button onclick="editRoom()" class="btn btn-primary">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button onclick="closeRoomModal()" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Fechar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="container">
         <!-- Sidebar de navegação -->
         <aside class="sidebar">
@@ -212,13 +94,54 @@
                         <i class="fas fa-bell"></i>
                     </a>
                     
-                    <div class="user-profile">
-                        <div class="user-avatar">
-                            <i class="fas fa-user"></i>
+                    <div class="user-profile" id="userProfile">
+                        <div class="profile-trigger">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="user-info">
+                                <div class="user-name">Administrador</div>
+                                <div class="user-role">Gerente do Sistema</div>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
                         </div>
-                        <div class="user-info">
-                            <div class="user-name">Administrador</div>
-                            <div class="user-role">Gerente do Sistema</div>
+                        
+                        <div class="profile-dropdown">
+                            <div class="dropdown-header">
+                                <div class="user-avatar-large">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="user-info-large">
+                                    <div class="user-name">Administrador</div>
+                                    <div class="user-email">admin@fatec.sp.gov.br</div>
+                                </div>
+                            </div>
+                            
+                            <div class="dropdown-divider"></div>
+                            
+                            <a href="admin.html" class="dropdown-item">
+                                <i class="fas fa-shield-alt"></i>
+                                Painel Administrativo
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-user-cog"></i>
+                                Gerenciar Perfil
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-key"></i>
+                                Alterar Senha
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-bell"></i>
+                                Notificações
+                            </a>
+                            
+                            <div class="dropdown-divider"></div>
+                            
+                            <a href="home.html" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Sair
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -264,6 +187,9 @@
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
     <script src="js/mapa-interativo.js"></script>
+    <script src="js/profile-dropdown.js"></script>
 </body>
 </html> 

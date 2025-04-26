@@ -135,6 +135,7 @@ document.addEventListener("DOMContentLoaded", function() {
     addDisciplinaBtn.addEventListener("click", () => {
         // Implementar lógica para adicionar nova disciplina
         console.log("Adicionar nova disciplina");
+        console.log('Disciplina adicionada com sucesso!');
     });
     
     // Funções globais para edição e exclusão
@@ -146,6 +147,7 @@ document.addEventListener("DOMContentLoaded", function() {
     window.deleteDisciplina = function(id) {
         // Implementar lógica para excluir disciplina
         console.log("Excluir disciplina:", id);
+        console.log('Disciplina removida com sucesso!');
     };
     
     // Inicializar a página

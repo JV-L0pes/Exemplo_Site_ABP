@@ -38,32 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Função para mostrar toast
     function showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        
-        // Adicionar ícone baseado no tipo
-        let icon = 'check-circle';
-        if (type === 'error') icon = 'times-circle';
-        if (type === 'info') icon = 'info-circle';
-        
-        toast.innerHTML = `
-            <i class="fas fa-${icon}"></i>
-            <span>${message}</span>
-        `;
-        
-        toastContainer.appendChild(toast);
-        
-        // Forçar reflow para garantir a animação
-        toast.offsetHeight;
-        
-        // Mostrar toast
-        setTimeout(() => toast.classList.add('show'), 10);
-        
-        // Remover toast após 3 segundos
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toastContainer.removeChild(toast), 300);
-        }, 3000);
+        window.showToast(message, type);
     }
     
     // Função para salvar configurações
@@ -154,7 +129,4 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Inicializar a página
     carregarConfiguracoes();
-    
-    // Atualizar acessos recentes
-    updateRecentAccess('configuracoes');
 }); 

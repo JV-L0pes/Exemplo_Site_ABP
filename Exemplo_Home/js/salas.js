@@ -174,198 +174,50 @@ async function loadFloorMap(floor) {
         const rooms = mapContent.querySelectorAll('.room');
         rooms.forEach(room => {
             room.addEventListener('click', () => selectRoomOnMap(room));
-            room.addEventListener('dblclick', () => {
-                const roomId = room.getAttribute('data-room-id');
-                openRoomEditModal(roomId);
-            });
         });
         
-        showToast(`Mapa do ${floor}º andar carregado`, 'success');
+        console.log(`Mapa do ${floor}º andar carregado`);
     } catch (error) {
         console.error('Erro ao carregar mapa:', error);
-        showToast(error.message, 'error');
     }
 }
 
 function selectRoomOnMap(roomElement) {
-    // Remove a seleção anterior
-    document.querySelectorAll('.room.selected').forEach(room => room.classList.remove('selected'));
+    if (!roomElement) return;
     
-    // Adiciona a seleção ao elemento atual
+    // Remove seleção anterior
+    const previousSelected = document.querySelector('.room.selected');
+    if (previousSelected) {
+        previousSelected.classList.remove('selected');
+    }
+    
+    // Seleciona nova sala
     roomElement.classList.add('selected');
+    selectedRoom = roomElement;
     
-    // Obtém os detalhes da sala
+    // Obtém e exibe detalhes da sala
     const roomId = roomElement.getAttribute('data-room-id');
     const roomDetails = getRoomDetails(roomId);
     
     if (!roomDetails) {
-        showToast('Detalhes da sala não encontrados', 'error');
+        console.error('Detalhes da sala não encontrados');
         return;
     }
 
-    // Atualiza o painel de informações da sala
-    const roomInfoPanel = document.getElementById('room-info');
-    roomInfoPanel.innerHTML = `
-        <h3>${roomDetails.name}</h3>
-        <p><strong>Tipo:</strong> ${roomDetails.type}</p>
-        <p><strong>Capacidade:</strong> ${roomDetails.capacity}</p>
-        <p><strong>Status:</strong> ${roomDetails.status}</p>
-        <p><strong>Recursos:</strong></p>
-        <ul>
-            ${roomDetails.resources.map(resource => `<li>${resource}</li>`).join('')}
-        </ul>
-    `;
-    
-    showToast(`Sala ${roomDetails.name} selecionada`, 'info');
+    // Atualiza o painel de informações
+    updateRoomInfoPanel(roomDetails);
 }
 
-// Funções do Modal de Edição
-function openRoomEditModal(roomId) {
-    const modal = document.getElementById('room-edit-modal');
-    const details = getRoomDetails(roomId);
-    
-    if (!details) {
-        showToast('Erro ao carregar detalhes da sala', 'error');
-        return;
-    }
-    
-    // Preenche o formulário com os dados da sala
-    document.getElementById('edit-room-name').value = details.name;
-    document.getElementById('edit-room-type').value = details.type.toLowerCase();
-    document.getElementById('edit-room-capacity').value = details.capacity.toString().replace(/[^0-9]/g, '');
-    document.getElementById('edit-room-status').value = details.status.toLowerCase();
-    document.getElementById('edit-room-professor').value = details.professor || '';
-    document.getElementById('edit-room-turma').value = details.turma || '';
-    document.getElementById('edit-room-turno').value = details.turno || '';
-    document.getElementById('edit-room-materia').value = details.materia || '';
-    
-    // Marca os recursos
-    const resourceCheckboxes = document.querySelectorAll('input[name="resources"]');
-    resourceCheckboxes.forEach(checkbox => {
-        checkbox.checked = details.resources.includes(checkbox.value);
-    });
-    
-    document.getElementById('edit-room-observations').value = details.observations || '';
-    
-    // Exibe o modal
-    modal.style.display = 'block';
-    showToast('Modal de edição aberto', 'info');
-}
-
-function closeRoomEditModal() {
-    const modal = document.getElementById('room-edit-modal');
-    modal.style.display = 'none';
-    showToast('Modal de edição fechado', 'info');
-}
-
-function saveRoomDetails(event) {
-    event.preventDefault();
-    // Implementar a lógica de salvamento aqui
-    showToast('Alterações salvas com sucesso!', 'success');
-    closeRoomEditModal();
-}
-
-// Função para criar e mostrar um toast
-function showToast(message, type = 'info') {
-    const toastContainer = document.querySelector('.toast-container') || createToastContainer();
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-        <span>${message}</span>
-        <span class="toast-close">&times;</span>
-    `;
-
-    toastContainer.appendChild(toast);
-
-    // Adiciona evento de clique para fechar o toast
-    toast.querySelector('.toast-close').addEventListener('click', () => {
-        toast.style.animation = 'fadeOut 0.3s ease-in-out forwards';
-        setTimeout(() => toast.remove(), 300);
-    });
-
-    // Remove o toast automaticamente após 5 segundos
-    setTimeout(() => {
-        if (toast.parentElement) {
-            toast.style.animation = 'fadeOut 0.3s ease-in-out forwards';
-            setTimeout(() => toast.remove(), 300);
-        }
-    }, 5000);
-}
-
-// Função para criar o container de toasts
-function createToastContainer() {
-    const container = document.createElement('div');
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-    return container;
-}
-
-// Dados Mock para Teste
-function getRoomDetails(roomId) {
-    const mockData = {
-        'lab-info-01': {
-            name: 'Laboratório de Informática 01',
-            type: 'Laboratório',
-            capacity: '30 alunos',
-            status: 'Disponível',
-            resources: ['Computadores', 'Projetor', 'Ar Condicionado']
-        },
-        'sala-101': {
-            name: 'Sala 101',
-            type: 'Sala de Aula',
-            capacity: '40 alunos',
-            status: 'Ocupada',
-            professor: 'Dr. Silva',
-            turma: 'ADS 2º Semestre',
-            resources: ['Projetor', 'Lousa Digital']
-        }
-        // Adicionar mais salas conforme necessário
-    };
-    
-    return mockData[roomId] || null;
-}
-
-// Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    // Fecha os modais quando clicar fora deles
-    window.addEventListener('click', (event) => {
-        const editModal = document.getElementById('room-edit-modal');
-        if (event.target === editModal) {
-            closeRoomEditModal();
-        }
-    });
-});
-
-// Função para mostrar mensagem de sucesso
-function showSuccessToast(message) {
-    showToast(message, 'success');
-}
-
-// Função para mostrar mensagem de erro
-function showErrorToast(message) {
-    showToast(message, 'error');
-}
-
-// Função para mostrar mensagem de aviso
-function showWarningToast(message) {
-    showToast(message, 'warning');
-}
-
-// Função para mostrar mensagem informativa
-function showInfoToast(message) {
-    showToast(message, 'info');
-}
-
-// Atualiza a função saveMapChanges para usar toasts
+// Atualiza a função saveMapChanges
 function saveMapChanges() {
     const selectedRoom = document.querySelector('.room.selected');
     if (!selectedRoom) {
-        showToast('Por favor, selecione uma sala primeiro', 'error');
+        console.error('Por favor, selecione uma sala primeiro');
         return;
     }
 
     // Aqui você adicionaria a lógica para salvar as alterações
-    showToast('Alterações salvas com sucesso!', 'success');
+    console.log('Alterações salvas com sucesso!');
 }
 
 function updateRoomInfoPanel(roomDetails) {
@@ -384,49 +236,6 @@ function updateRoomInfoPanel(roomDetails) {
     `;
 }
 
-function openRoomModal(roomId) {
-    const modal = document.getElementById('room-modal');
-    const roomDetails = getRoomDetails(roomId);
-    
-    if (!roomDetails) {
-        showToast('Detalhes da sala não encontrados', 'error');
-        return;
-    }
-
-    // Atualiza o conteúdo do modal
-    document.getElementById('room-name').textContent = roomDetails.name;
-    document.getElementById('room-type').textContent = roomDetails.type;
-    document.getElementById('room-capacity').textContent = roomDetails.capacity;
-    
-    const statusElement = document.getElementById('room-status');
-    statusElement.textContent = roomDetails.status;
-    statusElement.className = `status-badge ${getStatusClass(roomDetails.status)}`;
-
-    // Atualiza a lista de recursos
-    const resourcesList = document.getElementById('resources-list');
-    resourcesList.innerHTML = '';
-    if (roomDetails.resources && roomDetails.resources.length > 0) {
-        roomDetails.resources.forEach(resource => {
-            const resourceItem = document.createElement('div');
-            resourceItem.className = 'resource-item';
-            resourceItem.textContent = resource;
-            resourcesList.appendChild(resourceItem);
-        });
-    } else {
-        const noResources = document.createElement('div');
-        noResources.className = 'resource-item';
-        noResources.textContent = 'Nenhum recurso cadastrado';
-        resourcesList.appendChild(noResources);
-    }
-
-    modal.style.display = 'block';
-}
-
-function closeRoomModal() {
-    const modal = document.getElementById('room-modal');
-    modal.style.display = 'none';
-}
-
 function getStatusClass(status) {
     switch (status.toLowerCase()) {
         case 'disponível':
@@ -440,32 +249,15 @@ function getStatusClass(status) {
     }
 }
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    // Fecha o modal quando clicar no X
-    const closeBtn = document.querySelector('.close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeRoomModal);
-    }
-
-    // Fecha o modal quando clicar fora dele
-    window.addEventListener('click', (event) => {
-        const modal = document.getElementById('room-modal');
-        if (event.target === modal) {
-            closeRoomModal();
-        }
-    });
-});
-
 // Event listener para o botão de editar sala
 document.getElementById('edit-room-btn').addEventListener('click', function() {
     const selectedRoom = document.querySelector('.room.selected');
     if (selectedRoom) {
         const roomId = selectedRoom.getAttribute('data-room-id');
         // Aqui você pode implementar a lógica para editar a sala
-        showToast('Funcionalidade de edição em desenvolvimento', 'info');
+        console.log('Funcionalidade de edição em desenvolvimento');
     } else {
-        showToast('Selecione uma sala para editar', 'error');
+        console.error('Selecione uma sala para editar');
     }
 });
 

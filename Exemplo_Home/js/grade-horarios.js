@@ -480,66 +480,26 @@ document.addEventListener('DOMContentLoaded', function() {
             const curso = document.querySelector('.grade-actions select:first-child').value;
             const nivel = document.querySelector('.grade-actions select:nth-child(2)').value;
             preencherGrade(curso, nivel);
-            showToast('Grade atualizada com sucesso!', 'success');
+            console.log('Grade atualizada com sucesso!');
         });
     });
 
     // Preencher a grade inicial com DSM nível 1
     preencherGrade('DSM', '1');
 
-    // Configurar o modal de edição
-    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-    const disciplinaSelect = document.querySelector('select[name="disciplina"]');
-    const professorSelect = document.querySelector('select[name="professor"]');
-    const salaSelect = document.querySelector('select[name="sala"]');
+    // Função para atualizar os selects
+    function atualizarSelects(curso, nivel) {
+        // Atualizar os selects com as disciplinas e professores do curso/nível atual
+        atualizarSelectsDisciplinas(curso, nivel);
+        atualizarSelectsProfessores(curso, nivel);
+    }
 
-    // Função para atualizar os selects do modal
-    function atualizarSelectsModal(curso, nivel) {
-        // Limpar os selects
-        disciplinaSelect.innerHTML = '<option value="">Selecione a disciplina</option>';
-        professorSelect.innerHTML = '<option value="">Selecione o professor</option>';
-        salaSelect.innerHTML = '<option value="">Selecione a sala</option>';
+    function atualizarSelectsDisciplinas(curso, nivel) {
+        // Implementar lógica de atualização dos selects de disciplinas
+    }
 
-        // Selecionar as disciplinas do curso e nível apropriados
-        let disciplinas;
-        switch(curso) {
-            case 'DSM':
-                disciplinas = nivel === '1' ? disciplinasDSM : 
-                            nivel === '2' ? disciplinasDSM2 : disciplinasDSM3;
-                break;
-            case 'GEO':
-                disciplinas = nivel === '1' ? disciplinasGEO : 
-                            nivel === '2' ? disciplinasGEO2 : disciplinasGEO3;
-                break;
-            case 'MAR':
-                disciplinas = nivel === '1' ? disciplinasMAR : 
-                            nivel === '2' ? disciplinasMAR2 : disciplinasMAR3;
-                break;
-            default:
-                disciplinas = disciplinasDSM;
-        }
-
-        // Preencher o select de disciplinas
-        disciplinas.forEach(disciplina => {
-            disciplinaSelect.innerHTML += `
-                <option value="${disciplina.id}">${disciplina.nome}</option>
-            `;
-        });
-
-        // Preencher o select de professores (apenas os professores do curso/nível atual)
-        const professoresUnicos = [...new Set(disciplinas.map(d => d.professor))];
-        professoresUnicos.forEach(professor => {
-            professorSelect.innerHTML += `
-                <option value="${professor}">${professor}</option>
-            `;
-        });
-
-        // Preencher o select de salas
-        salas.forEach(sala => {
-            salaSelect.innerHTML += `
-                <option value="${sala.id}">${sala.nome}</option>
-            `;
-        });
+    function atualizarSelectsProfessores(curso, nivel) {
+        // Implementar lógica de atualização dos selects de professores
     }
 
     // Adicionar eventos de clique nas células
@@ -553,43 +513,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 const curso = document.querySelector('.grade-actions select:first-child').value;
                 const nivel = document.querySelector('.grade-actions select:nth-child(2)').value;
                 
-                // Atualizar os selects do modal com as disciplinas e professores do curso/nível atual
-                atualizarSelectsModal(curso, nivel);
+                // Atualizar os selects com as disciplinas e professores do curso/nível atual
+                atualizarSelects(curso, nivel);
                 
                 // Selecionar os valores atuais
-                disciplinaSelect.value = aula.disciplina.id;
-                professorSelect.value = aula.disciplina.professor;
+                atualizarSelectsDisciplinas(curso, nivel);
+                atualizarSelectsProfessores(curso, nivel);
             }
-            editModal.show();
         });
-    });
-
-    // Salvar alterações
-    document.getElementById('saveEdit').addEventListener('click', function() {
-        const form = document.getElementById('editForm');
-        if (form.checkValidity()) {
-            const cursoAtual = document.querySelector('.grade-actions select:first-child').value;
-            const nivelAtual = document.querySelector('.grade-actions select:nth-child(2)').value;
-            
-            // Aqui você implementaria a lógica para salvar as alterações
-            showToast('Alterações salvas com sucesso!', 'success');
-            editModal.hide();
-        } else {
-            showToast('Por favor, preencha todos os campos obrigatórios.', 'error');
-        }
     });
 
     // Eventos para os filtros
     document.querySelectorAll('.grade-actions select').forEach(select => {
         select.addEventListener('change', function() {
             // Aqui você implementaria a lógica para filtrar a grade
-            showToast('Filtros aplicados com sucesso!', 'success');
+            console.log('Filtros aplicados com sucesso!');
         });
     });
 
     // Evento para exportação
     document.querySelector('.btn-primary').addEventListener('click', function() {
         // Aqui você implementaria a lógica para exportar a grade
-        showToast('Grade exportada com sucesso!', 'success');
+        console.log('Grade exportada com sucesso!');
     });
 }); 
