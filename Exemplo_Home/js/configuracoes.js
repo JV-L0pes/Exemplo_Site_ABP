@@ -6,6 +6,24 @@ document.addEventListener("DOMContentLoaded", function() {
     const configCheckboxes = document.querySelectorAll('input[type="checkbox"]');
     const saveButtons = document.querySelectorAll('.btn-save');
     
+    // Funcionalidade de colapso da sidebar
+    const collapseBtn = document.getElementById('collapse-btn');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (collapseBtn && sidebar) {
+        collapseBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            // Salvar o estado da sidebar no localStorage
+            localStorage.setItem('sidebarState', sidebar.classList.contains('collapsed') ? 'collapsed' : 'expanded');
+        });
+        
+        // Carregar o estado salvo da sidebar
+        const sidebarState = localStorage.getItem('sidebarState');
+        if (sidebarState === 'collapsed') {
+            sidebar.classList.add('collapsed');
+        }
+    }
+    
     // Criar container para toasts se não existir
     let toastContainer = document.querySelector('.toast-container');
     if (!toastContainer) {
@@ -109,24 +127,32 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
     
-    // Event Listeners para mudanças de tema
-    const temaSelect = document.querySelector('select[name="tema"]');
-    if (temaSelect) {
-        temaSelect.addEventListener('change', (e) => {
-            document.body.className = e.target.value;
-            showToast('Tema alterado!', 'info');
+    // Função para alternar o tema
+    function toggleTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }
+
+    // Função para carregar o tema salvo
+    function loadTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        toggleTheme(savedTheme);
+        
+        // Atualizar o select de tema
+        const themeSelect = document.querySelector('select[class="config-input"]');
+        if (themeSelect) {
+            themeSelect.value = savedTheme;
+        }
+    }
+
+    // Adicionar evento de change ao select de tema
+    const themeSelect = document.querySelector('select[class="config-input"]');
+    if (themeSelect) {
+        themeSelect.addEventListener('change', function(e) {
+            toggleTheme(e.target.value);
         });
     }
-    
-    // Event Listeners para mudanças de fonte
-    const fonteSelect = document.querySelector('select[name="fonte"]');
-    if (fonteSelect) {
-        fonteSelect.addEventListener('change', (e) => {
-            document.body.style.fontFamily = e.target.value;
-            showToast('Fonte alterada!', 'info');
-        });
-    }
-    
-    // Inicializar a página
-    carregarConfiguracoes();
+
+    // Carregar o tema ao iniciar a página
+    loadTheme();
 }); 

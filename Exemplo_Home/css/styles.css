@@ -586,13 +586,13 @@ ul {
 
 /* Breadcrumb */
 .breadcrumb {
-    padding: 15px 30px;
+    padding: 15px 20px;
     background-color: var(--white);
     border-bottom: 1px solid var(--light-gray);
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
-    color: var(--text-light);
-    font-size: 0.9rem;
+    gap: 10px;
 }
 
 .breadcrumb-item {

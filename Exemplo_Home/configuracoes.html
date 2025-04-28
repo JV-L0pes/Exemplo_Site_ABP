@@ -15,12 +15,9 @@
         <!-- Sidebar de navegação -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="logo">
+                <div class="logo" id="collapse-btn" style="cursor: pointer;">
                     <img src="image/CPS-removebg-preview.png" alt="Logo CPS">
                 </div>
-                <button id="collapse-btn" class="collapse-btn" title="Colapsar menu">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
             </div>
             
             <div class="sidebar-item">
@@ -85,7 +82,6 @@
             <header class="topbar">
                 <div class="logo-container">
                     <img src="image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
-                    <p>Configurações do Sistema</p>
                 </div>
                 
                 <div class="header-actions">
@@ -175,29 +171,6 @@
                 </div>
                 
                 <div class="configuracoes-grid">
-                    <!-- Configurações de Usuário -->
-                    <div class="config-card">
-                        <div class="config-header">
-                            <i class="fas fa-user-cog"></i>
-                            <h3>Configurações de Usuário</h3>
-                        </div>
-                        <div class="config-content">
-                            <div class="config-item">
-                                <label>Nome de Usuário</label>
-                                <input type="text" value="Administrador" class="config-input">
-                            </div>
-                            <div class="config-item">
-                                <label>Email</label>
-                                <input type="email" value="admin@fatec.sp.gov.br" class="config-input">
-                            </div>
-                            <div class="config-item">
-                                <label>Senha</label>
-                                <input type="password" value="********" class="config-input">
-                            </div>
-                            <button class="btn-save">Salvar Alterações</button>
-                        </div>
-                    </div>
-                    
                     <!-- Configurações de Notificações -->
                     <div class="config-card">
                         <div class="config-header">
@@ -288,7 +261,6 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/script.js"></script>
-    <script src="js/configuracoes.js"></script>
     <script src="js/profile-dropdown.js"></script>
 </body>
 </html> 
