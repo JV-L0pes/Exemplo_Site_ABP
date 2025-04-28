@@ -1,7 +1,7 @@
 # Exemplo Site ABP
 
 ## 📋 Descrição
-Este é um projeto de exemplo que demonstra a implementação de um site utilizando as melhores práticas de desenvolvimento web.
+Este é um projeto de exemplo que demonstra a implementação de um site utilizando as melhores práticas de desenvolvimento web. Este repositório serve como um esqueleto/modelo para o projeto ABP da faculdade.
 
 ## 🚀 Tecnologias Utilizadas
 - HTML5
@@ -30,8 +30,5 @@ Exemplo_Site_ABP/
 └── README.md
 ```
 
-## 🔧 Configuração
-[Instruções de configuração específicas do projeto]
-
 ## 📝 Licença
-Este projeto está sob a licença [tipo de licença]. Veja o arquivo `LICENSE` para mais detalhes.
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
