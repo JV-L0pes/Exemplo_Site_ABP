@@ -3,9 +3,12 @@
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin: 20px;
-    padding: 20px;
+    margin: 0;
+    padding: 2rem;
     color: #333;
+    height: calc(100vh - 180px);
+    display: flex;
+    flex-direction: column;
 }
 
 .mapa-header {
@@ -100,7 +103,7 @@
 .mapa-content {
     position: relative;
     width: 100%;
-    height: calc(100vh - 250px);
+    flex: 1;
     min-height: 500px;
 }
 

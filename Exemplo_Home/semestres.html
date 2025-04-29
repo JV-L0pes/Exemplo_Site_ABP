@@ -200,6 +200,7 @@
                     <div class="form-group">
                         <label for="ano">Ano</label>
                         <input type="number" id="ano" name="ano" required min="2024" max="2100">
+                        <span class="error-message" id="ano-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="periodo">Período</label>
@@ -212,14 +213,17 @@
                             <option value="5">5º Semestre</option>
                             <option value="6">6º Semestre</option>
                         </select>
+                        <span class="error-message" id="periodo-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="inicio">Data de Início</label>
                         <input type="date" id="inicio" name="inicio" required>
+                        <span class="error-message" id="inicio-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="fim">Data de Término</label>
                         <input type="date" id="fim" name="fim" required>
+                        <span class="error-message" id="fim-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="status">Status</label>
@@ -229,6 +233,7 @@
                             <option value="ativo">Ativo</option>
                             <option value="concluido">Concluído</option>
                         </select>
+                        <span class="error-message" id="status-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="curso">Curso</label>
@@ -238,6 +243,7 @@
                             <option value="GEO">GEO</option>
                             <option value="MAR">MAR</option>
                         </select>
+                        <span class="error-message" id="curso-error"></span>
                     </div>
                 </form>
             </div>
@@ -261,6 +267,7 @@
                     <div class="form-group">
                         <label for="edit-ano">Ano</label>
                         <input type="number" id="edit-ano" name="ano" required min="2024" max="2100">
+                        <span class="error-message" id="edit-ano-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="edit-periodo">Período</label>
@@ -273,14 +280,17 @@
                             <option value="5">5º Semestre</option>
                             <option value="6">6º Semestre</option>
                         </select>
+                        <span class="error-message" id="edit-periodo-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="edit-inicio">Data de Início</label>
                         <input type="date" id="edit-inicio" name="inicio" required>
+                        <span class="error-message" id="edit-inicio-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="edit-fim">Data de Término</label>
                         <input type="date" id="edit-fim" name="fim" required>
+                        <span class="error-message" id="edit-fim-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="edit-status">Status</label>
@@ -290,6 +300,7 @@
                             <option value="ativo">Ativo</option>
                             <option value="concluido">Concluído</option>
                         </select>
+                        <span class="error-message" id="edit-status-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="edit-curso">Curso</label>
@@ -299,6 +310,7 @@
                             <option value="GEO">GEO</option>
                             <option value="MAR">MAR</option>
                         </select>
+                        <span class="error-message" id="edit-curso-error"></span>
                     </div>
                 </form>
             </div>

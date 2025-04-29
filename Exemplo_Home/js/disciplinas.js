@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const modal = document.getElementById('modal-adicionar-disciplina');
         modal.classList.remove('show');
         document.body.style.overflow = 'auto';
-        document.getElementById('form-adicionar-disciplina').reset();
+        limparFormularioDisciplina();
     }
 
     // Funções para controle do Modal de Edição
@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const modal = document.getElementById('modal-editar-disciplina');
         modal.classList.remove('show');
         document.body.style.overflow = 'auto';
-        document.getElementById('form-editar-disciplina').reset();
+        limparFormularioEdicao();
     }
 
     // Funções para controle do Modal de Deleção
@@ -191,6 +191,10 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('cancelar-adicionar').addEventListener('click', fecharModalAdicionarDisciplina);
     
     document.getElementById('salvar-disciplina').addEventListener('click', function() {
+        if (!validarFormularioDisciplina()) {
+            return;
+        }
+
         const form = document.getElementById('form-adicionar-disciplina');
         const formData = new FormData(form);
         
@@ -211,6 +215,10 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('cancelar-editar').addEventListener('click', fecharModalEditarDisciplina);
     
     document.getElementById('salvar-edicao').addEventListener('click', function() {
+        if (!validarFormularioEdicao()) {
+            return;
+        }
+
         const form = document.getElementById('form-editar-disciplina');
         const formData = new FormData(form);
         const id = parseInt(formData.get('id'));
@@ -256,6 +264,122 @@ document.addEventListener("DOMContentLoaded", function() {
             abrirModalConfirmarDelecao(disciplina);
         }
     };
+    
+    // Função para mostrar mensagem de erro
+    function showError(elementId, message) {
+        const element = document.getElementById(elementId);
+        const errorElement = document.getElementById(`${elementId}-error`);
+        
+        element.classList.add('error');
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+    }
+
+    // Função para limpar mensagem de erro
+    function clearError(elementId) {
+        const element = document.getElementById(elementId);
+        const errorElement = document.getElementById(`${elementId}-error`);
+        
+        element.classList.remove('error');
+        errorElement.textContent = '';
+        errorElement.classList.remove('show');
+    }
+
+    // Função para validar o formulário de adição
+    function validarFormularioDisciplina() {
+        let isValid = true;
+        const nome = document.getElementById('nome').value.trim();
+        const professor = document.getElementById('professor').value.trim();
+        const curso = document.getElementById('curso').value.trim();
+        
+        // Limpar erros anteriores
+        clearError('nome');
+        clearError('professor');
+        clearError('curso');
+        
+        if (!nome) {
+            showError('nome', 'Por favor, preencha o nome da disciplina');
+            isValid = false;
+        }
+        
+        if (!professor) {
+            showError('professor', 'Por favor, selecione um professor');
+            isValid = false;
+        }
+        
+        if (!curso) {
+            showError('curso', 'Por favor, selecione um curso');
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+
+    // Função para validar o formulário de edição
+    function validarFormularioEdicao() {
+        let isValid = true;
+        const nome = document.getElementById('edit-nome').value.trim();
+        const professor = document.getElementById('edit-professor').value.trim();
+        const curso = document.getElementById('edit-curso').value.trim();
+        
+        // Limpar erros anteriores
+        clearError('edit-nome');
+        clearError('edit-professor');
+        clearError('edit-curso');
+        
+        if (!nome) {
+            showError('edit-nome', 'Por favor, preencha o nome da disciplina');
+            isValid = false;
+        }
+        
+        if (!professor) {
+            showError('edit-professor', 'Por favor, selecione um professor');
+            isValid = false;
+        }
+        
+        if (!curso) {
+            showError('edit-curso', 'Por favor, selecione um curso');
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+
+    // Função para limpar formulário
+    function limparFormularioDisciplina() {
+        const form = document.getElementById('form-adicionar-disciplina');
+        form.reset();
+        clearError('nome');
+        clearError('professor');
+        clearError('curso');
+    }
+
+    // Função para limpar formulário de edição
+    function limparFormularioEdicao() {
+        const form = document.getElementById('form-editar-disciplina');
+        form.reset();
+        clearError('edit-nome');
+        clearError('edit-professor');
+        clearError('edit-curso');
+    }
+
+    // Atualizar a função de salvar disciplina
+    function salvarDisciplina() {
+        if (!validarFormularioDisciplina()) {
+            return;
+        }
+        
+        // ... resto do código de salvar ...
+    }
+
+    // Atualizar a função de salvar edição
+    function salvarEdicao() {
+        if (!validarFormularioEdicao()) {
+            return;
+        }
+        
+        // ... resto do código de salvar edição ...
+    }
     
     // Inicializar a página
     preencherSelectProfessores();

@@ -1,4 +1,22 @@
-// Funções globais
+// Dados iniciais
+const dadosIniciais = [
+    {
+        id: 1,
+        nome: "Prof. João Silva",
+        curso: "DSM"
+    },
+    {
+        id: 2,
+        nome: "Prof. Maria Santos",
+        curso: "GEO"
+    },
+    {
+        id: 3,
+        nome: "Prof. Pedro Oliveira",
+        curso: "MAR"
+    }
+];
+
 let docentes = [];
 let docenteEditando = null;
 
@@ -18,11 +36,17 @@ function carregarDados() {
         const dados = localStorage.getItem('docentes');
         if (dados) {
             docentes = JSON.parse(dados);
+        } else {
+            // Se não houver dados no localStorage, usa os dados iniciais
+            docentes = [...dadosIniciais];
+            salvarDados();
         }
         console.log('Dados carregados:', docentes);
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
-        docentes = [];
+        // Em caso de erro, usa os dados iniciais
+        docentes = [...dadosIniciais];
+        salvarDados();
     }
 }
 
@@ -55,12 +79,17 @@ function logMessage(message, type = 'info') {
     }
 }
 
+// Função para limpar o localStorage e carregar dados iniciais
+function limparEInicializar() {
+    localStorage.removeItem('docentes');
+    carregarDados();
+    renderDocentes();
+}
+
 // Funções para gerenciar docentes
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM carregado, iniciando...');
-    
-    // Carregar dados salvos
-    carregarDados();
+    limparEInicializar();
     
     // Configurar busca
     const searchInput = document.getElementById("search-docente");
@@ -71,10 +100,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             cards.forEach(card => {
                 const nome = card.querySelector("h3").textContent.toLowerCase();
-                const email = card.querySelector("p").textContent.toLowerCase();
                 const curso = card.querySelector(".detail-value").textContent.toLowerCase();
                 
-                if (nome.includes(searchTerm) || email.includes(searchTerm) || curso.includes(searchTerm)) {
+                if (nome.includes(searchTerm) || curso.includes(searchTerm)) {
                     card.style.display = "block";
                 } else {
                     card.style.display = "none";
@@ -92,7 +120,6 @@ function abrirModalEditarDocente(docente) {
     // Preencher o formulário com os dados do docente
     document.getElementById('edit-id').value = docente.id;
     document.getElementById('edit-nome').value = docente.nome;
-    document.getElementById('edit-email').value = docente.email;
     document.getElementById('edit-curso').value = docente.curso;
     
     modal.classList.add('show');
@@ -118,7 +145,16 @@ function editarDocente(id) {
         console.error('Erro: Docente não encontrado');
         return;
     }
-    abrirModalEditarDocente(docente);
+    
+    // Preencher o formulário com os dados do docente
+    document.getElementById('edit-id').value = docente.id;
+    document.getElementById('edit-nome').value = docente.nome;
+    document.getElementById('edit-curso').value = docente.curso;
+    
+    // Abrir o modal de edição
+    const modal = document.getElementById('modal-editar-docente');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
 }
 
 // Funções para controle do Modal de Deleção
@@ -187,21 +223,17 @@ function logMessageAndKeepVisible(message, type = 'info') {
 
 // Função para renderizar os cards dos docentes
 function renderDocentes() {
-    console.log('Iniciando renderização dos docentes');
     const docentesList = document.getElementById('docentes-list');
     if (!docentesList) {
         console.error('Elemento docentes-list não encontrado');
         return;
     }
 
-    console.log('Docentes a serem renderizados:', docentes);
-
     // Limpar lista atual
     docentesList.innerHTML = '';
 
     // Criar cards para cada docente
     docentes.forEach(docente => {
-        console.log('Criando card para docente:', docente);
         const card = document.createElement('div');
         card.className = 'docente-card';
         card.innerHTML = `
@@ -211,13 +243,12 @@ function renderDocentes() {
                 </div>
                 <div class="docente-info">
                     <h3>${docente.nome}</h3>
-                    <p>${docente.email}</p>
                 </div>
             </div>
             <div class="docente-details">
                 <div class="docente-detail">
                     <span class="detail-label">Curso:</span>
-                    <span class="detail-value">${docente.curso}</span>
+                    <span class="detail-value ${docente.curso.toLowerCase()}">${docente.curso}</span>
                 </div>
             </div>
             <div class="docente-actions">
@@ -420,4 +451,158 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-}); 
+});
+
+// Função para mostrar alerta personalizado
+function showAlert(message, type = 'error') {
+    const alert = document.getElementById('custom-alert');
+    const alertMessage = alert.querySelector('.alert-message');
+    const alertIcon = alert.querySelector('.alert-icon i');
+    
+    // Configurar o alerta
+    alert.className = `custom-alert ${type}`;
+    alertMessage.textContent = message;
+    
+    // Configurar o ícone
+    if (type === 'error') {
+        alertIcon.className = 'fas fa-exclamation-circle';
+    } else if (type === 'success') {
+        alertIcon.className = 'fas fa-check-circle';
+    }
+    
+    // Mostrar o alerta
+    alert.style.display = 'flex';
+    
+    // Configurar o botão de fechar
+    const closeBtn = alert.querySelector('.alert-close');
+    closeBtn.onclick = () => {
+        alert.classList.add('hide');
+        setTimeout(() => {
+            alert.style.display = 'none';
+            alert.classList.remove('hide');
+        }, 300);
+    };
+    
+    // Auto-fechar após 5 segundos
+    setTimeout(() => {
+        if (alert.style.display === 'flex') {
+            alert.classList.add('hide');
+            setTimeout(() => {
+                alert.style.display = 'none';
+                alert.classList.remove('hide');
+            }, 300);
+        }
+    }, 5000);
+}
+
+// Função para mostrar mensagem de erro
+function showError(elementId, message) {
+    const element = document.getElementById(elementId);
+    const errorElement = document.getElementById(`${elementId}-error`);
+    
+    element.classList.add('error');
+    errorElement.textContent = message;
+    errorElement.classList.add('show');
+}
+
+// Função para limpar mensagem de erro
+function clearError(elementId) {
+    const element = document.getElementById(elementId);
+    const errorElement = document.getElementById(`${elementId}-error`);
+    
+    element.classList.remove('error');
+    errorElement.textContent = '';
+    errorElement.classList.remove('show');
+}
+
+// Função para validar o formulário
+function validarFormularioDocente() {
+    let isValid = true;
+    const nome = document.getElementById('nome').value.trim();
+    const curso = document.getElementById('curso').value.trim();
+    
+    // Limpar erros anteriores
+    clearError('nome');
+    clearError('curso');
+    
+    if (!nome) {
+        showError('nome', 'Por favor, preencha o nome do docente');
+        isValid = false;
+    }
+    
+    if (!curso) {
+        showError('curso', 'Por favor, selecione um curso');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+// Função para validar o formulário de edição
+function validarFormularioEdicao() {
+    let isValid = true;
+    const nome = document.getElementById('edit-nome').value.trim();
+    const curso = document.getElementById('edit-curso').value.trim();
+    
+    // Limpar erros anteriores
+    clearError('edit-nome');
+    clearError('edit-curso');
+    
+    if (!nome) {
+        showError('edit-nome', 'Por favor, preencha o nome do docente');
+        isValid = false;
+    }
+    
+    if (!curso) {
+        showError('edit-curso', 'Por favor, selecione um curso');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+// Função para salvar docente
+function salvarDocente() {
+    if (!validarFormularioDocente()) {
+        return;
+    }
+
+    const nome = document.getElementById('nome').value.trim();
+    const curso = document.getElementById('curso').value.trim();
+    
+    const novoDocente = {
+        id: Date.now(),
+        nome: nome,
+        curso: curso
+    };
+    
+    docentes.push(novoDocente);
+    salvarDados();
+    renderDocentes();
+    fecharModalAdicionarDocente();
+    showAlert('Docente adicionado com sucesso!', 'success');
+}
+
+// Função para salvar edição
+function salvarEdicao() {
+    if (!validarFormularioEdicao()) {
+        return;
+    }
+
+    const id = document.getElementById('edit-id').value;
+    const nome = document.getElementById('edit-nome').value.trim();
+    const curso = document.getElementById('edit-curso').value.trim();
+    
+    const index = docentes.findIndex(d => d.id === parseInt(id));
+    if (index !== -1) {
+        docentes[index] = {
+            ...docentes[index],
+            nome: nome,
+            curso: curso
+        };
+        salvarDados();
+        renderDocentes();
+        fecharModalEditarDocente();
+        showAlert('Docente atualizado com sucesso!', 'success');
+    }
+} 

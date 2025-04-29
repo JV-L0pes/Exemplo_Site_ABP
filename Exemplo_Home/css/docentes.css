@@ -115,6 +115,24 @@
     color: #333;
     font-size: 14px;
     font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.detail-value.dsm {
+    background-color: #9c27b0;
+    color: white;
+}
+
+.detail-value.geo {
+    background-color: #795548;
+    color: white;
+}
+
+.detail-value.mar {
+    background-color: #2196f3;
+    color: white;
 }
 
 .docente-actions {
@@ -283,13 +301,14 @@
 /* Estilos do Formulário */
 .form-group {
     margin-bottom: 20px;
+    position: relative;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: #333;
     font-weight: 500;
+    color: #333;
 }
 
 .form-group input,
@@ -304,13 +323,25 @@
 
 .form-group input:focus,
 .form-group select:focus {
-    border-color: #4a90e2;
+    border-color: #007bff;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
-.form-group select[multiple] {
-    height: 120px;
+.form-group input.error,
+.form-group select.error {
+    border-color: #dc3545;
+}
+
+.error-message {
+    display: none;
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.error-message.show {
+    display: block;
 }
 
 /* Responsividade do Modal */

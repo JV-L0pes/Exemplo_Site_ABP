@@ -9,68 +9,56 @@ document.addEventListener("DOMContentLoaded", function() {
     let semestres = [
         { 
             id: 1, 
-            ano: 2024, 
             periodo: 1, 
             inicio: "2024-02-10", 
             fim: "2024-07-05",
             status: "concluido",
             disciplinas: 12,
-            alunos: 150,
             curso: "DSM"
         },
         { 
             id: 2, 
-            ano: 2024, 
             periodo: 2, 
             inicio: "2024-08-05", 
             fim: "2024-12-15",
             status: "ativo",
             disciplinas: 12,
-            alunos: 150,
             curso: "GEO"
         },
         { 
             id: 3, 
-            ano: 2024, 
             periodo: 3, 
             inicio: "2025-02-10", 
             fim: "2025-07-05",
             status: "planejado",
             disciplinas: 12,
-            alunos: 150,
             curso: "MAR"
         },
         { 
             id: 4, 
-            ano: 2024, 
             periodo: 4, 
             inicio: "2025-08-05", 
             fim: "2025-12-15",
             status: "planejado",
             disciplinas: 12,
-            alunos: 150,
             curso: "DSM"
         },
         { 
             id: 5, 
-            ano: 2024, 
             periodo: 5, 
             inicio: "2026-02-10", 
             fim: "2026-07-05",
             status: "planejado",
             disciplinas: 12,
-            alunos: 150,
             curso: "GEO"
         },
         { 
             id: 6, 
-            ano: 2024, 
             periodo: 6, 
             inicio: "2026-08-05", 
             fim: "2026-12-15",
             status: "planejado",
             disciplinas: 12,
-            alunos: 150,
             curso: "MAR"
         }
     ];
@@ -108,8 +96,9 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         
         // Formatar datas
-        const dataInicio = new Date(semestre.inicio).toLocaleDateString('pt-BR');
-        const dataFim = new Date(semestre.fim).toLocaleDateString('pt-BR');
+        const dataInicio = new Date(semestre.inicio);
+        const dataFim = new Date(semestre.fim);
+        const anoInicio = dataInicio.getFullYear();
         
         card.innerHTML = `
             <div class="semestre-header">
@@ -117,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <i class="fas fa-calendar-alt"></i>
                 </div>
                 <div class="semestre-info">
-                    <h3>${semestre.ano} - ${semestre.periodo}º Semestre</h3>
+                    <h3>${anoInicio} - ${semestre.periodo}º Semestre</h3>
                     <p>
                         <span class="semestre-status ${statusClass}">${semestre.status.toUpperCase()}</span>
                         <span class="semestre-curso ${cursoClass}">${semestre.curso}</span>
@@ -127,19 +116,15 @@ document.addEventListener("DOMContentLoaded", function() {
             <div class="semestre-details">
                 <div class="semestre-detail">
                     <span class="detail-label">Início</span>
-                    <span class="detail-value">${dataInicio}</span>
+                    <span class="detail-value">${dataInicio.toLocaleDateString('pt-BR')}</span>
                 </div>
                 <div class="semestre-detail">
                     <span class="detail-label">Fim</span>
-                    <span class="detail-value">${dataFim}</span>
+                    <span class="detail-value">${dataFim.toLocaleDateString('pt-BR')}</span>
                 </div>
                 <div class="semestre-detail">
                     <span class="detail-label">Disciplinas</span>
                     <span class="detail-value">${semestre.disciplinas}</span>
-                </div>
-                <div class="semestre-detail">
-                    <span class="detail-label">Alunos</span>
-                    <span class="detail-value">${semestre.alunos}</span>
                 </div>
             </div>
             <div class="semestre-actions">
@@ -178,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const modal = document.getElementById('modal-adicionar-semestre');
         modal.classList.remove('show');
         document.body.style.overflow = 'auto';
-        document.getElementById('form-adicionar-semestre').reset();
+        limparFormularioSemestre();
     }
 
     // Funções para controle do Modal de Edição
@@ -186,8 +171,11 @@ document.addEventListener("DOMContentLoaded", function() {
         const modal = document.getElementById('modal-editar-semestre');
         const form = document.getElementById('form-editar-semestre');
         
+        // Pegar o ano da data de início
+        const anoInicio = new Date(semestre.inicio).getFullYear();
+        
         document.getElementById('edit-id').value = semestre.id;
-        document.getElementById('edit-ano').value = semestre.ano;
+        document.getElementById('edit-ano').value = anoInicio;
         document.getElementById('edit-periodo').value = semestre.periodo;
         document.getElementById('edit-inicio').value = semestre.inicio;
         document.getElementById('edit-fim').value = semestre.fim;
@@ -234,20 +222,157 @@ document.addEventListener("DOMContentLoaded", function() {
     document.querySelector('#modal-adicionar-semestre .close-modal').addEventListener('click', fecharModalAdicionarSemestre);
     document.getElementById('cancelar-adicionar').addEventListener('click', fecharModalAdicionarSemestre);
     
+    // Função para mostrar mensagem de erro
+    function showError(elementId, message) {
+        const element = document.getElementById(elementId);
+        const errorElement = document.getElementById(`${elementId}-error`);
+        
+        element.classList.add('error');
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+    }
+
+    // Função para limpar mensagem de erro
+    function clearError(elementId) {
+        const element = document.getElementById(elementId);
+        const errorElement = document.getElementById(`${elementId}-error`);
+        
+        element.classList.remove('error');
+        errorElement.textContent = '';
+        errorElement.classList.remove('show');
+    }
+
+    // Função para validar o formulário de adição
+    function validarFormularioSemestre() {
+        let isValid = true;
+        const ano = document.getElementById('ano').value.trim();
+        const periodo = document.getElementById('periodo').value.trim();
+        const inicio = document.getElementById('inicio').value.trim();
+        const fim = document.getElementById('fim').value.trim();
+        const status = document.getElementById('status').value.trim();
+        const curso = document.getElementById('curso').value.trim();
+        
+        // Limpar erros anteriores
+        clearError('ano');
+        clearError('periodo');
+        clearError('inicio');
+        clearError('fim');
+        clearError('status');
+        clearError('curso');
+        
+        if (!ano || isNaN(ano) || ano < 2024 || ano > 2100) {
+            showError('ano', 'Por favor, preencha um ano válido (2024-2100)');
+            isValid = false;
+        }
+        
+        if (!periodo) {
+            showError('periodo', 'Por favor, selecione o período');
+            isValid = false;
+        }
+        
+        if (!inicio) {
+            showError('inicio', 'Por favor, selecione a data de início');
+            isValid = false;
+        }
+        
+        if (!fim) {
+            showError('fim', 'Por favor, selecione a data de término');
+            isValid = false;
+        }
+        
+        if (!status) {
+            showError('status', 'Por favor, selecione o status');
+            isValid = false;
+        }
+        
+        if (!curso) {
+            showError('curso', 'Por favor, selecione o curso');
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+
+    // Função para validar o formulário de edição
+    function validarFormularioEdicao() {
+        let isValid = true;
+        const ano = document.getElementById('edit-ano').value.trim();
+        const periodo = document.getElementById('edit-periodo').value.trim();
+        const inicio = document.getElementById('edit-inicio').value.trim();
+        const fim = document.getElementById('edit-fim').value.trim();
+        const status = document.getElementById('edit-status').value.trim();
+        const curso = document.getElementById('edit-curso').value.trim();
+        
+        // Limpar erros anteriores
+        clearError('edit-ano');
+        clearError('edit-periodo');
+        clearError('edit-inicio');
+        clearError('edit-fim');
+        clearError('edit-status');
+        clearError('edit-curso');
+        
+        if (!ano || isNaN(ano) || ano < 2024 || ano > 2100) {
+            showError('edit-ano', 'Por favor, preencha um ano válido (2024-2100)');
+            isValid = false;
+        }
+        
+        if (!periodo) {
+            showError('edit-periodo', 'Por favor, selecione o período');
+            isValid = false;
+        }
+        
+        if (!inicio) {
+            showError('edit-inicio', 'Por favor, selecione a data de início');
+            isValid = false;
+        }
+        
+        if (!fim) {
+            showError('edit-fim', 'Por favor, selecione a data de término');
+            isValid = false;
+        }
+        
+        if (!status) {
+            showError('edit-status', 'Por favor, selecione o status');
+            isValid = false;
+        }
+        
+        if (!curso) {
+            showError('edit-curso', 'Por favor, selecione o curso');
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+
+    // Função para limpar formulário
+    function limparFormularioSemestre() {
+        const form = document.getElementById('form-adicionar-semestre');
+        form.reset();
+        clearError('ano');
+        clearError('periodo');
+        clearError('inicio');
+        clearError('fim');
+        clearError('status');
+        clearError('curso');
+    }
+
+    // Atualizar a função de salvar semestre
     document.getElementById('salvar-semestre').addEventListener('click', function() {
+        if (!validarFormularioSemestre()) {
+            return;
+        }
+        
         const form = document.getElementById('form-adicionar-semestre');
         const formData = new FormData(form);
         
         const novoSemestre = {
             id: Date.now(),
-            ano: parseInt(formData.get('ano')),
             periodo: parseInt(formData.get('periodo')),
             inicio: formData.get('inicio'),
             fim: formData.get('fim'),
             status: formData.get('status'),
             curso: formData.get('curso'),
-            disciplinas: 0,
-            alunos: 0
+            disciplinas: 0
         };
         
         semestres.push(novoSemestre);
@@ -260,6 +385,10 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('cancelar-editar').addEventListener('click', fecharModalEditarSemestre);
     
     document.getElementById('salvar-edicao').addEventListener('click', function() {
+        if (!validarFormularioEdicao()) {
+            return;
+        }
+
         const form = document.getElementById('form-editar-semestre');
         const formData = new FormData(form);
         const id = parseInt(formData.get('id'));
@@ -268,7 +397,6 @@ document.addEventListener("DOMContentLoaded", function() {
         if (semestreIndex !== -1) {
             semestres[semestreIndex] = {
                 ...semestres[semestreIndex],
-                ano: parseInt(formData.get('ano')),
                 periodo: parseInt(formData.get('periodo')),
                 inicio: formData.get('inicio'),
                 fim: formData.get('fim'),
