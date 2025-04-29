@@ -5,47 +5,64 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById("search-disciplina");
     const addDisciplinaBtn = document.getElementById("add-disciplina");
     
+    // Lista de professores
+    const professores = [
+        "João Silva",
+        "Maria Santos",
+        "Pedro Oliveira",
+        "Ana Costa",
+        "Carlos Pereira",
+        "Lucia Mendes",
+        "Rafael Souza",
+        "Juliana Lima"
+    ];
+
+    // Função para preencher os selects de professores
+    function preencherSelectProfessores() {
+        const selectAdicionar = document.getElementById('professor');
+        const selectEditar = document.getElementById('edit-professor');
+        
+        professores.forEach(professor => {
+            const option = document.createElement('option');
+            option.value = professor;
+            option.textContent = professor;
+            
+            selectAdicionar.appendChild(option.cloneNode(true));
+            selectEditar.appendChild(option);
+        });
+    }
+    
     // Dados simulados para demonstração
-    const disciplinas = [
+    let disciplinas = [
         { 
             id: 1, 
-            nome: "Banco de Dados", 
+            nome: "Programação Web",
+            codigo: "DSM001",
             curso: "DSM", 
-            semestre: 3, 
-            aulas: 4, 
-            tipo: "obrigatoria",
-            professor: "Carlos Silva",
-            cargaHoraria: 80
+            semestre: 1,
+            cargaHoraria: 80,
+            professor: "João Silva",
+            alunos: 30
         },
         { 
             id: 2, 
-            nome: "Engenharia de Software", 
-            curso: "DSM", 
-            semestre: 4, 
-            aulas: 4, 
-            tipo: "obrigatoria",
-            professor: "Marina Santos",
-            cargaHoraria: 80
+            nome: "Geologia Geral",
+            codigo: "GEO001",
+            curso: "GEO",
+            semestre: 1,
+            cargaHoraria: 60,
+            professor: "Maria Santos",
+            alunos: 25
         },
         { 
             id: 3, 
-            nome: "Geomática", 
-            curso: "GEO", 
-            semestre: 2, 
-            aulas: 4, 
-            tipo: "obrigatoria",
-            professor: "Rafael Pereira",
-            cargaHoraria: 80
-        },
-        { 
-            id: 4, 
-            nome: "Programação Web", 
-            curso: "DSM", 
-            semestre: 3, 
-            aulas: 4, 
-            tipo: "eletiva",
-            professor: "Lucia Mendes",
-            cargaHoraria: 60
+            nome: "Navegação Marítima",
+            codigo: "MAR001",
+            curso: "MAR",
+            semestre: 1,
+            cargaHoraria: 70,
+            professor: "Pedro Oliveira",
+            alunos: 28
         }
     ];
     
@@ -65,42 +82,23 @@ document.addEventListener("DOMContentLoaded", function() {
         card.className = "disciplina-card";
         card.dataset.id = disciplina.id;
         
-        // Definir classe de tipo
-        let tipoClass = "";
-        switch(disciplina.tipo) {
-            case "obrigatoria": tipoClass = "tipo-obrigatoria"; break;
-            case "eletiva": tipoClass = "tipo-eletiva"; break;
-            case "optativa": tipoClass = "tipo-optativa"; break;
+        // Definir classe do curso
+        let cursoClass = "";
+        switch(disciplina.curso) {
+            case "DSM": cursoClass = "curso-dsm"; break;
+            case "GEO": cursoClass = "curso-geo"; break;
+            case "MAR": cursoClass = "curso-mar"; break;
         }
         
         card.innerHTML = `
             <div class="disciplina-header">
                 <div class="disciplina-icon">
-                    <i class="fas fa-laptop-code"></i>
+                    <i class="fas fa-book"></i>
                 </div>
                 <div class="disciplina-info">
                     <h3>${disciplina.nome}</h3>
-                    <p>${disciplina.curso}</p>
-                </div>
-            </div>
-            <div class="disciplina-details">
-                <div class="disciplina-detail">
-                    <span class="detail-label">Tipo</span>
-                    <span class="detail-value">
-                        <span class="disciplina-tipo ${tipoClass}">${disciplina.tipo.toUpperCase()}</span>
-                    </span>
-                </div>
-                <div class="disciplina-detail">
-                    <span class="detail-label">Semestre</span>
-                    <span class="detail-value">${disciplina.semestre}º</span>
-                </div>
-                <div class="disciplina-detail">
-                    <span class="detail-label">Professor</span>
-                    <span class="detail-value">${disciplina.professor}</span>
-                </div>
-                <div class="disciplina-detail">
-                    <span class="detail-label">Carga Horária</span>
-                    <span class="detail-value">${disciplina.cargaHoraria}h</span>
+                    <p class="professor">${disciplina.professor}</p>
+                    <span class="disciplina-curso ${cursoClass}">${disciplina.curso}</span>
                 </div>
             </div>
             <div class="disciplina-actions">
@@ -120,11 +118,65 @@ document.addEventListener("DOMContentLoaded", function() {
     function searchDisciplinas(query) {
         const filteredDisciplinas = disciplinas.filter(disciplina => 
             disciplina.nome.toLowerCase().includes(query.toLowerCase()) ||
+            disciplina.codigo.toLowerCase().includes(query.toLowerCase()) ||
             disciplina.curso.toLowerCase().includes(query.toLowerCase()) ||
             disciplina.professor.toLowerCase().includes(query.toLowerCase())
         );
         
         renderDisciplinas(filteredDisciplinas);
+    }
+
+    // Funções para controle do Modal de Adição
+    function abrirModalAdicionarDisciplina() {
+        const modal = document.getElementById('modal-adicionar-disciplina');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModalAdicionarDisciplina() {
+        const modal = document.getElementById('modal-adicionar-disciplina');
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+        document.getElementById('form-adicionar-disciplina').reset();
+    }
+
+    // Funções para controle do Modal de Edição
+    function abrirModalEditarDisciplina(disciplina) {
+        const modal = document.getElementById('modal-editar-disciplina');
+        const form = document.getElementById('form-editar-disciplina');
+        
+        document.getElementById('edit-id').value = disciplina.id;
+        document.getElementById('edit-nome').value = disciplina.nome;
+        document.getElementById('edit-professor').value = disciplina.professor;
+        document.getElementById('edit-curso').value = disciplina.curso;
+        
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModalEditarDisciplina() {
+        const modal = document.getElementById('modal-editar-disciplina');
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+        document.getElementById('form-editar-disciplina').reset();
+    }
+
+    // Funções para controle do Modal de Deleção
+    function abrirModalConfirmarDelecao(disciplina) {
+        const modal = document.getElementById('modal-confirmar-delecao');
+        const disciplinaDelete = document.getElementById('disciplina-delete');
+        
+        disciplinaDelete.textContent = `${disciplina.nome} (${disciplina.codigo})`;
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        
+        modal.dataset.disciplinaId = disciplina.id;
+    }
+
+    function fecharModalConfirmarDelecao() {
+        const modal = document.getElementById('modal-confirmar-delecao');
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
     }
     
     // Event Listeners
@@ -132,33 +184,80 @@ document.addEventListener("DOMContentLoaded", function() {
         searchDisciplinas(e.target.value);
     });
     
-    addDisciplinaBtn.addEventListener("click", () => {
-        // Implementar lógica para adicionar nova disciplina
-        console.log("Adicionar nova disciplina");
-        console.log('Disciplina adicionada com sucesso!');
+    addDisciplinaBtn.addEventListener("click", abrirModalAdicionarDisciplina);
+    
+    // Event Listeners para o Modal de Adição
+    document.querySelector('#modal-adicionar-disciplina .close-modal').addEventListener('click', fecharModalAdicionarDisciplina);
+    document.getElementById('cancelar-adicionar').addEventListener('click', fecharModalAdicionarDisciplina);
+    
+    document.getElementById('salvar-disciplina').addEventListener('click', function() {
+        const form = document.getElementById('form-adicionar-disciplina');
+        const formData = new FormData(form);
+        
+        const novaDisciplina = {
+            id: Date.now(),
+            nome: formData.get('nome'),
+            professor: formData.get('professor'),
+            curso: formData.get('curso')
+        };
+        
+        disciplinas.push(novaDisciplina);
+        renderDisciplinas();
+        fecharModalAdicionarDisciplina();
+    });
+    
+    // Event Listeners para o Modal de Edição
+    document.querySelector('#modal-editar-disciplina .close-modal').addEventListener('click', fecharModalEditarDisciplina);
+    document.getElementById('cancelar-editar').addEventListener('click', fecharModalEditarDisciplina);
+    
+    document.getElementById('salvar-edicao').addEventListener('click', function() {
+        const form = document.getElementById('form-editar-disciplina');
+        const formData = new FormData(form);
+        const id = parseInt(formData.get('id'));
+        
+        const disciplinaIndex = disciplinas.findIndex(d => d.id === id);
+        if (disciplinaIndex !== -1) {
+            disciplinas[disciplinaIndex] = {
+                ...disciplinas[disciplinaIndex],
+                nome: formData.get('nome'),
+                professor: formData.get('professor'),
+                curso: formData.get('curso')
+            };
+            
+            renderDisciplinas();
+            fecharModalEditarDisciplina();
+        }
+    });
+    
+    // Event Listeners para o Modal de Deleção
+    document.querySelector('#modal-confirmar-delecao .close-modal').addEventListener('click', fecharModalConfirmarDelecao);
+    document.getElementById('cancelar-delecao').addEventListener('click', fecharModalConfirmarDelecao);
+    
+    document.getElementById('confirmar-delecao').addEventListener('click', function() {
+        const modal = document.getElementById('modal-confirmar-delecao');
+        const disciplinaId = parseInt(modal.dataset.disciplinaId);
+        
+        disciplinas = disciplinas.filter(d => d.id !== disciplinaId);
+        renderDisciplinas();
+        fecharModalConfirmarDelecao();
     });
     
     // Funções globais para edição e exclusão
     window.editDisciplina = function(id) {
-        // Implementar lógica para editar disciplina
-        console.log("Editar disciplina:", id);
+        const disciplina = disciplinas.find(d => d.id === id);
+        if (disciplina) {
+            abrirModalEditarDisciplina(disciplina);
+        }
     };
     
     window.deleteDisciplina = function(id) {
-        // Implementar lógica para excluir disciplina
-        console.log("Excluir disciplina:", id);
-        console.log('Disciplina removida com sucesso!');
+        const disciplina = disciplinas.find(d => d.id === id);
+        if (disciplina) {
+            abrirModalConfirmarDelecao(disciplina);
+        }
     };
     
     // Inicializar a página
+    preencherSelectProfessores();
     renderDisciplinas();
-    
-    // Função para atualizar acessos recentes
-    function updateRecentAccess(section) {
-        // Implementação temporária - pode ser expandida posteriormente
-        console.log(`Acesso à seção: ${section}`);
-    }
-    
-    // Atualizar acessos recentes
-    updateRecentAccess('disciplinas');
 }); 

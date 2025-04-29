@@ -6,36 +6,72 @@ document.addEventListener("DOMContentLoaded", function() {
     const addSemestreBtn = document.getElementById("add-semestre");
     
     // Dados simulados para demonstração
-    const semestres = [
+    let semestres = [
         { 
             id: 1, 
-            ano: 2025, 
+            ano: 2024, 
             periodo: 1, 
-            inicio: "2025-02-10", 
-            fim: "2025-07-05",
-            status: "ativo",
+            inicio: "2024-02-10", 
+            fim: "2024-07-05",
+            status: "concluido",
             disciplinas: 12,
-            alunos: 150
+            alunos: 150,
+            curso: "DSM"
         },
         { 
             id: 2, 
-            ano: 2025, 
-            periodo: 2, 
-            inicio: "2025-08-05", 
-            fim: "2025-12-15",
-            status: "planejado",
-            disciplinas: 12,
-            alunos: 150
-        },
-        { 
-            id: 3, 
             ano: 2024, 
             periodo: 2, 
             inicio: "2024-08-05", 
             fim: "2024-12-15",
-            status: "concluido",
+            status: "ativo",
             disciplinas: 12,
-            alunos: 150
+            alunos: 150,
+            curso: "GEO"
+        },
+        { 
+            id: 3, 
+            ano: 2024, 
+            periodo: 3, 
+            inicio: "2025-02-10", 
+            fim: "2025-07-05",
+            status: "planejado",
+            disciplinas: 12,
+            alunos: 150,
+            curso: "MAR"
+        },
+        { 
+            id: 4, 
+            ano: 2024, 
+            periodo: 4, 
+            inicio: "2025-08-05", 
+            fim: "2025-12-15",
+            status: "planejado",
+            disciplinas: 12,
+            alunos: 150,
+            curso: "DSM"
+        },
+        { 
+            id: 5, 
+            ano: 2024, 
+            periodo: 5, 
+            inicio: "2026-02-10", 
+            fim: "2026-07-05",
+            status: "planejado",
+            disciplinas: 12,
+            alunos: 150,
+            curso: "GEO"
+        },
+        { 
+            id: 6, 
+            ano: 2024, 
+            periodo: 6, 
+            inicio: "2026-08-05", 
+            fim: "2026-12-15",
+            status: "planejado",
+            disciplinas: 12,
+            alunos: 150,
+            curso: "MAR"
         }
     ];
     
@@ -62,6 +98,14 @@ document.addEventListener("DOMContentLoaded", function() {
             case "concluido": statusClass = "status-concluido"; break;
             case "planejado": statusClass = "status-planejado"; break;
         }
+
+        // Definir classe do curso
+        let cursoClass = "";
+        switch(semestre.curso) {
+            case "DSM": cursoClass = "curso-dsm"; break;
+            case "GEO": cursoClass = "curso-geo"; break;
+            case "MAR": cursoClass = "curso-mar"; break;
+        }
         
         // Formatar datas
         const dataInicio = new Date(semestre.inicio).toLocaleDateString('pt-BR');
@@ -76,6 +120,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <h3>${semestre.ano} - ${semestre.periodo}º Semestre</h3>
                     <p>
                         <span class="semestre-status ${statusClass}">${semestre.status.toUpperCase()}</span>
+                        <span class="semestre-curso ${cursoClass}">${semestre.curso}</span>
                     </p>
                 </div>
             </div>
@@ -115,10 +160,67 @@ document.addEventListener("DOMContentLoaded", function() {
         const filteredSemestres = semestres.filter(semestre => 
             semestre.ano.toString().includes(query) ||
             semestre.periodo.toString().includes(query) ||
-            semestre.status.toLowerCase().includes(query.toLowerCase())
+            semestre.status.toLowerCase().includes(query.toLowerCase()) ||
+            semestre.curso.toLowerCase().includes(query.toLowerCase())
         );
         
         renderSemestres(filteredSemestres);
+    }
+
+    // Funções para controle do Modal de Adição
+    function abrirModalAdicionarSemestre() {
+        const modal = document.getElementById('modal-adicionar-semestre');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModalAdicionarSemestre() {
+        const modal = document.getElementById('modal-adicionar-semestre');
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+        document.getElementById('form-adicionar-semestre').reset();
+    }
+
+    // Funções para controle do Modal de Edição
+    function abrirModalEditarSemestre(semestre) {
+        const modal = document.getElementById('modal-editar-semestre');
+        const form = document.getElementById('form-editar-semestre');
+        
+        document.getElementById('edit-id').value = semestre.id;
+        document.getElementById('edit-ano').value = semestre.ano;
+        document.getElementById('edit-periodo').value = semestre.periodo;
+        document.getElementById('edit-inicio').value = semestre.inicio;
+        document.getElementById('edit-fim').value = semestre.fim;
+        document.getElementById('edit-status').value = semestre.status;
+        document.getElementById('edit-curso').value = semestre.curso;
+        
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModalEditarSemestre() {
+        const modal = document.getElementById('modal-editar-semestre');
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+        document.getElementById('form-editar-semestre').reset();
+    }
+
+    // Funções para controle do Modal de Deleção
+    function abrirModalConfirmarDelecao(semestre) {
+        const modal = document.getElementById('modal-confirmar-delecao');
+        const semestreDelete = document.getElementById('semestre-delete');
+        
+        semestreDelete.textContent = `${semestre.ano} - ${semestre.periodo}º Semestre (${semestre.curso})`;
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        
+        modal.dataset.semestreId = semestre.id;
+    }
+
+    function fecharModalConfirmarDelecao() {
+        const modal = document.getElementById('modal-confirmar-delecao');
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
     }
     
     // Event Listeners
@@ -126,20 +228,85 @@ document.addEventListener("DOMContentLoaded", function() {
         searchSemestres(e.target.value);
     });
     
-    addSemestreBtn.addEventListener("click", () => {
-        // Implementar lógica para adicionar novo semestre
-        console.log("Adicionar novo semestre");
+    addSemestreBtn.addEventListener("click", abrirModalAdicionarSemestre);
+    
+    // Event Listeners para o Modal de Adição
+    document.querySelector('#modal-adicionar-semestre .close-modal').addEventListener('click', fecharModalAdicionarSemestre);
+    document.getElementById('cancelar-adicionar').addEventListener('click', fecharModalAdicionarSemestre);
+    
+    document.getElementById('salvar-semestre').addEventListener('click', function() {
+        const form = document.getElementById('form-adicionar-semestre');
+        const formData = new FormData(form);
+        
+        const novoSemestre = {
+            id: Date.now(),
+            ano: parseInt(formData.get('ano')),
+            periodo: parseInt(formData.get('periodo')),
+            inicio: formData.get('inicio'),
+            fim: formData.get('fim'),
+            status: formData.get('status'),
+            curso: formData.get('curso'),
+            disciplinas: 0,
+            alunos: 0
+        };
+        
+        semestres.push(novoSemestre);
+        renderSemestres();
+        fecharModalAdicionarSemestre();
+    });
+    
+    // Event Listeners para o Modal de Edição
+    document.querySelector('#modal-editar-semestre .close-modal').addEventListener('click', fecharModalEditarSemestre);
+    document.getElementById('cancelar-editar').addEventListener('click', fecharModalEditarSemestre);
+    
+    document.getElementById('salvar-edicao').addEventListener('click', function() {
+        const form = document.getElementById('form-editar-semestre');
+        const formData = new FormData(form);
+        const id = parseInt(formData.get('id'));
+        
+        const semestreIndex = semestres.findIndex(s => s.id === id);
+        if (semestreIndex !== -1) {
+            semestres[semestreIndex] = {
+                ...semestres[semestreIndex],
+                ano: parseInt(formData.get('ano')),
+                periodo: parseInt(formData.get('periodo')),
+                inicio: formData.get('inicio'),
+                fim: formData.get('fim'),
+                status: formData.get('status'),
+                curso: formData.get('curso')
+            };
+            
+            renderSemestres();
+            fecharModalEditarSemestre();
+        }
+    });
+    
+    // Event Listeners para o Modal de Deleção
+    document.querySelector('#modal-confirmar-delecao .close-modal').addEventListener('click', fecharModalConfirmarDelecao);
+    document.getElementById('cancelar-delecao').addEventListener('click', fecharModalConfirmarDelecao);
+    
+    document.getElementById('confirmar-delecao').addEventListener('click', function() {
+        const modal = document.getElementById('modal-confirmar-delecao');
+        const semestreId = parseInt(modal.dataset.semestreId);
+        
+        semestres = semestres.filter(s => s.id !== semestreId);
+        renderSemestres();
+        fecharModalConfirmarDelecao();
     });
     
     // Funções globais para edição e exclusão
     window.editSemestre = function(id) {
-        // Implementar lógica para editar semestre
-        console.log("Editar semestre:", id);
+        const semestre = semestres.find(s => s.id === id);
+        if (semestre) {
+            abrirModalEditarSemestre(semestre);
+        }
     };
     
     window.deleteSemestre = function(id) {
-        // Implementar lógica para excluir semestre
-        console.log("Excluir semestre:", id);
+        const semestre = semestres.find(s => s.id === id);
+        if (semestre) {
+            abrirModalConfirmarDelecao(semestre);
+        }
     };
     
     // Inicializar a página

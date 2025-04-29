@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/grade-horarios.css">
     <link rel="stylesheet" href="css/profile-dropdown.css">
+    <link rel="stylesheet" href="css/notifications.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -68,13 +69,6 @@
                     <span>Cursos</span>
                 </a>
             </div>
-            
-            <div class="sidebar-item">
-                <a href="configuracoes.html">
-                    <i class="fas fa-cog"></i>
-                    <span>Configurações</span>
-                </a>
-            </div>
         </aside>
 
         <!-- Conteúdo principal -->
@@ -85,9 +79,17 @@
                 </div>
                 
                 <div class="header-actions">
-                    <a href="#" class="notification-btn" title="Notificações">
-                        <i class="fas fa-bell"></i>
-                    </a>
+                    <div class="notification-container">
+                        <button class="notification-btn" title="Notificações">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-count">0</span>
+                        </button>
+                        <div class="notification-dropdown">
+                            <div class="notification-list">
+                                <!-- As notificações serão inseridas dinamicamente aqui -->
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="user-profile" id="userProfile">
                         <div class="profile-trigger">
@@ -127,18 +129,26 @@
                                 Alterar Senha
                             </a>
                             <a href="#" class="dropdown-item">
-                                <i class="fas fa-bell"></i>
-                                Notificações
+                                <i class="fas fa-shield-alt"></i>
+                                Permissões
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-history"></i>
+                                Histórico de Atividades
                             </a>
                             
                             <div class="dropdown-divider"></div>
                             
-                            <a href="home.html" class="dropdown-item text-danger">
+                            <a href="#" class="dropdown-item text-danger">
                                 <i class="fas fa-sign-out-alt"></i>
                                 Sair
                             </a>
                         </div>
                     </div>
+                    
+                    <button id="toggle-menu" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
                 </div>
             </header>
 
@@ -217,5 +227,6 @@
     <script src="js/script.js"></script>
     <script src="js/grade-horarios.js"></script>
     <script src="js/profile-dropdown.js"></script>
+    <script src="js/notifications.js"></script>
 </body>
 </html> 

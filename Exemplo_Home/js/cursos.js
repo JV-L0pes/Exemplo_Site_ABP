@@ -5,47 +5,89 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById("search-curso");
     const addCursoBtn = document.getElementById("add-curso");
     
+    // Lista de coordenadores
+    const coordenadores = [
+        "João Silva",
+        "Maria Santos",
+        "Pedro Oliveira",
+        "Ana Costa",
+        "Carlos Pereira",
+        "Lucia Mendes",
+        "Rafael Souza",
+        "Juliana Lima"
+    ];
+
+    // Mapeamento de nomes de cursos para siglas
+    const cursoParaSigla = {
+        "Desenvolvimento de Software Multiplataforma": "DSM",
+        "Geoprocessamento": "GEO",
+        "Meio Ambiente e Recursos Hídricos": "MAR"
+    };
+
+    // Função para sincronizar a sigla com o nome do curso
+    function sincronizarSigla(nomeSelect, siglaSelect) {
+        const nomeCurso = nomeSelect.value;
+        const sigla = cursoParaSigla[nomeCurso] || "";
+        siglaSelect.value = sigla;
+        
+        // Atualizar validação
+        if (sigla) {
+            showSuccess(siglaSelect);
+        }
+    }
+
+    // Event listeners para sincronização de siglas
+    document.getElementById('nome').addEventListener('change', function() {
+        sincronizarSigla(this, document.getElementById('sigla'));
+    });
+
+    document.getElementById('edit-nome').addEventListener('change', function() {
+        sincronizarSigla(this, document.getElementById('edit-sigla'));
+    });
+
+    // Função para preencher os selects de coordenadores
+    function preencherSelectCoordenadores() {
+        const selectAdicionar = document.getElementById('coordenador');
+        const selectEditar = document.getElementById('edit-coordenador');
+        
+        coordenadores.forEach(coordenador => {
+            const option = document.createElement('option');
+            option.value = coordenador;
+            option.textContent = coordenador;
+            
+            selectAdicionar.appendChild(option.cloneNode(true));
+            selectEditar.appendChild(option);
+        });
+    }
+    
     // Dados simulados para demonstração
-    const cursos = [
+    let cursos = [
         { 
             id: 1, 
-            nome: "Desenvolvimento de Software Multiplataforma", 
-            sigla: "DSM", 
-            tipo: "superior",
-            semestres: 6, 
-            coordenador: "Carlos Eduardo",
-            alunos: 120,
-            disciplinas: 24
+            nome: "Desenvolvimento de&nbsp;Software&nbsp;Multiplataforma",
+            sigla: "DSM",
+            tipo: "Nível Superior",
+            semestres: 6,
+            coordenador: "João Silva",
+            alunos: 150
         },
         { 
             id: 2, 
-            nome: "Geoprocessamento", 
-            sigla: "GEO", 
-            tipo: "superior",
-            semestres: 6, 
-            coordenador: "Ana Maria Souza",
-            alunos: 80,
-            disciplinas: 24
+            nome: "Geoprocessamento",
+            sigla: "GEO",
+            tipo: "Nível Superior",
+            semestres: 6,
+            coordenador: "Maria Santos",
+            alunos: 120
         },
         { 
             id: 3, 
-            nome: "Meio Ambiente e Recursos Hídricos", 
-            sigla: "MAR", 
-            tipo: "superior",
-            semestres: 6, 
-            coordenador: "Roberto Mendes",
-            alunos: 60,
-            disciplinas: 24
-        },
-        { 
-            id: 4, 
-            nome: "Técnico em Informática", 
-            sigla: "TIN", 
-            tipo: "tecnico",
-            semestres: 3, 
-            coordenador: "Maria Silva",
-            alunos: 40,
-            disciplinas: 12
+            nome: "Meio Ambiente e Recursos Hídricos",
+            sigla: "MAR",
+            tipo: "Nível Superior",
+            semestres: 6,
+            coordenador: "Pedro Oliveira",
+            alunos: 100
         }
     ];
     
@@ -65,12 +107,12 @@ document.addEventListener("DOMContentLoaded", function() {
         card.className = "curso-card";
         card.dataset.id = curso.id;
         
-        // Definir classe de tipo
-        let tipoClass = "";
-        switch(curso.tipo) {
-            case "tecnico": tipoClass = "tipo-tecnico"; break;
-            case "superior": tipoClass = "tipo-superior"; break;
-            case "pos": tipoClass = "tipo-pos"; break;
+        // Definir classe do curso
+        let cursoClass = "";
+        switch(curso.sigla) {
+            case "DSM": cursoClass = "curso-dsm"; break;
+            case "GEO": cursoClass = "curso-geo"; break;
+            case "MAR": cursoClass = "curso-mar"; break;
         }
         
         card.innerHTML = `
@@ -78,33 +120,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 <div class="curso-icon">
                     <i class="fas fa-graduation-cap"></i>
                 </div>
-                <div class="curso-info">
+                <div class="curso-info ${curso.sigla === 'GEO' ? 'geo-title' : ''} ${curso.sigla === 'DSM' ? 'dsm-title' : ''} ${curso.sigla === 'MAR' ? 'mar-title' : ''}">
                     <h3>${curso.nome}</h3>
-                    <p>${curso.sigla}</p>
-                </div>
-            </div>
-            <div class="curso-details">
-                <div class="curso-detail">
-                    <span class="detail-label">Tipo</span>
-                    <span class="detail-value">
-                        <span class="curso-tipo ${tipoClass}">${curso.tipo.toUpperCase()}</span>
-                    </span>
-                </div>
-                <div class="curso-detail">
-                    <span class="detail-label">Coordenador</span>
-                    <span class="detail-value">${curso.coordenador}</span>
-                </div>
-                <div class="curso-detail">
-                    <span class="detail-label">Semestres</span>
-                    <span class="detail-value">${curso.semestres}</span>
-                </div>
-                <div class="curso-detail">
-                    <span class="detail-label">Alunos</span>
-                    <span class="detail-value">${curso.alunos}</span>
-                </div>
-                <div class="curso-detail">
-                    <span class="detail-label">Disciplinas</span>
-                    <span class="detail-value">${curso.disciplinas}</span>
+                    <div class="curso-badges">
+                        <span class="curso-sigla ${cursoClass}">${curso.sigla}</span>
+                        <span class="curso-tipo">${curso.tipo}</span>
+                    </div>
+                    <p class="semestres">${curso.semestres} semestres</p>
+                    <p class="coordenador">${curso.coordenador}</p>
                 </div>
             </div>
             <div class="curso-actions">
@@ -130,28 +153,209 @@ document.addEventListener("DOMContentLoaded", function() {
         
         renderCursos(filteredCursos);
     }
+
+    // Funções para controle do Modal de Adição
+    function abrirModalAdicionarCurso() {
+        const modal = document.getElementById('modal-adicionar-curso');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModalAdicionarCurso() {
+        const modal = document.getElementById('modal-adicionar-curso');
+        const form = document.getElementById('form-adicionar-curso');
+        
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+        form.reset();
+        limparValidacoes(form);
+    }
+
+    // Event Listeners para o modal de adicionar
+    document.querySelector('#modal-adicionar-curso .close-modal').addEventListener('click', fecharModalAdicionarCurso);
+    document.getElementById('cancelar-adicionar').addEventListener('click', fecharModalAdicionarCurso);
+
+    // Funções para controle do Modal de Edição
+    function abrirModalEditarCurso(curso) {
+        const modal = document.getElementById('modal-editar-curso');
+        const form = document.getElementById('form-editar-curso');
+        
+        document.getElementById('edit-id').value = curso.id;
+        document.getElementById('edit-nome').value = curso.nome;
+        document.getElementById('edit-sigla').value = curso.sigla;
+        document.getElementById('edit-coordenador').value = curso.coordenador;
+        
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModalEditarCurso() {
+        const modal = document.getElementById('modal-editar-curso');
+        const form = document.getElementById('form-editar-curso');
+        
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+        form.reset();
+        limparValidacoes(form);
+    }
+
+    // Event Listeners para o modal de editar
+    document.querySelector('#modal-editar-curso .close-modal').addEventListener('click', fecharModalEditarCurso);
+    document.getElementById('cancelar-editar').addEventListener('click', fecharModalEditarCurso);
+
+    // Funções para controle do Modal de Deleção
+    function abrirModalConfirmarDelecao(curso) {
+        const modal = document.getElementById('modal-confirmar-delecao');
+        const cursoDelete = document.getElementById('curso-delete');
+        
+        cursoDelete.textContent = `${curso.nome} (${curso.sigla})`;
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        
+        modal.dataset.cursoId = curso.id;
+    }
+
+    function fecharModalConfirmarDelecao() {
+        const modal = document.getElementById('modal-confirmar-delecao');
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
     
     // Event Listeners
     searchInput.addEventListener("input", (e) => {
         searchCursos(e.target.value);
     });
     
-    addCursoBtn.addEventListener("click", () => {
-        // Implementar lógica para adicionar novo curso
-        console.log("Adicionar novo curso");
+    addCursoBtn.addEventListener("click", abrirModalAdicionarCurso);
+    
+    // Funções de validação
+    function showError(input, message) {
+        const formGroup = input.parentElement;
+        const errorDisplay = formGroup.querySelector('.error-message');
+        
+        formGroup.className = 'form-group error';
+        errorDisplay.textContent = message;
+    }
+
+    function showSuccess(input) {
+        const formGroup = input.parentElement;
+        formGroup.className = 'form-group success';
+    }
+
+    function validateField(input, fieldName) {
+        if (input.value.trim() === '') {
+            showError(input, `${fieldName} não pode ficar vazio`);
+            return false;
+        }
+        showSuccess(input);
+        return true;
+    }
+
+    function validateForm(form) {
+        let isValid = true;
+        
+        const nome = form.querySelector('[name="nome"]');
+        const sigla = form.querySelector('[name="sigla"]');
+        const coordenador = form.querySelector('[name="coordenador"]');
+
+        if (!validateField(nome, 'Nome do curso')) isValid = false;
+        if (!validateField(sigla, 'Sigla')) isValid = false;
+        if (!validateField(coordenador, 'Coordenador')) isValid = false;
+
+        return isValid;
+    }
+
+    // Event Listeners para o Modal de Adição
+    document.getElementById('salvar-curso').addEventListener('click', function(e) {
+        e.preventDefault();
+        const form = document.getElementById('form-adicionar-curso');
+        
+        if (validateForm(form)) {
+            const formData = new FormData(form);
+            
+            const novoCurso = {
+                id: Date.now(),
+                nome: formData.get('nome'),
+                sigla: formData.get('sigla'),
+                tipo: formData.get('tipo'),
+                semestres: parseInt(formData.get('semestres')),
+                coordenador: formData.get('coordenador'),
+                alunos: 0
+            };
+            
+            cursos.push(novoCurso);
+            renderCursos();
+            fecharModalAdicionarCurso();
+        }
+    });
+
+    // Event Listeners para o Modal de Edição
+    document.getElementById('salvar-edicao').addEventListener('click', function(e) {
+        e.preventDefault();
+        const form = document.getElementById('form-editar-curso');
+        
+        if (validateForm(form)) {
+            const formData = new FormData(form);
+            const id = parseInt(formData.get('id'));
+            
+            const cursoIndex = cursos.findIndex(c => c.id === id);
+            if (cursoIndex !== -1) {
+                cursos[cursoIndex] = {
+                    ...cursos[cursoIndex],
+                    nome: formData.get('nome'),
+                    sigla: formData.get('sigla'),
+                    tipo: formData.get('tipo'),
+                    semestres: parseInt(formData.get('semestres')),
+                    coordenador: formData.get('coordenador')
+                };
+                
+                renderCursos();
+                fecharModalEditarCurso();
+            }
+        }
+    });
+
+    // Event Listeners para o Modal de Deleção
+    document.querySelector('#modal-confirmar-delecao .close-modal').addEventListener('click', fecharModalConfirmarDelecao);
+    document.getElementById('cancelar-delecao').addEventListener('click', fecharModalConfirmarDelecao);
+    
+    document.getElementById('confirmar-delecao').addEventListener('click', function() {
+        const modal = document.getElementById('modal-confirmar-delecao');
+        const cursoId = parseInt(modal.dataset.cursoId);
+        
+        cursos = cursos.filter(c => c.id !== cursoId);
+        renderCursos();
+        fecharModalConfirmarDelecao();
     });
     
     // Funções globais para edição e exclusão
     window.editCurso = function(id) {
-        // Implementar lógica para editar curso
-        console.log("Editar curso:", id);
+        const curso = cursos.find(c => c.id === id);
+        if (curso) {
+            abrirModalEditarCurso(curso);
+        }
     };
     
     window.deleteCurso = function(id) {
-        // Implementar lógica para excluir curso
-        console.log("Excluir curso:", id);
+        const curso = cursos.find(c => c.id === id);
+        if (curso) {
+            abrirModalConfirmarDelecao(curso);
+        }
     };
     
+    // Limpar validações ao fechar os modais
+    function limparValidacoes(form) {
+        const formGroups = form.querySelectorAll('.form-group');
+        formGroups.forEach(group => {
+            group.className = 'form-group';
+            const errorDisplay = group.querySelector('.error-message');
+            if (errorDisplay) {
+                errorDisplay.textContent = '';
+            }
+        });
+    }
+    
     // Inicializar a página
+    preencherSelectCoordenadores();
     renderCursos();
 }); 

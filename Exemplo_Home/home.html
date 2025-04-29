@@ -6,6 +6,7 @@
     <title>Início - FATEC</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/profile-dropdown.css">
+    <link rel="stylesheet" href="css/notifications.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -67,13 +68,6 @@
                     <span>Cursos</span>
                 </a>
             </div>
-            
-            <div class="sidebar-item">
-                <a href="configuracoes.html">
-                    <i class="fas fa-cog"></i>
-                    <span>Configurações</span>
-                </a>
-            </div>
         </aside>
 
         <!-- Conteúdo principal -->
@@ -84,9 +78,17 @@
                 </div>
                 
                 <div class="header-actions">
-                    <a href="#" class="notification-btn" title="Notificações">
-                        <i class="fas fa-bell"></i>
-                    </a>
+                    <div class="notification-container">
+                        <button class="notification-btn" title="Notificações">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-count">0</span>
+                        </button>
+                        <div class="notification-dropdown">
+                            <div class="notification-list">
+                                <!-- As notificações serão inseridas dinamicamente aqui -->
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="user-profile" id="userProfile">
                         <div class="profile-trigger">
@@ -171,7 +173,6 @@
                         <div class="stat-info">
                             <h3>Total de Docentes</h3>
                             <p class="stat-number">150</p>
-                            <p class="stat-change positive">+5% este mês</p>
                         </div>
                     </div>
                     
@@ -193,7 +194,6 @@
                         <div class="stat-info">
                             <h3>Disciplinas Ativas</h3>
                             <p class="stat-number">78</p>
-                            <p class="stat-change positive">+3 novas</p>
                         </div>
                     </div>
                     
@@ -207,64 +207,89 @@
                             <p class="stat-change">Todos em andamento</p>
                         </div>
                     </div>
-                </div>
 
-                <!-- Gráficos e Informações -->
-                <div class="dashboard-charts">
-                    <div class="chart-container">
-                        <h3>Ocupação de Salas</h3>
-                        <div class="chart-placeholder">
-                            <p>Gráfico de ocupação de salas</p>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-graduate"></i>
                         </div>
-                    </div>
-                    
-                    <div class="chart-container">
-                        <h3>Distribuição de Disciplinas</h3>
-                        <div class="chart-placeholder">
-                            <p>Gráfico de distribuição</p>
+                        <div class="stat-info">
+                            <h3>Alunos Ativos</h3>
+                            <p class="stat-number">1.250</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Atividades Recentes -->
-                <div class="recent-activities">
-                    <h3>Atividades Recentes</h3>
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-user-plus"></i>
+                <div class="dashboard-grid">
+                    <!-- Atividades Recentes -->
+                    <div class="recent-activities">
+                        <h2>Atividades Recentes</h2>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-marker"></div>
+                                <div class="activity-content">
+                                    <p class="activity-time">Há 5 minutos</p>
+                                    <p class="activity-text">Professor João Silva atualizou notas da disciplina Cálculo I</p>
+                                </div>
                             </div>
-                            <div class="activity-info">
-                                <p>Novo docente cadastrado</p>
-                                <span class="activity-time">Há 2 horas</span>
+                            <div class="activity-item">
+                                <div class="activity-marker"></div>
+                                <div class="activity-content">
+                                    <p class="activity-time">Há 15 minutos</p>
+                                    <p class="activity-text">Nova sala reservada para Laboratório de Programação</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-calendar-plus"></i>
+                            <div class="activity-item">
+                                <div class="activity-marker"></div>
+                                <div class="activity-content">
+                                    <p class="activity-time">Há 30 minutos</p>
+                                    <p class="activity-text">Novo aviso postado no mural do curso de DSM</p>
+                                </div>
                             </div>
-                            <div class="activity-info">
-                                <p>Novo semestre iniciado</p>
-                                <span class="activity-time">Há 1 dia</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-map-marked-alt"></i>
-                            </div>
-                            <div class="activity-info">
-                                <p>Mapa atualizado</p>
-                                <span class="activity-time">Há 3 dias</span>
+                            <div class="activity-item">
+                                <div class="activity-marker"></div>
+                                <div class="activity-content">
+                                    <p class="activity-time">Há 1 hora</p>
+                                    <p class="activity-text">Atualização no calendário acadêmico</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Acesso Rápido (Cards movidos para baixo) -->
-                <div class="quick-access">
-                    <h3>Acesso Rápido</h3>
-                    <div class="admin-buttons" id="recent-access">
-                        <!-- Os cards serão inseridos dinamicamente aqui via JavaScript -->
+                    <!-- Próximos Eventos -->
+                    <div class="upcoming-events">
+                        <h3><i class="fas fa-calendar-alt"></i> Próximos Eventos</h3>
+                        <div class="events-list">
+                            <div class="event-item">
+                                <div class="event-date">
+                                    <span class="day">15</span>
+                                    <span class="month">MAR</span>
+                                </div>
+                                <div class="event-info">
+                                    <h4>Início do Semestre</h4>
+                                    <p>Primeiro dia de aulas do novo semestre</p>
+                                </div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">
+                                    <span class="day">20</span>
+                                    <span class="month">MAR</span>
+                                </div>
+                                <div class="event-info">
+                                    <h4>Reunião de Colegiado</h4>
+                                    <p>Discussão sobre novas diretrizes</p>
+                                </div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">
+                                    <span class="day">25</span>
+                                    <span class="month">MAR</span>
+                                </div>
+                                <div class="event-info">
+                                    <h4>Palestra Técnica</h4>
+                                    <p>Desenvolvimento de Software na Prática</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -275,5 +300,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/script.js"></script>
     <script src="js/profile-dropdown.js"></script>
+    <script src="js/notifications.js"></script>
 </body>
 </html>

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/cursos.css">
     <link rel="stylesheet" href="css/profile-dropdown.css">
+    <link rel="stylesheet" href="css/notifications.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -63,16 +64,9 @@
             </div>
             
             <div class="sidebar-item">
-                <a href="cursos.html" class="active">
+                <a href="cursos.html">
                     <i class="fas fa-graduation-cap"></i>
                     <span>Cursos</span>
-                </a>
-            </div>
-            
-            <div class="sidebar-item">
-                <a href="configuracoes.html">
-                    <i class="fas fa-cog"></i>
-                    <span>Configurações</span>
                 </a>
             </div>
         </aside>
@@ -85,9 +79,17 @@
                 </div>
                 
                 <div class="header-actions">
-                    <a href="#" class="notification-btn" title="Notificações">
-                        <i class="fas fa-bell"></i>
-                    </a>
+                    <div class="notification-container">
+                        <button class="notification-btn" title="Notificações">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-count">0</span>
+                        </button>
+                        <div class="notification-dropdown">
+                            <div class="notification-list">
+                                <!-- As notificações serão inseridas dinamicamente aqui -->
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="user-profile" id="userProfile">
                         <div class="profile-trigger">
@@ -127,13 +129,17 @@
                                 Alterar Senha
                             </a>
                             <a href="#" class="dropdown-item">
-                                <i class="fas fa-bell"></i>
-                                Notificações
+                                <i class="fas fa-shield-alt"></i>
+                                Permissões
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-history"></i>
+                                Histórico de Atividades
                             </a>
                             
                             <div class="dropdown-divider"></div>
                             
-                            <a href="home.html" class="dropdown-item text-danger">
+                            <a href="#" class="dropdown-item text-danger">
                                 <i class="fas fa-sign-out-alt"></i>
                                 Sair
                             </a>
@@ -181,10 +187,138 @@
         </main>
     </div>
 
+    <!-- Modal Adicionar Curso -->
+    <div id="modal-adicionar-curso" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> Adicionar Novo Curso</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-adicionar-curso">
+                    <div class="form-group">
+                        <label for="nome">Nome do Curso</label>
+                        <select id="nome" name="nome" required>
+                            <option value="">Selecione o curso</option>
+                            <option value="Desenvolvimento de Software Multiplataforma">Desenvolvimento de Software Multiplataforma</option>
+                            <option value="Geoprocessamento">Geoprocessamento</option>
+                            <option value="Meio Ambiente e Recursos Hídricos">Meio Ambiente e Recursos Hídricos</option>
+                        </select>
+                        <span class="error-message" id="nome-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sigla">Sigla</label>
+                        <select id="sigla" name="sigla" required>
+                            <option value="">Selecione a sigla</option>
+                            <option value="DSM">DSM</option>
+                            <option value="GEO">GEO</option>
+                            <option value="MAR">MAR</option>
+                        </select>
+                        <span class="error-message" id="sigla-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo do Curso</label>
+                        <input type="text" id="tipo" name="tipo" value="Nível Superior" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="semestres">Número de Semestres</label>
+                        <input type="number" id="semestres" name="semestres" value="6" min="1" max="12" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="coordenador">Coordenador</label>
+                        <select id="coordenador" name="coordenador" required>
+                            <option value="">Selecione o coordenador</option>
+                            <!-- Será preenchido dinamicamente -->
+                        </select>
+                        <span class="error-message" id="coordenador-error"></span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelar-adicionar">Cancelar</button>
+                <button class="btn btn-primary" id="salvar-curso">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Curso -->
+    <div id="modal-editar-curso" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Editar Curso</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-editar-curso">
+                    <input type="hidden" id="edit-id" name="id">
+                    <div class="form-group">
+                        <label for="edit-nome">Nome do Curso</label>
+                        <select id="edit-nome" name="nome" required>
+                            <option value="">Selecione o curso</option>
+                            <option value="Desenvolvimento de Software Multiplataforma">Desenvolvimento de Software Multiplataforma</option>
+                            <option value="Geoprocessamento">Geoprocessamento</option>
+                            <option value="Meio Ambiente e Recursos Hídricos">Meio Ambiente e Recursos Hídricos</option>
+                        </select>
+                        <span class="error-message" id="edit-nome-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-sigla">Sigla</label>
+                        <select id="edit-sigla" name="sigla" required>
+                            <option value="">Selecione a sigla</option>
+                            <option value="DSM">DSM</option>
+                            <option value="GEO">GEO</option>
+                            <option value="MAR">MAR</option>
+                        </select>
+                        <span class="error-message" id="edit-sigla-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-tipo">Tipo do Curso</label>
+                        <input type="text" id="edit-tipo" name="tipo" value="Nível Superior" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-semestres">Número de Semestres</label>
+                        <input type="number" id="edit-semestres" name="semestres" value="6" min="1" max="12" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-coordenador">Coordenador</label>
+                        <select id="edit-coordenador" name="coordenador" required>
+                            <option value="">Selecione o coordenador</option>
+                            <!-- Será preenchido dinamicamente -->
+                        </select>
+                        <span class="error-message" id="edit-coordenador-error"></span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelar-editar">Cancelar</button>
+                <button class="btn btn-primary" id="salvar-edicao">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Deleção -->
+    <div id="modal-confirmar-delecao" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o curso <span id="curso-delete"></span>?</p>
+                <p class="text-danger">Esta ação não pode ser desfeita!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelar-delecao">Cancelar</button>
+                <button class="btn btn-danger" id="confirmar-delecao">Excluir</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/script.js"></script>
     <script src="js/cursos.js"></script>
     <script src="js/profile-dropdown.js"></script>
+    <script src="js/notifications.js"></script>
 </body>
 </html> 
