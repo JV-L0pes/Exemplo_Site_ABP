@@ -12,7 +12,7 @@
     align-items: center;
     margin-bottom: 20px;
     padding: 15px;
-    background-color: #f8f9fa;
+    background-color: #fff;
     border-radius: 8px;
 }
 
@@ -26,7 +26,7 @@
 }
 
 .grade-header h2 i {
-    color: #007bff;
+    color: var(--primary);
 }
 
 .grade-actions {
@@ -116,9 +116,10 @@
 /* Estilos dos docentes */
 .docentes-section {
     margin-top: 30px;
-    background-color: #f8f9fa;
+    background-color: #fff;
     padding: 20px;
     border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .docentes-section h4 {

@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disciplinas - FATEC</title>
+    <title>Cursos - FATEC</title>
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/disciplinas.css">
+    <link rel="stylesheet" href="css/cursos.css">
     <link rel="stylesheet" href="css/profile-dropdown.css">
     <link rel="stylesheet" href="css/notifications.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -38,12 +38,12 @@
             <div class="sidebar-item">
                 <a href="grade-horarios.html">
                     <i class="fas fa-book"></i>
-                    <span>Aulas</span>
+                    <span>Grade de Horários</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="mapa-interativo.html">
+                <a href="#">
                     <i class="fas fa-door-open"></i>
                     <span>Salas</span>
                 </a>
@@ -57,7 +57,7 @@
             </div>
             
             <div class="sidebar-item">
-                <a href="disciplinas.html" class="active">
+                <a href="disciplinas.html">
                     <i class="fas fa-laptop-code"></i>
                     <span>Disciplinas</span>
                 </a>
@@ -159,107 +159,133 @@
                     </a>
                 </div>
                 <div class="breadcrumb-item active">
-                    Disciplinas
+                    Cursos
                 </div>
             </div>
 
-            <!-- Área de conteúdo de Disciplinas -->
-            <div class="disciplinas-container">
-                <div class="disciplinas-header">
+            <!-- Área de conteúdo de Cursos -->
+            <div class="cursos-container">
+                <div class="cursos-header">
                     <h2>
-                        <i class="fas fa-laptop-code"></i>
-                        Gerenciar Disciplinas
+                        <i class="fas fa-graduation-cap"></i>
+                        Gerenciar Cursos
                     </h2>
-                    <button id="add-disciplina" class="btn btn-add">
-                        <i class="fas fa-plus"></i> Adicionar Disciplina
+                    <button id="add-curso" class="btn btn-add">
+                        <i class="fas fa-plus"></i> Adicionar Curso
                     </button>
                 </div>
                 
-                <div class="disciplinas-search">
-                    <input type="text" placeholder="Buscar disciplina..." id="search-disciplina">
+                <div class="cursos-search">
+                    <input type="text" placeholder="Buscar curso..." id="search-curso">
                     <button class="btn-search"><i class="fas fa-search"></i></button>
                 </div>
                 
-                <div class="disciplinas-list" id="disciplinas-list">
+                <div class="cursos-list" id="cursos-list">
                     <!-- Os cards serão inseridos dinamicamente aqui via JavaScript -->
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modal Adicionar Disciplina -->
-    <div id="modal-adicionar-disciplina" class="modal">
+    <!-- Modal Adicionar Curso -->
+    <div id="modal-adicionar-curso" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-plus-circle"></i> Adicionar Nova Disciplina</h3>
+                <h3><i class="fas fa-plus-circle"></i> Adicionar Novo Curso</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="form-adicionar-disciplina">
+                <form id="form-adicionar-curso">
                     <div class="form-group">
-                        <label for="nome">Nome da Disciplina</label>
-                        <input type="text" id="nome" name="nome" required>
+                        <label for="nome">Nome do Curso</label>
+                        <select id="nome" name="nome" required>
+                            <option value="">Selecione o curso</option>
+                            <option value="Desenvolvimento de Software Multiplataforma">Desenvolvimento de Software Multiplataforma</option>
+                            <option value="Geoprocessamento">Geoprocessamento</option>
+                            <option value="Meio Ambiente e Recursos Hídricos">Meio Ambiente e Recursos Hídricos</option>
+                        </select>
                         <span class="error-message" id="nome-error"></span>
                     </div>
                     <div class="form-group">
-                        <label for="professor">Professor</label>
-                        <select id="professor" name="professor" required>
-                            <option value="">Selecione o professor</option>
-                            <!-- Será preenchido dinamicamente -->
-                        </select>
-                        <span class="error-message" id="professor-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="curso">Curso</label>
-                        <select id="curso" name="curso" required>
-                            <option value="">Selecione o curso</option>
+                        <label for="sigla">Sigla</label>
+                        <select id="sigla" name="sigla" required>
+                            <option value="">Selecione a sigla</option>
                             <option value="DSM">DSM</option>
                             <option value="GEO">GEO</option>
                             <option value="MAR">MAR</option>
                         </select>
-                        <span class="error-message" id="curso-error"></span>
+                        <span class="error-message" id="sigla-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo do Curso</label>
+                        <input type="text" id="tipo" name="tipo" value="Nível Superior" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="semestres">Número de Semestres</label>
+                        <input type="number" id="semestres" name="semestres" value="6" min="1" max="12" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="coordenador">Coordenador</label>
+                        <select id="coordenador" name="coordenador" required>
+                            <option value="">Selecione o coordenador</option>
+                            <!-- Será preenchido dinamicamente -->
+                        </select>
+                        <span class="error-message" id="coordenador-error"></span>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelar-adicionar">Cancelar</button>
-                <button class="btn btn-primary" id="salvar-disciplina">Salvar</button>
+                <button class="btn btn-primary" id="salvar-curso">Salvar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Editar Disciplina -->
-    <div id="modal-editar-disciplina" class="modal">
+    <!-- Modal Editar Curso -->
+    <div id="modal-editar-curso" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-edit"></i> Editar Disciplina</h3>
+                <h3><i class="fas fa-edit"></i> Editar Curso</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="form-editar-disciplina">
+                <form id="form-editar-curso">
                     <input type="hidden" id="edit-id" name="id">
                     <div class="form-group">
-                        <label for="edit-nome">Nome da Disciplina</label>
-                        <input type="text" id="edit-nome" name="nome" required>
+                        <label for="edit-nome">Nome do Curso</label>
+                        <select id="edit-nome" name="nome" required>
+                            <option value="">Selecione o curso</option>
+                            <option value="Desenvolvimento de Software Multiplataforma">Desenvolvimento de Software Multiplataforma</option>
+                            <option value="Geoprocessamento">Geoprocessamento</option>
+                            <option value="Meio Ambiente e Recursos Hídricos">Meio Ambiente e Recursos Hídricos</option>
+                        </select>
                         <span class="error-message" id="edit-nome-error"></span>
                     </div>
                     <div class="form-group">
-                        <label for="edit-professor">Professor</label>
-                        <select id="edit-professor" name="professor" required>
-                            <option value="">Selecione o professor</option>
-                            <!-- Será preenchido dinamicamente -->
-                        </select>
-                        <span class="error-message" id="edit-professor-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-curso">Curso</label>
-                        <select id="edit-curso" name="curso" required>
-                            <option value="">Selecione o curso</option>
+                        <label for="edit-sigla">Sigla</label>
+                        <select id="edit-sigla" name="sigla" required>
+                            <option value="">Selecione a sigla</option>
                             <option value="DSM">DSM</option>
                             <option value="GEO">GEO</option>
                             <option value="MAR">MAR</option>
                         </select>
-                        <span class="error-message" id="edit-curso-error"></span>
+                        <span class="error-message" id="edit-sigla-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-tipo">Tipo do Curso</label>
+                        <input type="text" id="edit-tipo" name="tipo" value="Nível Superior" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-semestres">Número de Semestres</label>
+                        <input type="number" id="edit-semestres" name="semestres" value="6" min="1" max="12" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-coordenador">Coordenador</label>
+                        <select id="edit-coordenador" name="coordenador" required>
+                            <option value="">Selecione o coordenador</option>
+                            <!-- Será preenchido dinamicamente -->
+                        </select>
+                        <span class="error-message" id="edit-coordenador-error"></span>
                     </div>
                 </form>
             </div>
@@ -278,7 +304,7 @@
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Tem certeza que deseja excluir a disciplina <span id="disciplina-delete"></span>?</p>
+                <p>Tem certeza que deseja excluir o curso <span id="curso-delete"></span>?</p>
                 <p class="text-danger">Esta ação não pode ser desfeita!</p>
             </div>
             <div class="modal-footer">
@@ -291,7 +317,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/script.js"></script>
-    <script src="js/disciplinas.js"></script>
+    <script src="js/cursos.js"></script>
     <script src="js/profile-dropdown.js"></script>
     <script src="js/notifications.js"></script>
 </body>

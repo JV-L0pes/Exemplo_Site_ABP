@@ -84,17 +84,6 @@
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
-.curso-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: var(--primary);
-    opacity: 0.8;
-}
-
 .curso-header {
     display: flex;
     align-items: flex-start;
