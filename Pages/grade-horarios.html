@@ -197,7 +197,12 @@
                     <table class="grade-table">
                         <thead>
                             <tr>
-                                <th>Horário</th>
+                                <th>
+                                    <button class="horario-btn" onclick="abrirModalHorario()">
+                                        Horário
+                                        <i class="fas fa-plus-circle"></i>
+                                    </button>
+                                </th>
                                 <th>Segunda</th>
                                 <th>Terça</th>
                                 <th>Quarta</th>
@@ -220,6 +225,9 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Container para os toasts -->
+            <div class="toast-container"></div>
         </main>
     </div>
 
@@ -227,5 +235,87 @@
     <script src="js/grade-horarios.js"></script>
     <script src="js/profile-dropdown.js"></script>
     <script src="js/notifications.js"></script>
+    <script src="js/horario-modal.js"></script>
+
+    <!-- Modal de Detalhes da Matéria -->
+    <div id="materiaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalhes da Matéria</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editarMateriaForm">
+                    <div class="form-group">
+                        <label for="modalMateriaNome">Matéria:</label>
+                        <select id="modalMateriaNome" class="form-control">
+                            <!-- Será preenchido via JavaScript -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modalProfessorNome">Professor:</label>
+                        <select id="modalProfessorNome" class="form-control">
+                            <!-- Será preenchido via JavaScript -->
+                        </select>
+                    </div>
+
+                    <div class="horarios-section">
+                        <h4>Horários</h4>
+                        <div id="modalHorarios" class="horarios-grid">
+                            <!-- Será preenchido via JavaScript -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="editarMateriaForm">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Horário -->
+    <div id="horarioModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Associar Matéria ao Horário</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="associarMateriaForm">
+                    <div class="form-group">
+                        <label for="horarioModalMateria">Matéria:</label>
+                        <select id="horarioModalMateria" class="form-control" required>
+                            <!-- Será preenchido via JavaScript -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="horarioModalDia">Dia da Semana:</label>
+                        <select id="horarioModalDia" class="form-control" required>
+                            <option value="">Selecione um dia</option>
+                            <option value="Segunda">Segunda</option>
+                            <option value="Terça">Terça</option>
+                            <option value="Quarta">Quarta</option>
+                            <option value="Quinta">Quinta</option>
+                            <option value="Sexta">Sexta</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="horarioModalHorario">Horário:</label>
+                        <select id="horarioModalHorario" class="form-control" required>
+                            <!-- Será preenchido via JavaScript -->
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="associarMateriaForm">Associar Matéria</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html> 

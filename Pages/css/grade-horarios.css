@@ -96,24 +96,138 @@
 .aula-cell {
     padding: 10px;
     border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    cursor: grab;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    position: relative;
+    overflow: hidden;
 }
 
-.aula-cell:hover {
+.aula-cell:active {
+    cursor: grabbing;
+}
+
+.aula-cell::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.aula-cell:hover::before {
+    opacity: 1;
+}
+
+.aula-cell.dragging {
+    opacity: 0.8;
+    transform: scale(1.05) rotate(1deg);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    50% {
+        box-shadow: 0 8px 24px rgba(66, 153, 225, 0.3);
+    }
+    100% {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.aula-cell.drag-over {
+    border: 2px dashed #4299e1;
+    background-color: rgba(66, 153, 225, 0.1);
     transform: scale(1.02);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    animation: bounce 0.5s;
 }
 
-/* Cores das disciplinas */
-.aula-cell.tecnicas { background-color: #e6ccff; }
-.aula-cell.desenvolvimento { background-color: #ffffcc; }
-.aula-cell.matematica { background-color: #cce6ff; }
-.aula-cell.estrutura { background-color: #e6f3ff; }
-.aula-cell.engenharia { background-color: #ccffff; }
-.aula-cell.bd { background-color: #ffcccc; }
+@keyframes bounce {
+    0%, 100% {
+        transform: scale(1.02);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
 
-/* Estilos dos docentes */
+/* Efeito de brilho ao passar o mouse */
+.aula-cell::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transform: rotate(45deg);
+    transition: all 0.3s;
+    opacity: 0;
+}
+
+.aula-cell:hover::after {
+    animation: shine 1.5s infinite;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) rotate(45deg);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.5;
+    }
+    100% {
+        transform: translateX(100%) rotate(45deg);
+        opacity: 0;
+    }
+}
+
+/* Cores das disciplinas - Versão mais vibrante */
+.aula-cell.tecnicas { 
+    background-color: #b794f4; /* Roxo mais vibrante */
+    color: #1a202c;
+}
+
+.aula-cell.desenvolvimento { 
+    background-color: #f6e05e; /* Amarelo mais vibrante */
+    color: #1a202c;
+}
+
+.aula-cell.matematica { 
+    background-color: #63b3ed; /* Azul mais vibrante */
+    color: #1a202c;
+}
+
+.aula-cell.estrutura { 
+    background-color: #4fd1c5; /* Turquesa mais vibrante */
+    color: #1a202c;
+}
+
+.aula-cell.engenharia { 
+    background-color: #38b2ac; /* Verde-azulado mais vibrante */
+    color: #1a202c;
+}
+
+.aula-cell.bd { 
+    background-color: #fc8181; /* Vermelho mais vibrante */
+    color: #1a202c;
+}
+
+/* Estilos dos docentes com cores mais vibrantes */
 .docentes-section {
     margin-top: 30px;
     background-color: #fff;
@@ -134,9 +248,24 @@
 }
 
 .docentes-table td {
-    padding: 10px 15px;
-    border: 1px solid #dee2e6;
+    padding: 12px 15px;
+    border: 1px solid #e2e8f0;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
+
+.docentes-table td:hover {
+    transform: translateX(5px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Cores dos docentes correspondentes às disciplinas */
+.docentes-table td[style*="background-color: #e6ccff"] { background-color: #b794f4 !important; }
+.docentes-table td[style*="background-color: #ffffcc"] { background-color: #f6e05e !important; }
+.docentes-table td[style*="background-color: #cce6ff"] { background-color: #63b3ed !important; }
+.docentes-table td[style*="background-color: #e6f3ff"] { background-color: #4fd1c5 !important; }
+.docentes-table td[style*="background-color: #ccffff"] { background-color: #38b2ac !important; }
+.docentes-table td[style*="background-color: #ffcccc"] { background-color: #fc8181 !important; }
 
 /* Responsividade */
 @media (max-width: 768px) {
@@ -157,4 +286,266 @@
     .aula-cell {
         padding: 5px;
     }
+}
+
+/* Estilos do Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--primary);
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.close-modal:hover {
+    color: var(--primary);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.25);
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+.horarios-section {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eef2f7;
+}
+
+.horarios-section h4 {
+    color: #2d3748;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.horarios-grid {
+    display: grid;
+    gap: 15px;
+}
+
+.horario-item {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    align-items: start;
+}
+
+/* Estilos do Toast */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast {
+    background: #ffffff;
+    color: #2d3748;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    max-width: 400px;
+    animation: slideIn 0.3s ease-out;
+    transition: all 0.3s ease;
+}
+
+.toast.success {
+    border-left: 4px solid #48bb78;
+    background-color: #f0fff4;
+}
+
+.toast.error {
+    border-left: 4px solid #f56565;
+    background-color: #fff5f5;
+}
+
+.toast-icon {
+    font-size: 20px;
+}
+
+.toast.success .toast-icon {
+    color: #48bb78;
+}
+
+.toast.error .toast-icon {
+    color: #f56565;
+}
+
+.toast-message {
+    flex: 1;
+    font-weight: 500;
+}
+
+.toast-close {
+    cursor: pointer;
+    color: #a0aec0;
+    transition: color 0.2s;
+}
+
+.toast-close:hover {
+    color: #4a5568;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Estilo para o botão de horário */
+.horario-btn {
+    background-color: var(--primary);
+    border: none;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    font-size: inherit;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    width: 100%;
+    justify-content: center;
+}
+
+.horario-btn:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.horario-btn i {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.horario-btn:hover i {
+    opacity: 1;
 } 

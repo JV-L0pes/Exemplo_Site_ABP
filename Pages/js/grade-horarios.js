@@ -404,6 +404,42 @@ document.addEventListener('DOMContentLoaded', function() {
         { dia: 5, horario: 4, disciplina: disciplinasMAR3[1] }
     ];
 
+    // Mapa de cores dos professores (adicionado no início do arquivo, após as declarações das disciplinas)
+    const coresProfessores = {
+        'Prof. Esp. Henrique Duarte Borges Louro': 'tecnicas',
+        'Prof. Dr. Arley Ferreira de Souza': 'desenvolvimento',
+        'Prof. Dr. Fabrício Galende Marques de Carvalho': 'matematica',
+        'Prof. Esp. André Olímpio': 'estrutura',
+        'Profa. Esp. Lucineide Nunes Pimenta': 'bd',
+        'Prof. Dr. João Silva': 'tecnicas',
+        'Profa. Dra. Maria Santos': 'desenvolvimento',
+        'Prof. Dr. Pedro Oliveira': 'estrutura',
+        'Profa. Dra. Ana Costa': 'engenharia',
+        'Prof. Dr. Carlos Mendes': 'bd',
+        'Prof. Dr. Roberto Lima': 'tecnicas',
+        'Profa. Dra. Juliana Martins': 'desenvolvimento',
+        'Prof. Dr. Fernando Costa': 'estrutura',
+        'Prof. Dr. Ricardo Santos': 'engenharia',
+        'Profa. Dra. Patricia Oliveira': 'bd'
+    };
+
+    // Função para salvar localmente as alterações de professor
+    function salvarAlteracoesLocalmente(disciplinaId, novoProfessor, novaCor) {
+        const alteracoes = JSON.parse(localStorage.getItem('alteracoesProfessores') || '{}');
+        alteracoes[disciplinaId] = {
+            professor: novoProfessor,
+            cor: novaCor,
+            dataAlteracao: new Date().toISOString()
+        };
+        localStorage.setItem('alteracoesProfessores', JSON.stringify(alteracoes));
+    }
+
+    // Função para obter alterações locais
+    function obterAlteracaoLocal(disciplinaId) {
+        const alteracoes = JSON.parse(localStorage.getItem('alteracoesProfessores') || '{}');
+        return alteracoes[disciplinaId];
+    }
+
     // Preencher a tabela de horários
     const tbody = document.querySelector('.grade-table tbody');
     horarios.forEach((horario, index) => {
@@ -445,15 +481,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 aulas = aulasDSM;
         }
 
-        // Preencher a grade com as aulas
+        // Ao preencher a grade, verificar alterações locais
         aulas.forEach(aula => {
+            const alteracao = obterAlteracaoLocal(aula.disciplina.id);
+            if (alteracao) {
+                aula.disciplina.professor = alteracao.professor;
+                aula.disciplina.tipo = alteracao.cor;
+            }
+
             const cell = tbody.rows[aula.horario].cells[aula.dia];
             cell.innerHTML = `
-                <div class="aula-cell ${aula.disciplina.tipo}" data-aula='${JSON.stringify(aula)}'>
+                <div class="aula-cell ${aula.disciplina.tipo}" 
+                     data-aula='${JSON.stringify(aula)}'
+                     draggable="true"
+                     data-cell-id="${aula.dia}-${aula.horario}">
                     ${aula.disciplina.nome}<br>
                     <small>${aula.disciplina.professor}</small>
                 </div>
             `;
+
+            // Adicionar eventos de drag and drop
+            const aulaCell = cell.querySelector('.aula-cell');
+            aulaCell.addEventListener('dragstart', handleDragStart);
+            aulaCell.addEventListener('dragend', handleDragEnd);
+            cell.addEventListener('dragover', handleDragOver);
+            cell.addEventListener('dragleave', handleDragLeave);
+            cell.addEventListener('drop', handleDrop);
+
+            // Manter o evento de clique para o modal
+            cell.onclick = function(e) {
+                if (!e.target.closest('.aula-cell').classList.contains('dragging')) {
+                    mostrarDetalhesMateria(this);
+                }
+            };
         });
 
         // Atualizar a lista de docentes
@@ -502,26 +562,592 @@ document.addEventListener('DOMContentLoaded', function() {
         // Implementar lógica de atualização dos selects de professores
     }
 
-    // Adicionar eventos de clique nas células
-    document.querySelectorAll('.grade-table td[data-dia]').forEach(cell => {
-        cell.addEventListener('click', function() {
-            if (!this.querySelector('.aula-cell')) return;
+    // Variáveis globais para o modal
+    window.materiaAtual = null;
+    window.celulaAtual = null;
+
+    // Variáveis globais para o drag and drop
+    let draggedCell = null;
+    let draggedCellData = null;
+
+    // Função para iniciar o drag
+    function handleDragStart(e) {
+        draggedCell = this;
+        draggedCellData = JSON.parse(this.dataset.aula);
+        
+        // Adicionar classe de dragging
+        this.classList.add('dragging');
+        
+        // Definir dados do drag
+        e.dataTransfer.setData('text/plain', this.dataset.cellId);
+        e.dataTransfer.effectAllowed = 'move';
+    }
+
+    // Função para finalizar o drag
+    function handleDragEnd(e) {
+        // Remover classe de dragging
+        this.classList.remove('dragging');
+        
+        // Limpar variáveis
+        draggedCell = null;
+        draggedCellData = null;
+    }
+
+    // Função para quando o elemento está sendo arrastado sobre uma célula
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        // Adicionar classe de drag-over
+        this.classList.add('drag-over');
+    }
+
+    // Função para quando o elemento sai da célula
+    function handleDragLeave(e) {
+        // Remover classe de drag-over
+        this.classList.remove('drag-over');
+    }
+
+    // Função para quando o elemento é solto
+    function handleDrop(e) {
+        e.preventDefault();
+        
+        // Remover classe de drag-over
+        this.classList.remove('drag-over');
+        
+        // Se não houver célula sendo arrastada, retorna
+        if (!draggedCell) return;
+
+        // Pegar a célula de destino
+        const targetCell = this;
+        const sourceCell = draggedCell.parentElement;
+
+        // Se a célula de destino for a mesma da origem, não faz nada
+        if (targetCell === sourceCell) return;
+
+        // Pegar os dados das células
+        const sourceData = JSON.parse(draggedCell.dataset.aula);
+        const targetData = targetCell.querySelector('.aula-cell') ? 
+            JSON.parse(targetCell.querySelector('.aula-cell').dataset.aula) : null;
+
+        // Se a célula de destino estiver vazia
+        if (!targetData) {
+            // Mover a célula arrastada para cá
+            targetCell.appendChild(draggedCell);
             
-            const aulaAtual = this.querySelector('.aula-cell').dataset.aula;
-            if (aulaAtual) {
-                const aula = JSON.parse(aulaAtual);
+            // Atualizar os dados da célula
+            const [dia, horario] = targetCell.dataset.dia.split('-');
+            sourceData.dia = parseInt(dia);
+            sourceData.horario = parseInt(horario);
+            draggedCell.dataset.aula = JSON.stringify(sourceData);
+            
+            // Registrar a troca
+            registrarTrocaAula(sourceData);
+        } else {
+            // Trocar as células
+            const targetCellContent = targetCell.querySelector('.aula-cell');
+            
+            // Atualizar os dados da célula de destino
+            const [sourceDia, sourceHorario] = sourceCell.dataset.dia.split('-');
+            targetData.dia = parseInt(sourceDia);
+            targetData.horario = parseInt(sourceHorario);
+            targetCellContent.dataset.aula = JSON.stringify(targetData);
+            
+            // Atualizar os dados da célula de origem
+            const [targetDia, targetHorario] = targetCell.dataset.dia.split('-');
+            sourceData.dia = parseInt(targetDia);
+            sourceData.horario = parseInt(targetHorario);
+            draggedCell.dataset.aula = JSON.stringify(sourceData);
+            
+            // Trocar as células fisicamente
+            sourceCell.appendChild(targetCellContent);
+            targetCell.appendChild(draggedCell);
+            
+            // Registrar as duas trocas
+            registrarTrocaAula(sourceData);
+            registrarTrocaAula(targetData);
+        }
+    }
+
+    // Função para registrar a troca de aula (será implementada posteriormente com o backend)
+    function registrarTrocaAula(aulaData) {
+        // Aqui você implementará a lógica para salvar a troca no banco de dados
+        console.log('Troca registrada:', {
+            disciplina: aulaData.disciplina,
+            dia: aulaData.dia,
+            horario: aulaData.horario,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Exemplo de como seria a chamada para a API
+        /*
+        fetch('/api/aulas/trocar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                disciplinaId: aulaData.disciplina.id,
+                dia: aulaData.dia,
+                horario: aulaData.horario
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Troca registrada com sucesso:', data);
+        })
+        .catch(error => {
+            console.error('Erro ao registrar troca:', error);
+        });
+        */
+    }
+
+    // Função para mostrar detalhes da matéria
+    function mostrarDetalhesMateria(celula) {
+        const aulaCell = celula.querySelector('.aula-cell');
+        if (!aulaCell) return;
+
+        try {
+            const aula = JSON.parse(aulaCell.dataset.aula);
+            const disciplina = aula.disciplina;
+            celulaAtual = celula;
+            
+            // Pegar o horário específico desta célula
+            const diaIndex = parseInt(celula.dataset.dia);
+            const horarioIndex = parseInt(celula.dataset.horario);
+            
+            const dia = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'][diaIndex - 1];
+            const horario = horarios[horarioIndex];
+            
+            materiaAtual = {
+                id: disciplina.id,
+                nome: disciplina.nome,
+                professor: disciplina.professor,
+                horarios: [{
+                    dia: dia,
+                    hora: `${horario.inicio} - ${horario.fim}`
+                }],
+                tipo: disciplina.tipo
+            };
+            
+            abrirModal(materiaAtual);
+        } catch (error) {
+            console.error('Erro ao processar dados da matéria:', error);
+        }
+    }
+
+    // Função para mostrar toast
+    function showToast(message, type = 'success') {
+        const toastContainer = document.querySelector('.toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icon = type === 'success' ? '✓' : '✕';
+        
+        toast.innerHTML = `
+            <div class="toast-icon">${icon}</div>
+            <div class="toast-message">${message}</div>
+            <div class="toast-close">×</div>
+        `;
+
+        toastContainer.appendChild(toast);
+
+        // Adicionar evento para fechar o toast
+        const closeBtn = toast.querySelector('.toast-close');
+        closeBtn.addEventListener('click', () => {
+            toast.style.animation = 'slideOut 0.3s ease-out forwards';
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        });
+
+        // Remover toast automaticamente após 5 segundos
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.animation = 'slideOut 0.3s ease-out forwards';
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }
+        }, 5000);
+    }
+
+    // Atualizar a função salvarAlteracoes
+    function salvarAlteracoes(e) {
+        e.preventDefault();
+            
+        const materiaId = document.getElementById('modalMateriaNome').value;
+        const professor = document.getElementById('modalProfessorNome').value;
+        const horariosNovos = Array.from(document.querySelectorAll('.horario-item')).map(item => ({
+            dia: item.querySelector('.dia-select').value,
+            hora: item.querySelector('.horario-select').value
+        })).filter(h => h.dia && h.hora);
+
+        // Validar se todos os campos necessários foram preenchidos
+        if (!materiaId || !professor || horariosNovos.length === 0) {
+            showToast('Por favor, preencha todos os campos obrigatórios.', 'error');
+            return;
+        }
+
+        // Atualizar os dados da matéria
+        if (celulaAtual && materiaAtual) {
+            const disciplinaSelecionada = obterDisciplinaPorId(materiaId);
+            if (disciplinaSelecionada) {
+                // Obter a cor associada ao novo professor
+                const novaCor = coresProfessores[professor] || disciplinaSelecionada.tipo;
+                
+                // Salvar alteração localmente
+                salvarAlteracoesLocalmente(materiaId, professor, novaCor);
+
+                // Pegar os dados da aula atual
+                const aulaAtual = JSON.parse(celulaAtual.querySelector('.aula-cell').dataset.aula);
+                const horarioAtual = parseInt(celulaAtual.dataset.horario);
+                const diaAtual = parseInt(celulaAtual.dataset.dia);
+
+                console.log('Dados iniciais:', {
+                    celulaAtual: {
+                        dia: diaAtual,
+                        horario: horarioAtual,
+                        aula: aulaAtual
+                    }
+                });
+
+                // Para cada horário selecionado
+                horariosNovos.forEach(horarioNovo => {
+                    // Converter dia texto para número (1-5)
+                    const diaNumero = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'].indexOf(horarioNovo.dia) + 1;
+                    
+                    // Encontrar o índice do horário baseado no horário selecionado
+                    const [horaInicio] = horarioNovo.hora.split(' - ');
+                    const horarioIndex = horarios.findIndex(h => h.inicio === horaInicio);
+
+                    console.log('Dados do novo horário:', {
+                        dia: horarioNovo.dia,
+                        diaNumero: diaNumero,
+                        horaInicio: horaInicio,
+                        horarioIndex: horarioIndex
+                    });
+
+                    if (horarioIndex !== -1 && diaNumero !== -1) {
+                        // Encontrar a célula de destino na grade
+                        const tbody = document.querySelector('.grade-table tbody');
+                        const celulaDestino = tbody.rows[horarioIndex].cells[diaNumero];
+
+                        console.log('Célula de destino:', {
+                            existe: !!celulaDestino,
+                            dia: diaNumero,
+                            horario: horarioIndex
+                        });
+
+                        // Se a célula de destino for diferente da célula atual
+                        if (celulaDestino !== celulaAtual) {
+                            // Verificar se a célula de destino já tem uma aula
+                            const aulaDestino = celulaDestino.querySelector('.aula-cell');
+                            
+                            console.log('Aula de destino:', {
+                                existe: !!aulaDestino,
+                                dados: aulaDestino ? JSON.parse(aulaDestino.dataset.aula) : null
+                            });
+
+                            if (aulaDestino) {
+                                // Realizar o swap
+                                const dadosAulaDestino = JSON.parse(aulaDestino.dataset.aula);
+                                
+                                // Criar os novos elementos
+                                const novaCelulaAtual = document.createElement('div');
+                                novaCelulaAtual.className = `aula-cell ${dadosAulaDestino.disciplina.tipo}`;
+                                novaCelulaAtual.setAttribute('data-aula', JSON.stringify({
+                                    ...dadosAulaDestino,
+                                    dia: diaAtual,
+                                    horario: horarioAtual
+                                }));
+                                novaCelulaAtual.setAttribute('draggable', 'true');
+                                novaCelulaAtual.setAttribute('data-cell-id', `${diaAtual}-${horarioAtual}`);
+                                novaCelulaAtual.innerHTML = `
+                                    ${dadosAulaDestino.disciplina.nome}<br>
+                                    <small>${dadosAulaDestino.disciplina.professor}</small>
+                                `;
+
+                                const novaCelulaDestino = document.createElement('div');
+                                novaCelulaDestino.className = `aula-cell ${novaCor}`;
+                                novaCelulaDestino.setAttribute('data-aula', JSON.stringify({
+                                    ...aulaAtual,
+                                    dia: diaNumero,
+                                    horario: horarioIndex,
+                                    disciplina: {
+                                        ...disciplinaSelecionada,
+                                        professor: professor,
+                                        tipo: novaCor
+                                    }
+                                }));
+                                novaCelulaDestino.setAttribute('draggable', 'true');
+                                novaCelulaDestino.setAttribute('data-cell-id', `${diaNumero}-${horarioIndex}`);
+                                novaCelulaDestino.innerHTML = `
+                                    ${disciplinaSelecionada.nome}<br>
+                                    <small>${professor}</small>
+                                `;
+
+                                // Limpar e atualizar as células
+                                celulaAtual.innerHTML = '';
+                                celulaDestino.innerHTML = '';
+                                celulaAtual.appendChild(novaCelulaAtual);
+                                celulaDestino.appendChild(novaCelulaDestino);
+
+                                // Adicionar eventos
+                                [novaCelulaAtual, novaCelulaDestino].forEach(cell => {
+                                    cell.addEventListener('dragstart', handleDragStart);
+                                    cell.addEventListener('dragend', handleDragEnd);
+                                });
+
+                                [celulaAtual, celulaDestino].forEach(cell => {
+                                    cell.addEventListener('dragover', handleDragOver);
+                                    cell.addEventListener('dragleave', handleDragLeave);
+                                    cell.addEventListener('drop', handleDrop);
+                                    cell.onclick = function() {
+                                        mostrarDetalhesMateria(this);
+                                    };
+                                });
+
+                                // Registrar as trocas
+                                registrarTrocaAula({
+                                    ...dadosAulaDestino,
+                                    dia: diaAtual,
+                                    horario: horarioAtual
+                                });
+                                registrarTrocaAula({
+                                    ...aulaAtual,
+                                    dia: diaNumero,
+                                    horario: horarioIndex,
+                                    disciplina: {
+                                        ...disciplinaSelecionada,
+                                        professor: professor,
+                                        tipo: novaCor
+                                    }
+                                });
+
+                                console.log('Swap realizado:', {
+                                    origem: {
+                                        dia: diaAtual,
+                                        horario: horarioAtual,
+                                        aula: dadosAulaDestino
+                                    },
+                                    destino: {
+                                        dia: diaNumero,
+                                        horario: horarioIndex,
+                                        aula: {
+                                            ...aulaAtual,
+                                            disciplina: {
+                                                ...disciplinaSelecionada,
+                                                professor: professor,
+                                                tipo: novaCor
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+
+                // Atualizar a lista de docentes
+                atualizarListaDocentes();
+
+                // Mostrar mensagem de sucesso
+                showToast('Alterações salvas com sucesso!');
+                fecharModal();
+            }
+        }
+    }
+
+    // Função auxiliar para obter disciplina por ID
+    function obterDisciplinaPorId(id) {
+                const curso = document.querySelector('.grade-actions select:first-child').value;
+                const nivel = document.querySelector('.grade-actions select:nth-child(2)').value;
+        let disciplinas;
+        
+        switch(curso) {
+            case 'DSM':
+                disciplinas = nivel === '1' ? disciplinasDSM : 
+                            nivel === '2' ? disciplinasDSM2 : disciplinasDSM3;
+                break;
+            case 'GEO':
+                disciplinas = nivel === '1' ? disciplinasGEO : 
+                            nivel === '2' ? disciplinasGEO2 : disciplinasGEO3;
+                break;
+            case 'MAR':
+                disciplinas = nivel === '1' ? disciplinasMAR : 
+                            nivel === '2' ? disciplinasMAR2 : disciplinasMAR3;
+                break;
+            default:
+                disciplinas = disciplinasDSM;
+        }
+        
+        return disciplinas.find(d => d.id === parseInt(id));
+    }
+
+    // Função para atualizar a lista de docentes
+    function atualizarListaDocentes() {
+        const curso = document.querySelector('.grade-actions select:first-child').value;
+        const nivel = document.querySelector('.grade-actions select:nth-child(2)').value;
+        preencherGrade(curso, nivel);
+    }
+
+    // Adicionar eventos aos botões do modal
+    document.getElementById('editarMateriaForm').addEventListener('submit', salvarAlteracoes);
+
+    // Função para fechar o modal (cancelar) - escopo global
+    function fecharModal() {
+        const modal = document.getElementById('materiaModal');
+        modal.classList.remove('show');
+        window.materiaAtual = null;
+        window.celulaAtual = null;
+    }
+
+    // Eventos para fechar o modal
+    document.querySelector('.close-modal').addEventListener('click', fecharModal);
+    document.querySelector('#materiaModal .modal-footer .btn-secondary').addEventListener('click', function(e) {
+        e.preventDefault();
+        fecharModal();
+    });
+
+    // Fechar modal quando clicar fora
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('materiaModal');
+        if (event.target == modal) {
+            fecharModal();
+        }
+    });
+
+    // Função para preencher os selects do modal
+    function preencherSelectsModal() {
+        const materiaSelect = document.getElementById('modalMateriaNome');
+        const professorSelect = document.getElementById('modalProfessorNome');
+                
+        // Limpar os selects
+        materiaSelect.innerHTML = '';
+        professorSelect.innerHTML = '';
+
+        // Pegar o curso e nível atual
                 const curso = document.querySelector('.grade-actions select:first-child').value;
                 const nivel = document.querySelector('.grade-actions select:nth-child(2)').value;
                 
-                // Atualizar os selects com as disciplinas e professores do curso/nível atual
-                atualizarSelects(curso, nivel);
-                
-                // Selecionar os valores atuais
-                atualizarSelectsDisciplinas(curso, nivel);
-                atualizarSelectsProfessores(curso, nivel);
-            }
+        // Pegar as disciplinas do curso/nível atual
+        let disciplinas;
+        switch(curso) {
+            case 'DSM':
+                disciplinas = nivel === '1' ? disciplinasDSM : 
+                            nivel === '2' ? disciplinasDSM2 : disciplinasDSM3;
+                break;
+            case 'GEO':
+                disciplinas = nivel === '1' ? disciplinasGEO : 
+                            nivel === '2' ? disciplinasGEO2 : disciplinasGEO3;
+                break;
+            case 'MAR':
+                disciplinas = nivel === '1' ? disciplinasMAR : 
+                            nivel === '2' ? disciplinasMAR2 : disciplinasMAR3;
+                break;
+            default:
+                disciplinas = disciplinasDSM;
+        }
+
+        // Preencher select de matérias
+        disciplinas.forEach(disciplina => {
+            const option = document.createElement('option');
+            option.value = disciplina.id;
+            option.textContent = disciplina.nome;
+            materiaSelect.appendChild(option);
         });
-    });
+
+        // Lista completa de professores (incluindo todos os professores disponíveis)
+        const todosProfessores = [
+            'Prof. Esp. Henrique Duarte Borges Louro',
+            'Prof. Dr. Arley Ferreira de Souza',
+            'Prof. Dr. Fabrício Galende Marques de Carvalho',
+            'Prof. Esp. André Olímpio',
+            'Profa. Esp. Lucineide Nunes Pimenta',
+            'Prof. Dr. João Silva',
+            'Profa. Dra. Maria Santos',
+            'Prof. Dr. Pedro Oliveira',
+            'Profa. Dra. Ana Costa',
+            'Prof. Dr. Carlos Mendes',
+            'Prof. Dr. Roberto Lima',
+            'Profa. Dra. Juliana Martins',
+            'Prof. Dr. Fernando Costa',
+            'Prof. Dr. Ricardo Santos',
+            'Profa. Dra. Patricia Oliveira'
+        ];
+
+        // Preencher select de professores com todos os professores disponíveis
+        todosProfessores.forEach(professor => {
+            const option = document.createElement('option');
+            option.value = professor;
+            option.textContent = professor;
+            professorSelect.appendChild(option);
+        });
+    }
+
+    // Função para criar um novo item de horário
+    function criarHorarioItem(dia = '', hora = '') {
+        const horarioItem = document.createElement('div');
+        horarioItem.className = 'horario-item';
+        horarioItem.innerHTML = `
+            <div class="form-group">
+                <label>Dia:</label>
+                <select class="form-control dia-select">
+                    <option value="">Selecione o dia</option>
+                    <option value="Segunda" ${dia === 'Segunda' ? 'selected' : ''}>Segunda</option>
+                    <option value="Terça" ${dia === 'Terça' ? 'selected' : ''}>Terça</option>
+                    <option value="Quarta" ${dia === 'Quarta' ? 'selected' : ''}>Quarta</option>
+                    <option value="Quinta" ${dia === 'Quinta' ? 'selected' : ''}>Quinta</option>
+                    <option value="Sexta" ${dia === 'Sexta' ? 'selected' : ''}>Sexta</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Horário:</label>
+                <select class="form-control horario-select">
+                    <option value="">Selecione o horário</option>
+                    ${horarios.map(h => `
+                        <option value="${h.inicio} - ${h.fim}" ${hora === `${h.inicio} - ${h.fim}` ? 'selected' : ''}>
+                            ${h.inicio} - ${h.fim}
+                        </option>
+                    `).join('')}
+                </select>
+            </div>
+        `;
+        return horarioItem;
+            }
+
+    // Função para abrir o modal
+    function abrirModal(materia) {
+        const modal = document.getElementById('materiaModal');
+        const modalMateriaNome = document.getElementById('modalMateriaNome');
+        const modalProfessorNome = document.getElementById('modalProfessorNome');
+        const modalHorarios = document.getElementById('modalHorarios');
+
+        // Preencher os selects
+        preencherSelectsModal();
+
+        // Selecionar a matéria e professor corretos
+        modalMateriaNome.value = materia.id || '';
+        modalProfessorNome.value = materia.professor || '';
+
+        // Limpar os horários anteriores
+        modalHorarios.innerHTML = '';
+
+        // Adicionar os horários existentes
+        if (materia.horarios && materia.horarios.length > 0) {
+            materia.horarios.forEach(horario => {
+                const horarioItem = criarHorarioItem(horario.dia, horario.hora);
+                modalHorarios.appendChild(horarioItem);
+        });
+        } else {
+            // Adicionar um horário vazio se não houver nenhum
+            modalHorarios.appendChild(criarHorarioItem());
+        }
+
+        // Exibir o modal
+        modal.classList.add('show');
+    }
 
     // Eventos para os filtros
     document.querySelectorAll('.grade-actions select').forEach(select => {
@@ -535,5 +1161,51 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.btn-primary').addEventListener('click', function() {
         // Aqui você implementaria a lógica para exportar a grade
         console.log('Grade exportada com sucesso!');
+    });
+
+    // Função para abrir o modal de horário
+    function abrirModalHorario() {
+        const modal = document.getElementById('materiaModal');
+        const modalMateriaNome = document.getElementById('modalMateriaNome');
+        const modalProfessorNome = document.getElementById('modalProfessorNome');
+        const modalHorarios = document.getElementById('modalHorarios');
+
+        // Limpar seleções anteriores
+        modalMateriaNome.value = '';
+        modalProfessorNome.value = '';
+        modalHorarios.innerHTML = '';
+
+        // Adicionar um horário vazio
+        modalHorarios.appendChild(criarHorarioItem());
+
+        // Preencher os selects com as opções disponíveis
+        preencherSelectsModal();
+
+        // Exibir o modal
+        modal.classList.add('show');
+    }
+
+    // Evento para fechar o modal
+    document.querySelector('.close-modal').addEventListener('click', function() {
+        document.getElementById('materiaModal').classList.remove('show');
+    });
+
+    // Evento para salvar as alterações
+    document.getElementById('editarMateriaForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const materia = document.getElementById('modalMateriaNome').value;
+        const professor = document.getElementById('modalProfessorNome').value;
+        const horarios = Array.from(document.querySelectorAll('.horario-item')).map(item => ({
+            dia: item.querySelector('.dia-select').value,
+            hora: item.querySelector('.horario-select').value
+        }));
+
+        // Aqui você implementaria a lógica para salvar as alterações
+        console.log('Matéria:', materia);
+        console.log('Professor:', professor);
+        console.log('Horários:', horarios);
+
+        // Fechar o modal
+        document.getElementById('materiaModal').classList.remove('show');
     });
 }); 
