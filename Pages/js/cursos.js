@@ -19,9 +19,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Mapeamento de nomes de cursos para siglas
     const cursoParaSigla = {
-        "Desenvolvimento de Software Multiplataforma": "DSM",
-        "Geoprocessamento": "GEO",
-        "Meio Ambiente e Recursos Hídricos": "MAR"
+        "Desenvolvimento de Software Multiplataforma": "Dsm",
+        "Geoprocessamento": "Geo",
+        "Meio Ambiente e Recursos Hídricos": "Mrh"
     };
 
     // Função para sincronizar a sigla com o nome do curso
@@ -60,8 +60,41 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
+    async function initializeCursos(){
+        let cursos = await getCursos(); // Aguarda o resultado da função async
+        if (cursos) {
+            renderCursos(cursos); // Chama renderCursos com os dados
+        } else {
+            console.error('Token inválido');
+        }
+    }
+
     // Dados simulados para demonstração
-    let cursos = [
+    async function getCursos() {
+        try {
+            let response = await fetch('https://errorsquad-server.onrender.com/admin/1/cursos', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibm9tZSI6Ikpvw6NvIFNpbHZhIiwiaWF0IjoxNzQ2NTc0MTMwLCJleHAiOjE3NDY1Nzc3MzB9.kVMZs7Kjmkvvu4-RNvUC9LMfR7gKQKcBeSi-PSMIkCM'
+                },
+            });
+    
+            let result = await response.json();
+            let data = result.data;
+
+            if (result === 'Token inválido.'){
+                return null; // Retorna os dados processados
+             }
+             else{
+                return data
+             }
+        } catch (error) {
+            console.error('Erro:', error);
+            return null; // Retorna null em caso de erro
+        }
+    }
+    /*[
         { 
             id: 1, 
             nome: "Desenvolvimento de&nbsp;Software&nbsp;Multiplataforma",
@@ -89,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function() {
             coordenador: "Pedro Oliveira",
             alunos: 100
         }
-    ];
+    ];*/
     
     // Função para renderizar os cards de cursos
     function renderCursos(cursosToRender = cursos) {
@@ -110,9 +143,9 @@ document.addEventListener("DOMContentLoaded", function() {
         // Definir classe do curso
         let cursoClass = "";
         switch(curso.sigla) {
-            case "DSM": cursoClass = "curso-dsm"; break;
-            case "GEO": cursoClass = "curso-geo"; break;
-            case "MAR": cursoClass = "curso-mar"; break;
+            case "Dsm": cursoClass = "curso-dsm"; break;
+            case "Geo": cursoClass = "curso-geo"; break;
+            case "Mrh": cursoClass = "curso-mrh"; break;
         }
         
         card.innerHTML = `
@@ -120,13 +153,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 <div class="curso-icon">
                     <i class="fas fa-graduation-cap"></i>
                 </div>
-                <div class="curso-info ${curso.sigla === 'GEO' ? 'geo-title' : ''} ${curso.sigla === 'DSM' ? 'dsm-title' : ''} ${curso.sigla === 'MAR' ? 'mar-title' : ''}">
+                <div class="curso-info ${curso.sigla === 'Geo' ? 'geo-title' : ''} ${curso.sigla === 'Dsm' ? 'dsm-title' : ''} ${curso.sigla === 'Mrh' ? 'mrh-title' : ''}">
                     <h3>${curso.nome}</h3>
                     <div class="curso-badges">
                         <span class="curso-sigla ${cursoClass}">${curso.sigla}</span>
-                        <span class="curso-tipo">${curso.tipo}</span>
+                        <span class="curso-tipo">Nível Superior</span>
                     </div>
-                    <p class="semestres">${curso.semestres} semestres</p>
+                    <p class="semestres"> 6 semestres</p>
                     <p class="coordenador">${curso.coordenador}</p>
                 </div>
             </div>
@@ -357,5 +390,5 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Inicializar a página
     preencherSelectCoordenadores();
-    renderCursos();
+    initializeCursos();
 }); 
