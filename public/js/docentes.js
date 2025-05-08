@@ -105,10 +105,10 @@ function abrirModalEditarDocente(docente) {
     const modal = document.getElementById('modal-editar-docente');
     const form = document.getElementById('form-editar-docente');
     
-    // Preencher o formulário com os dados do docente
     document.getElementById('edit-id').value = docente.id;
     document.getElementById('edit-nome').value = docente.nome;
-    document.getElementById('edit-curso').value = docente.curso;
+    document.getElementById('edit-cor').value = docente.cor || '#FF0000';
+    document.getElementById('edit-cor-hex').value = docente.cor || '#FF0000';
     
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
@@ -127,22 +127,26 @@ function limparFormularioEdicao() {
 }
 
 // Função para editar docente
-function editarDocente(id) {
-    const docente = docentes.find(d => d.id === id);
-    if (!docente) {
-        console.error('Erro: Docente não encontrado');
-        return;
+async function editarDocente(id) {
+    try {
+        const docente = docentes.find(d => d.id === id);
+        if (!docente) {
+            console.error('Erro: Docente não encontrado');
+            return;
+        }
+        
+        // Preencher o formulário com os dados do docente
+        document.getElementById('edit-id').value = docente.id;
+        document.getElementById('edit-nome').value = docente.nome;
+        
+        // Abrir o modal de edição
+        const modal = document.getElementById('modal-editar-docente');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    } catch (error) {
+        console.error('Erro ao abrir modal de edição:', error);
+        showAlert('Erro ao carregar dados do docente. Por favor, tente novamente.', 'error');
     }
-    
-    // Preencher o formulário com os dados do docente
-    document.getElementById('edit-id').value = docente.id;
-    document.getElementById('edit-nome').value = docente.nome;
-    document.getElementById('edit-curso').value = docente.curso;
-    
-    // Abrir o modal de edição
-    const modal = document.getElementById('modal-editar-docente');
-    modal.classList.add('show');
-    document.body.style.overflow = 'hidden';
 }
 
 // Funções para controle do Modal de Deleção
@@ -230,29 +234,41 @@ function renderDocentes() {
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="docente-info">
-                    <h3>${docente.nome || ''}</h3>
-                </div>
-            </div>
-            <div class="docente-details">
-                <div class="docente-detail">
-                    <span class="detail-label">Curso:</span>
-                    <span class="detail-value ${(docente.curso || '').toLowerCase()}">${docente.curso || ''}</span>
+                    <h3>
+                        <span class="docente-color-box" style="background-color: ${docente.cor || '#FF0000'}"></span>
+                        ${docente.nome || ''}
+                    </h3>
                 </div>
             </div>
             <div class="docente-actions">
-                <button class="btn-icon btn-edit" onclick="editarDocente(${docente.id})" title="Editar">
+                <button class="btn-icon btn-edit" data-docente-id="${docente.id}" title="Editar">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn-icon btn-delete" onclick="confirmarExclusao(${docente.id})" title="Excluir">
+                <button class="btn-icon btn-delete" data-docente-id="${docente.id}" title="Excluir">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
         `;
         docentesList.appendChild(card);
     });
+
+    // Adicionar event listeners para os botões
+    docentesList.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', () => {
+            const docenteId = parseInt(button.dataset.docenteId);
+            editarDocente(docenteId);
+        });
+    });
+
+    docentesList.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', () => {
+            const docenteId = parseInt(button.dataset.docenteId);
+            confirmarExclusao(docenteId);
+        });
+    });
 }
 
-// Event Listeners para o Modal
+// Event Listeners para o Modal de Adição
 document.addEventListener('DOMContentLoaded', function() {
     // Botão para abrir o modal
     const btnAdicionar = document.querySelector('.btn-add');
@@ -281,49 +297,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Manipular envio do formulário
-    const form = document.getElementById('form-adicionar-docente');
     const btnSalvar = document.getElementById('salvar-docente');
-    
     if (btnSalvar) {
-        btnSalvar.addEventListener('click', function(event) {
+        btnSalvar.addEventListener('click', async function(event) {
             event.preventDefault();
-            
-            // Obter dados do formulário
-            const formData = new FormData(form);
-            const docenteData = {
-                nome: formData.get('nome'),
-                email: formData.get('email'),
-                curso: formData.get('curso')
-            };
-            
-            // Validar email institucional
-            if (!docenteData.email.endsWith('@fatec.sp.gov.br')) {
-                console.error('Erro: O email deve ser institucional (@fatec.sp.gov.br)');
-                return;
-            }
-            
-            // Adicionar à lista de docentes
-            docentes.push({
-                id: Date.now(), // Gerar ID único
-                ...docenteData
-            });
-            
-            // Salvar dados
-            salvarDados();
-            
-            // Atualizar interface
-            renderDocentes();
-            
-            // Mostrar mensagem de sucesso
-            console.warn('Docente adicionado com sucesso!');
-            
-            // Fechar o modal
-            fecharModalAdicionarDocente();
+            await salvarDocente();
         });
     }
-
-    // Renderizar docentes ao carregar a página
-    renderDocentes();
 });
 
 // Event Listeners para o Modal de Edição
@@ -351,43 +331,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Manipular envio do formulário de edição
     const btnSalvarEdicao = document.getElementById('salvar-edicao');
     if (btnSalvarEdicao) {
-        btnSalvarEdicao.addEventListener('click', function(event) {
+        btnSalvarEdicao.addEventListener('click', async function(event) {
             event.preventDefault();
-            
-            const form = document.getElementById('form-editar-docente');
-            const formData = new FormData(form);
-            const docenteData = {
-                id: parseInt(formData.get('id')),
-                nome: formData.get('nome'),
-                email: formData.get('email'),
-                curso: formData.get('curso')
-            };
-            
-            // Validar email institucional
-            if (!docenteData.email.endsWith('@fatec.sp.gov.br')) {
-                console.error('Erro: O email deve ser institucional (@fatec.sp.gov.br)');
-                return;
-            }
-            
-            // Atualizar docente na lista
-            const index = docentes.findIndex(d => d.id === docenteData.id);
-            if (index !== -1) {
-                docentes[index] = docenteData;
-                
-                // Salvar dados
-                salvarDados();
-                
-                // Atualizar interface
-                renderDocentes();
-                
-                // Mostrar mensagem de sucesso
-                console.warn('Docente atualizado com sucesso!');
-                
-                // Fechar o modal
-                fecharModalEditarDocente();
-            } else {
-                console.error('Erro ao atualizar docente');
-            }
+            await salvarEdicao();
         });
     }
 });
@@ -417,25 +363,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Manipular confirmação de deleção
     const btnConfirmarDelecao = document.getElementById('confirmar-delecao');
     if (btnConfirmarDelecao) {
-        btnConfirmarDelecao.addEventListener('click', function() {
+        btnConfirmarDelecao.addEventListener('click', async function() {
             const modal = document.getElementById('modal-confirmar-delecao');
             const docenteId = parseInt(modal.dataset.docenteId);
             
             if (docenteId) {
-                // Remover docente da lista
-                docentes = docentes.filter(d => d.id !== docenteId);
-                
-                // Salvar dados
-                salvarDados();
-                
-                // Atualizar interface
-                renderDocentes();
-                
-                // Mostrar mensagem de sucesso
-                console.warn('Docente removido com sucesso!');
-                
-                // Fechar o modal
-                fecharModalConfirmarDelecao();
+                await deletarDocente(docenteId);
             }
         });
     }
@@ -549,20 +482,43 @@ function validarFormularioEdicao() {
     return isValid;
 }
 
+// Função para salvar curso
+async function salvarCurso(curso) {
+    try {
+        if (!curso) {
+            showAlert('Por favor, selecione um curso.', 'error');
+            return false;
+        }
+
+        // Validar se o curso é válido
+        const cursosValidos = ['GEO', 'DSM', 'MAR'];
+        if (!cursosValidos.includes(curso)) {
+            showAlert('Curso inválido. Por favor, selecione um curso válido.', 'error');
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Erro ao validar curso:', error);
+        showAlert('Erro ao validar curso. Por favor, tente novamente.', 'error');
+        return false;
+    }
+}
+
 // Função para salvar docente
 async function salvarDocente() {
     try {
         const nome = document.getElementById('nome').value;
-        const curso = document.getElementById('curso').value;
+        const cor = document.getElementById('cor').value;
 
-        if (!nome || !curso) {
+        if (!nome || !cor) {
             showAlert('Por favor, preencha todos os campos.', 'error');
             return;
         }
 
         const novoDocente = {
             nome: nome,
-            curso: curso
+            cor: cor
         };
 
         const result = await createDocente(novoDocente);
@@ -584,17 +540,17 @@ async function salvarEdicao() {
     try {
         const id = document.getElementById('edit-id').value;
         const nome = document.getElementById('edit-nome').value;
-        const curso = document.getElementById('edit-curso').value;
+        const cor = document.getElementById('edit-cor').value;
 
-        if (!nome || !curso) {
+        if (!nome || !cor) {
             showAlert('Por favor, preencha todos os campos.', 'error');
             return;
         }
 
         const docenteAtualizado = {
-            id: id,
+            id: parseInt(id),
             nome: nome,
-            curso: curso
+            cor: cor
         };
 
         const result = await updateDocente(docenteAtualizado);
@@ -626,4 +582,38 @@ async function deletarDocente(id) {
         console.error('Erro ao deletar docente:', error);
         showAlert('Erro ao excluir docente. Por favor, tente novamente.', 'error');
     }
-} 
+}
+
+// Função para sincronizar os inputs de cor
+function sincronizarInputsCor(colorInput, hexInput) {
+    colorInput.addEventListener('input', function() {
+        hexInput.value = this.value.toUpperCase();
+    });
+
+    hexInput.addEventListener('input', function() {
+        if (this.value.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
+            colorInput.value = this.value;
+        }
+    });
+}
+
+// Inicializar sincronização dos inputs de cor
+document.addEventListener('DOMContentLoaded', function() {
+    const colorInput = document.getElementById('cor');
+    const hexInput = document.getElementById('cor-hex');
+    const editColorInput = document.getElementById('edit-cor');
+    const editHexInput = document.getElementById('edit-cor-hex');
+
+    if (colorInput && hexInput) {
+        sincronizarInputsCor(colorInput, hexInput);
+    }
+    if (editColorInput && editHexInput) {
+        sincronizarInputsCor(editColorInput, editHexInput);
+    }
+});
+
+// Exportar funções necessárias
+window.editarDocente = editarDocente;
+window.confirmarExclusao = confirmarExclusao;
+window.salvarDocente = salvarDocente;
+window.salvarEdicao = salvarEdicao; 
