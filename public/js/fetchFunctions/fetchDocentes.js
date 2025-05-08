@@ -44,7 +44,7 @@ export async function createDocente(docente) {
             },
             body: JSON.stringify({
                 nome: docente.nome,
-                cor: docente.cor
+                curso: docente.curso
             })
         });
 
@@ -62,16 +62,15 @@ export async function createDocente(docente) {
 
 export async function updateDocente(docente) {
     try {
-        const response = await fetch(`${API_URL}/admin/${getAdminId()}/docente`, {
+        const response = await fetch(`${API_URL}/admin/${getAdminId()}/docente/${docente.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getToken()}`
             },
             body: JSON.stringify({
-                id: docente.id,
                 nome: docente.nome,
-                cor: docente.cor
+                curso: docente.curso
             })
         });
 
