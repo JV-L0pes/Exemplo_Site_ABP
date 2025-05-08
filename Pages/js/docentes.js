@@ -1,4 +1,5 @@
-// Dados iniciais
+// Dados iniciais (comentados pois agora usamos o backend)
+/*
 const dadosIniciais = [
     {
         id: 1,
@@ -16,6 +17,10 @@ const dadosIniciais = [
         curso: "MAR"
     }
 ];
+*/
+
+// Importando as funções do fetchDocentes.js
+import { getDocentes, createDocente, updateDocente, deleteDocente } from './fetchFunctions/fetchDocentes.js';
 
 let docentes = [];
 let docenteEditando = null;
@@ -30,23 +35,19 @@ function salvarDados() {
     }
 }
 
-// Função para carregar do localStorage
-function carregarDados() {
+// Função para carregar dados do backend
+async function carregarDados() {
     try {
-        const dados = localStorage.getItem('docentes');
-        if (dados) {
-            docentes = JSON.parse(dados);
+        const data = await getDocentes();
+        if (data) {
+            docentes = data;
+            renderDocentes();
         } else {
-            // Se não houver dados no localStorage, usa os dados iniciais
-            docentes = [...dadosIniciais];
-            salvarDados();
+            showAlert('Não foi possível carregar os docentes. Por favor, tente novamente.', 'error');
         }
-        console.log('Dados carregados:', docentes);
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
-        // Em caso de erro, usa os dados iniciais
-        docentes = [...dadosIniciais];
-        salvarDados();
+        showAlert('Erro ao carregar dados. Por favor, tente novamente.', 'error');
     }
 }
 
@@ -242,13 +243,13 @@ function renderDocentes() {
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="docente-info">
-                    <h3>${docente.nome}</h3>
+                    <h3>${docente.nome || ''}</h3>
                 </div>
             </div>
             <div class="docente-details">
                 <div class="docente-detail">
                     <span class="detail-label">Curso:</span>
-                    <span class="detail-value ${docente.curso.toLowerCase()}">${docente.curso}</span>
+                    <span class="detail-value ${(docente.curso || '').toLowerCase()}">${docente.curso || ''}</span>
                 </div>
             </div>
             <div class="docente-actions">
@@ -562,47 +563,80 @@ function validarFormularioEdicao() {
 }
 
 // Função para salvar docente
-function salvarDocente() {
-    if (!validarFormularioDocente()) {
-        return;
-    }
+async function salvarDocente() {
+    try {
+        const nome = document.getElementById('nome').value;
+        const curso = document.getElementById('curso').value;
 
-    const nome = document.getElementById('nome').value.trim();
-    const curso = document.getElementById('curso').value.trim();
-    
-    const novoDocente = {
-        id: Date.now(),
-        nome: nome,
-        curso: curso
-    };
-    
-    docentes.push(novoDocente);
-    salvarDados();
-    renderDocentes();
-    fecharModalAdicionarDocente();
-    showAlert('Docente adicionado com sucesso!', 'success');
-}
+        if (!nome || !curso) {
+            showAlert('Por favor, preencha todos os campos.', 'error');
+            return;
+        }
 
-// Função para salvar edição
-function salvarEdicao() {
-    if (!validarFormularioEdicao()) {
-        return;
-    }
-
-    const id = document.getElementById('edit-id').value;
-    const nome = document.getElementById('edit-nome').value.trim();
-    const curso = document.getElementById('edit-curso').value.trim();
-    
-    const index = docentes.findIndex(d => d.id === parseInt(id));
-    if (index !== -1) {
-        docentes[index] = {
-            ...docentes[index],
+        const novoDocente = {
             nome: nome,
             curso: curso
         };
-        salvarDados();
-        renderDocentes();
-        fecharModalEditarDocente();
-        showAlert('Docente atualizado com sucesso!', 'success');
+
+        const result = await createDocente(novoDocente);
+        if (result) {
+            await carregarDados();
+            fecharModalAdicionarDocente();
+            showAlert('Docente adicionado com sucesso!', 'success');
+        } else {
+            showAlert('Erro ao adicionar docente. Por favor, tente novamente.', 'error');
+        }
+    } catch (error) {
+        console.error('Erro ao salvar docente:', error);
+        showAlert('Erro ao adicionar docente. Por favor, tente novamente.', 'error');
+    }
+}
+
+// Função para salvar edição
+async function salvarEdicao() {
+    try {
+        const id = document.getElementById('edit-id').value;
+        const nome = document.getElementById('edit-nome').value;
+        const curso = document.getElementById('edit-curso').value;
+
+        if (!nome || !curso) {
+            showAlert('Por favor, preencha todos os campos.', 'error');
+            return;
+        }
+
+        const docenteAtualizado = {
+            id: id,
+            nome: nome,
+            curso: curso
+        };
+
+        const result = await updateDocente(docenteAtualizado);
+        if (result) {
+            await carregarDados();
+            fecharModalEditarDocente();
+            showAlert('Docente atualizado com sucesso!', 'success');
+        } else {
+            showAlert('Erro ao atualizar docente. Por favor, tente novamente.', 'error');
+        }
+    } catch (error) {
+        console.error('Erro ao salvar edição:', error);
+        showAlert('Erro ao atualizar docente. Por favor, tente novamente.', 'error');
+    }
+}
+
+// Função para deletar docente
+async function deletarDocente(id) {
+    try {
+        const result = await deleteDocente(id);
+        if (result) {
+            await carregarDados();
+            fecharModalConfirmarDelecao();
+            showAlert('Docente excluído com sucesso!', 'success');
+        } else {
+            showAlert('Erro ao excluir docente. Por favor, tente novamente.', 'error');
+        }
+    } catch (error) {
+        console.error('Erro ao deletar docente:', error);
+        showAlert('Erro ao excluir docente. Por favor, tente novamente.', 'error');
     }
 } 
