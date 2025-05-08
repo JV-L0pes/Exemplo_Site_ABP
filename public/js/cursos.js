@@ -1,8 +1,9 @@
-import { IRONGATE } from './auth-guard.js';
-import * as fetchCursos  from './fetchFunctions/fetchCursos.js';
-
 // Inicializar IRONGATE
-IRONGATE();
+if (typeof IRONGATE === 'function') {
+    IRONGATE();
+}
+
+import * as fetchCursos  from './fetchFunctions/fetchCursos.js';
 
 // Script específico para a página de Cursos
 document.addEventListener("DOMContentLoaded", function() {

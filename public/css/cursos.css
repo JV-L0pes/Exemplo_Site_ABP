@@ -370,6 +370,11 @@
     border-color: var(--primary);
 }
 
+.flex-column{
+    display: flex;
+    flex-direction: column;
+}
+
 .text-danger {
     color: var(--danger);
     font-size: 0.9rem;
