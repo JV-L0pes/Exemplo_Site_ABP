@@ -1,5 +1,12 @@
+import * as fetchCursos  from './fetchFunctions/fetchCursos.js';
+
 // Script específico para a página de Cursos
 document.addEventListener("DOMContentLoaded", function() {
+
+    // Inicializar a página
+    
+    let cursos = initializeCursos();
+    
     // Elementos
     const cursosList = document.getElementById("cursos-list");
     const searchInput = document.getElementById("search-curso");
@@ -61,39 +68,16 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     
     async function initializeCursos(){
-        let cursos = await getCursos(); // Aguarda o resultado da função async
+        let cursos = await fetchCursos.getCursos(); // Aguarda o resultado da função async
         if (cursos) {
             renderCursos(cursos); // Chama renderCursos com os dados
         } else {
             console.error('Token inválido');
         }
+        return cursos;
     }
 
     // Dados simulados para demonstração
-    async function getCursos() {
-        try {
-            let response = await fetch('https://errorsquad-server.onrender.com/admin/1/cursos', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibm9tZSI6Ikpvw6NvIFNpbHZhIiwiaWF0IjoxNzQ2NTc0MTMwLCJleHAiOjE3NDY1Nzc3MzB9.kVMZs7Kjmkvvu4-RNvUC9LMfR7gKQKcBeSi-PSMIkCM'
-                },
-            });
-    
-            let result = await response.json();
-            let data = result.data;
-
-            if (result === 'Token inválido.'){
-                return null; // Retorna os dados processados
-             }
-             else{
-                return data
-             }
-        } catch (error) {
-            console.error('Erro:', error);
-            return null; // Retorna null em caso de erro
-        }
-    }
     /*[
         { 
             id: 1, 
@@ -362,10 +346,10 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     
     // Funções globais para edição e exclusão
-    window.editCurso = function(id) {
-        const curso = cursos.find(c => c.id === id);
-        if (curso) {
-            abrirModalEditarCurso(curso);
+    window.editCurso = async function(id) {
+        
+        if (id) {
+            abrirModalEditarCurso(id);
         }
     };
     
@@ -387,8 +371,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
-    
-    // Inicializar a página
     preencherSelectCoordenadores();
-    initializeCursos();
+    
 }); 
