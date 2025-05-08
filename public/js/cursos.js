@@ -1,4 +1,7 @@
 import * as fetchCursos  from './fetchFunctions/fetchCursos.js';
+import { validateTokenOrLogout } from './fetchFunctions/fetchAuth.js';
+
+validateTokenOrLogout();
 
 // Script específico para a página de Cursos
 document.addEventListener("DOMContentLoaded", function() {
