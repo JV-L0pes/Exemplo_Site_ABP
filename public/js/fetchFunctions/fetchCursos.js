@@ -31,7 +31,7 @@ export async function getCursos() {
   }
 }
 
-export async function CreateCurso(curso) {
+export async function createCurso(nome, sigla, coordenador, inicio, fim) {
     try {
       const response = await fetch(`${API_URL}/admin/${getAdminId()}/cursos`, {
             method: 'GET',
@@ -40,11 +40,11 @@ export async function CreateCurso(curso) {
                 'Authorization': `Bearer ${getToken()}`
             },
             body: {
-                nome:curso.nome,
-                coordenador:curso.coordenador,
-                sigla:curso.sigla,
-                inicio:curso.inicio,
-                fim:curso.fim
+                nome: nome,
+                coordenador: coordenador,
+                sigla: sigla,
+                inicio: inicio,
+                fim: fim
             }
         });
   
