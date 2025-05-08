@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disciplinas - FATEC</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/disciplinas.css">
-    <link rel="stylesheet" href="css/profile-dropdown.css">
-    <link rel="stylesheet" href="css/notifications.css">
+    <title>Docentes - FATEC</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/docentes.css">
+    <link rel="stylesheet" href="../css/profile-dropdown.css">
+    <link rel="stylesheet" href="../css/notifications.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -17,7 +17,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo" id="collapse-btn" style="cursor: pointer;">
-                    <img src="image/CPS-removebg-preview.png" alt="Logo CPS">
+                    <img src="../image/CPS-removebg-preview.png" alt="Logo CPS">
                 </div>
             </div>
             
@@ -29,7 +29,7 @@
             </div>
             
             <div class="sidebar-item">
-                <a href="docentes.html">
+                <a href="docentes.html" class="active">
                     <i class="fas fa-chalkboard-teacher"></i>
                     <span>Docentes</span>
                 </a>
@@ -57,7 +57,7 @@
             </div>
             
             <div class="sidebar-item">
-                <a href="disciplinas.html" class="active">
+                <a href="disciplinas.html">
                     <i class="fas fa-laptop-code"></i>
                     <span>Disciplinas</span>
                 </a>
@@ -75,7 +75,7 @@
         <main class="main-content">
             <header class="topbar">
                 <div class="logo-container">
-                    <img src="image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
+                    <img src="../image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
                 </div>
                 
                 <div class="header-actions">
@@ -159,62 +159,77 @@
                     </a>
                 </div>
                 <div class="breadcrumb-item active">
-                    Disciplinas
+                    Docentes
                 </div>
             </div>
 
-            <!-- Área de conteúdo de Disciplinas -->
-            <div class="disciplinas-container">
-                <div class="disciplinas-header">
+            <!-- Área de conteúdo de Docentes -->
+            <div class="docentes-container">
+                <div class="docentes-header">
                     <h2>
-                        <i class="fas fa-laptop-code"></i>
-                        Gerenciar Disciplinas
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        Gerenciar Docentes
                     </h2>
-                    <button id="add-disciplina" class="btn btn-add">
-                        <i class="fas fa-plus"></i> Adicionar Disciplina
-                    </button>
+                    <div class="actions-container">
+                        <button class="btn btn-primary btn-add">
+                            <i class="fas fa-plus"></i>
+                            Adicionar Docente
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="disciplinas-search">
-                    <input type="text" placeholder="Buscar disciplina..." id="search-disciplina">
+                <div class="docentes-search">
+                    <input type="text" placeholder="Buscar docente..." id="search-docente">
                     <button class="btn-search"><i class="fas fa-search"></i></button>
                 </div>
                 
-                <div class="disciplinas-list" id="disciplinas-list">
+                <div class="docentes-list" id="docentes-list">
                     <!-- Os cards serão inseridos dinamicamente aqui via JavaScript -->
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modal Adicionar Disciplina -->
-    <div id="modal-adicionar-disciplina" class="modal">
+    <!-- Estrutura do Alerta Personalizado -->
+    <div id="custom-alert" class="custom-alert" style="display: none;">
+        <div class="alert-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div class="alert-content">
+            <div class="alert-title">Atenção</div>
+            <div class="alert-message"></div>
+        </div>
+        <button class="alert-close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="../js/script.js"></script>
+    <script src="../js/docentes.js" type="module"></script>
+    <script src="../js/profile-dropdown.js"></script>
+    <script src="../js/notifications.js"></script>
+
+    <!-- Modal Adicionar Docente -->
+    <div id="modal-adicionar-docente" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-plus-circle"></i> Adicionar Nova Disciplina</h3>
+                <h3><i class="fas fa-user-plus"></i> Adicionar Novo Docente</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="form-adicionar-disciplina">
+                <form id="form-adicionar-docente">
                     <div class="form-group">
-                        <label for="nome">Nome da Disciplina</label>
+                        <label for="nome">Nome Completo</label>
                         <input type="text" id="nome" name="nome" required>
                         <span class="error-message" id="nome-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="professor">Professor</label>
-                        <select id="professor" name="professor" required>
-                            <option value="">Selecione o professor</option>
-                            <!-- Será preenchido dinamicamente -->
-                        </select>
-                        <span class="error-message" id="professor-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="curso">Curso</label>
                         <select id="curso" name="curso" required>
                             <option value="">Selecione o curso</option>
-                            <option value="DSM">DSM</option>
                             <option value="GEO">GEO</option>
+                            <option value="DSM">DSM</option>
                             <option value="MAR">MAR</option>
                         </select>
                         <span class="error-message" id="curso-error"></span>
@@ -223,40 +238,32 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelar-adicionar">Cancelar</button>
-                <button class="btn btn-primary" id="salvar-disciplina">Salvar</button>
+                <button class="btn btn-primary" id="salvar-docente" onclick="salvarDocente()">Salvar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Editar Disciplina -->
-    <div id="modal-editar-disciplina" class="modal">
+    <!-- Modal Editar Docente -->
+    <div id="modal-editar-docente" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-edit"></i> Editar Disciplina</h3>
+                <h3><i class="fas fa-edit"></i> Editar Docente</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="form-editar-disciplina">
+                <form id="form-editar-docente">
                     <input type="hidden" id="edit-id" name="id">
                     <div class="form-group">
-                        <label for="edit-nome">Nome da Disciplina</label>
+                        <label for="edit-nome">Nome Completo</label>
                         <input type="text" id="edit-nome" name="nome" required>
                         <span class="error-message" id="edit-nome-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-professor">Professor</label>
-                        <select id="edit-professor" name="professor" required>
-                            <option value="">Selecione o professor</option>
-                            <!-- Será preenchido dinamicamente -->
-                        </select>
-                        <span class="error-message" id="edit-professor-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="edit-curso">Curso</label>
                         <select id="edit-curso" name="curso" required>
                             <option value="">Selecione o curso</option>
-                            <option value="DSM">DSM</option>
                             <option value="GEO">GEO</option>
+                            <option value="DSM">DSM</option>
                             <option value="MAR">MAR</option>
                         </select>
                         <span class="error-message" id="edit-curso-error"></span>
@@ -265,7 +272,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelar-editar">Cancelar</button>
-                <button class="btn btn-primary" id="salvar-edicao">Salvar</button>
+                <button class="btn btn-primary" id="salvar-edicao" onclick="salvarEdicao()">Salvar</button>
             </div>
         </div>
     </div>
@@ -278,8 +285,8 @@
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Tem certeza que deseja excluir a disciplina <span id="disciplina-delete"></span>?</p>
-                <p class="text-danger">Esta ação não pode ser desfeita!</p>
+                <p>Tem certeza que deseja excluir o(a) docente <strong id="nome-docente-delete"></strong>?</p>
+                <p class="text-warning">Esta ação não pode ser desfeita.</p>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelar-delecao">Cancelar</button>
@@ -287,12 +294,5 @@
             </div>
         </div>
     </div>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
-    <script src="js/disciplinas.js"></script>
-    <script src="js/profile-dropdown.js"></script>
-    <script src="js/notifications.js"></script>
 </body>
 </html> 

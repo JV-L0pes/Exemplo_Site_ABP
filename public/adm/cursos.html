@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade de Horários - FATEC</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/grade-horarios.css">
-    <link rel="stylesheet" href="css/profile-dropdown.css">
-    <link rel="stylesheet" href="css/notifications.css">
+    <title>Cursos - FATEC</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/cursos.css">
+    <link rel="stylesheet" href="../css/profile-dropdown.css">
+    <link rel="stylesheet" href="../css/notifications.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -17,7 +17,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo" id="collapse-btn" style="cursor: pointer;">
-                    <img src="image/CPS-removebg-preview.png" alt="Logo CPS">
+                    <img src="../image/CPS-removebg-preview.png" alt="Logo CPS">
                 </div>
             </div>
             
@@ -36,7 +36,7 @@
             </div>
             
             <div class="sidebar-item">
-                <a href="grade-horarios.html" class="active">
+                <a href="grade-horarios.html">
                     <i class="fas fa-book"></i>
                     <span>Grade de Horários</span>
                 </a>
@@ -75,7 +75,7 @@
         <main class="main-content">
             <header class="topbar">
                 <div class="logo-container">
-                    <img src="image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
+                    <img src="../image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
                 </div>
                 
                 <div class="header-actions">
@@ -159,163 +159,166 @@
                     </a>
                 </div>
                 <div class="breadcrumb-item active">
-                    Grade de Horários
+                    Cursos
                 </div>
             </div>
 
-            <!-- Área da Grade de Horários -->
-            <div class="grade-container">
-                <div class="grade-header">
+            <!-- Área de conteúdo de Cursos -->
+            <div class="cursos-container">
+                <div class="cursos-header">
                     <h2>
-                        <i class="fas fa-calendar-alt"></i>
-                        Grade de Horários
+                        <i class="fas fa-graduation-cap"></i>
+                        Gerenciar Cursos
                     </h2>
-                    <div class="grade-actions">
-                        <select class="btn btn-secondary">
+                    <button id="add-curso" class="btn btn-add">
+                        <i class="fas fa-plus"></i> Adicionar Curso
+                    </button>
+                </div>
+                
+                <div class="cursos-search">
+                    <input type="text" placeholder="Buscar curso..." id="search-curso">
+                    <button class="btn-search"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="cursos-list" id="cursos-list">
+                    <!-- Os cards serão inseridos dinamicamente aqui via JavaScript -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Adicionar Curso -->
+    <div id="modal-adicionar-curso" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> Adicionar Novo Curso</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-adicionar-curso">
+                    <div class="form-group">
+                        <label for="nome">Nome do Curso</label>
+                        <select id="nome" name="nome" required>
+                            <option value="">Selecione o curso</option>
+                            <option value="Desenvolvimento de Software Multiplataforma">Desenvolvimento de Software Multiplataforma</option>
+                            <option value="Geoprocessamento">Geoprocessamento</option>
+                            <option value="Meio Ambiente e Recursos Hídricos">Meio Ambiente e Recursos Hídricos</option>
+                        </select>
+                        <span class="error-message" id="nome-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sigla">Sigla</label>
+                        <select id="sigla" name="sigla" required>
+                            <option value="">Selecione a sigla</option>
                             <option value="DSM">DSM</option>
                             <option value="GEO">GEO</option>
                             <option value="MAR">MAR</option>
                         </select>
-                        <select class="btn btn-secondary">
-                            <option value="1">1º Nível</option>
-                            <option value="2">2º Nível</option>
-                            <option value="3">3º Nível</option>
-                        </select>
-                        <select class="btn btn-secondary">
-                            <option value="noite">Período Noturno</option>
-                            <option value="manha">Período Matutino</option>
-                            <option value="tarde">Período Vespertino</option>
-                        </select>
-                        <button class="btn btn-primary">
-                            <i class="fas fa-file-export"></i>
-                            Exportar CSV
-                        </button>
+                        <span class="error-message" id="sigla-error"></span>
                     </div>
-                </div>
-
-                <div class="grade-content">
-                    <table class="grade-table">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <button class="horario-btn" onclick="abrirModalHorario()">
-                                        Horário
-                                        <i class="fas fa-plus-circle"></i>
-                                    </button>
-                                </th>
-                                <th>Segunda</th>
-                                <th>Terça</th>
-                                <th>Quarta</th>
-                                <th>Quinta</th>
-                                <th>Sexta</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Será preenchido via JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="docentes-section">
-                    <h4>Docentes</h4>
-                    <table class="docentes-table">
-                        <tbody>
-                            <!-- Será preenchido via JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Container para os toasts -->
-            <div class="toast-container"></div>
-        </main>
-    </div>
-
-    <script src="js/script.js"></script>
-    <script src="js/grade-horarios.js"></script>
-    <script src="js/profile-dropdown.js"></script>
-    <script src="js/notifications.js"></script>
-    <script src="js/horario-modal.js"></script>
-
-    <!-- Modal de Detalhes da Matéria -->
-    <div id="materiaModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Detalhes da Matéria</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="editarMateriaForm">
                     <div class="form-group">
-                        <label for="modalMateriaNome">Matéria:</label>
-                        <select id="modalMateriaNome" class="form-control">
-                            <!-- Será preenchido via JavaScript -->
-                        </select>
+                        <label for="tipo">Tipo do Curso</label>
+                        <input type="text" id="tipo" name="tipo" value="Nível Superior" readonly>
                     </div>
-
                     <div class="form-group">
-                        <label for="modalProfessorNome">Professor:</label>
-                        <select id="modalProfessorNome" class="form-control">
-                            <!-- Será preenchido via JavaScript -->
-                        </select>
+                        <label for="semestres">Número de Semestres</label>
+                        <input type="number" id="semestres" name="semestres" value="6" min="1" max="12" required>
                     </div>
-
-                    <div class="horarios-section">
-                        <h4>Horários</h4>
-                        <div id="modalHorarios" class="horarios-grid">
-                            <!-- Será preenchido via JavaScript -->
-                        </div>
+                    <div class="form-group">
+                        <label for="coordenador">Coordenador</label>
+                        <select id="coordenador" name="coordenador" required>
+                            <option value="">Selecione o coordenador</option>
+                            <!-- Será preenchido dinamicamente -->
+                        </select>
+                        <span class="error-message" id="coordenador-error"></span>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary">Cancelar</button>
-                <button type="submit" class="btn btn-primary" form="editarMateriaForm">Salvar Alterações</button>
+                <button class="btn btn-secondary" id="cancelar-adicionar">Cancelar</button>
+                <button class="btn btn-primary" id="salvar-curso">Salvar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Horário -->
-    <div id="horarioModal" class="modal">
+    <!-- Modal Editar Curso -->
+    <div id="modal-editar-curso" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Associar Matéria ao Horário</h3>
+                <h3><i class="fas fa-edit"></i> Editar Curso</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="associarMateriaForm">
+                <form id="form-editar-curso">
+                    <input type="hidden" id="edit-id" name="id">
                     <div class="form-group">
-                        <label for="horarioModalMateria">Matéria:</label>
-                        <select id="horarioModalMateria" class="form-control" required>
-                            <!-- Será preenchido via JavaScript -->
+                        <label for="edit-nome">Nome do Curso</label>
+                        <select id="edit-nome" name="nome" required>
+                            <option value="">Selecione o curso</option>
+                            <option value="Desenvolvimento de Software Multiplataforma">Desenvolvimento de Software Multiplataforma</option>
+                            <option value="Geoprocessamento">Geoprocessamento</option>
+                            <option value="Meio Ambiente e Recursos Hídricos">Meio Ambiente e Recursos Hídricos</option>
                         </select>
+                        <span class="error-message" id="edit-nome-error"></span>
                     </div>
-
                     <div class="form-group">
-                        <label for="horarioModalDia">Dia da Semana:</label>
-                        <select id="horarioModalDia" class="form-control" required>
-                            <option value="">Selecione um dia</option>
-                            <option value="Segunda">Segunda</option>
-                            <option value="Terça">Terça</option>
-                            <option value="Quarta">Quarta</option>
-                            <option value="Quinta">Quinta</option>
-                            <option value="Sexta">Sexta</option>
+                        <label for="edit-sigla">Sigla</label>
+                        <select id="edit-sigla" name="sigla" required>
+                            <option value="">Selecione a sigla</option>
+                            <option value="DSM">DSM</option>
+                            <option value="GEO">GEO</option>
+                            <option value="MAR">MAR</option>
                         </select>
+                        <span class="error-message" id="edit-sigla-error"></span>
                     </div>
-
                     <div class="form-group">
-                        <label for="horarioModalHorario">Horário:</label>
-                        <select id="horarioModalHorario" class="form-control" required>
-                            <!-- Será preenchido via JavaScript -->
+                        <label for="edit-tipo">Tipo do Curso</label>
+                        <input type="text" id="edit-tipo" name="tipo" value="Nível Superior" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-semestres">Número de Semestres</label>
+                        <input type="number" id="edit-semestres" name="semestres" value="6" min="1" max="12" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-coordenador">Coordenador</label>
+                        <select id="edit-coordenador" name="coordenador" required>
+                            <option value="">Selecione o coordenador</option>
+                            <!-- Será preenchido dinamicamente -->
                         </select>
+                        <span class="error-message" id="edit-coordenador-error"></span>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary">Cancelar</button>
-                <button type="submit" class="btn btn-primary" form="associarMateriaForm">Associar Matéria</button>
+                <button class="btn btn-secondary" id="cancelar-editar">Cancelar</button>
+                <button class="btn btn-primary" id="salvar-edicao">Salvar</button>
             </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmação de Deleção -->
+    <div id="modal-confirmar-delecao" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o curso <span id="curso-delete"></span>?</p>
+                <p class="text-danger">Esta ação não pode ser desfeita!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelar-delecao">Cancelar</button>
+                <button class="btn btn-danger" id="confirmar-delecao">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="../js/script.js"></script>
+    <script src="../js/cursos.js" type="module"></script>
+    <script src="../js/profile-dropdown.js"></script>
+    <script src="../js/notifications.js"></script>
 </body>
 </html> 
