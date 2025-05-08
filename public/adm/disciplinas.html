@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Disciplinas - FATEC</title>
+    <link rel="icon" type="image/x-icon" href="../image/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="../image/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../image/favicon-16x16.png">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/disciplinas.css">
     <link rel="stylesheet" href="../css/profile-dropdown.css">
@@ -22,21 +25,21 @@
             </div>
             
             <div class="sidebar-item">
-                <a href="home.html">
+                <a data-protected-link data-page="home.html">
                     <i class="fas fa-home"></i>
                     <span>Início</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="docentes.html">
+                <a data-protected-link data-page="docentes.html">
                     <i class="fas fa-chalkboard-teacher"></i>
                     <span>Docentes</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="grade-horarios.html">
+                <a data-protected-link data-page="grade-horarios.html">
                     <i class="fas fa-book"></i>
                     <span>Grade de Horários</span>
                 </a>
@@ -50,21 +53,21 @@
             </div>
             
             <div class="sidebar-item">
-                <a href="semestres.html">
+                <a data-protected-link data-page="semestres.html">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Semestres</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="disciplinas.html" class="active">
+                <a data-protected-link data-page="disciplinas.html" class="active">
                     <i class="fas fa-laptop-code"></i>
                     <span>Disciplinas</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="cursos.html">
+                <a data-protected-link data-page="cursos.html">
                     <i class="fas fa-graduation-cap"></i>
                     <span>Cursos</span>
                 </a>
@@ -154,7 +157,7 @@
 
             <div class="breadcrumb">
                 <div class="breadcrumb-item">
-                    <a href="home.html">
+                    <a data-protected-link data-page="home.html">
                         <i class="fas fa-home"></i> Início
                     </a>
                 </div>
@@ -294,5 +297,13 @@
     <script src="../js/disciplinas.js" type="module"></script>
     <script src="../js/profile-dropdown.js"></script>
     <script src="../js/notifications.js"></script>
+    <!-- Proteção de rota -->
+    <script src="../js/auth-guard.js"></script>
+    <script>
+    document.querySelectorAll('a[data-protected-link]').forEach(link => {
+        const page = link.getAttribute('data-page');
+        link.href = `/public/adm/${page}`;
+    });
+    </script>
 </body>
 </html> 

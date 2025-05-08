@@ -33,7 +33,7 @@ let docenteEditando = null;
 function salvarDados() {
     try {
         localStorage.setItem('docentes', JSON.stringify(docentes));
-        console.log('Dados salvos:', docentes);
+        console.warn('Dados salvos:', docentes);
     } catch (error) {
         console.error('Erro ao salvar dados:', error);
     }
@@ -93,7 +93,7 @@ function limparEInicializar() {
 
 // Funções para gerenciar docentes
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM carregado, iniciando...');
+    console.warn('DOM carregado, iniciando...');
     limparEInicializar();
     
     // Configurar busca
@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
             renderDocentes();
             
             // Mostrar mensagem de sucesso
-            console.log('Docente adicionado com sucesso!');
+            console.warn('Docente adicionado com sucesso!');
             
             // Fechar o modal
             fecharModalAdicionarDocente();
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderDocentes();
                 
                 // Mostrar mensagem de sucesso
-                console.log('Docente atualizado com sucesso!');
+                console.warn('Docente atualizado com sucesso!');
                 
                 // Fechar o modal
                 fecharModalEditarDocente();
@@ -449,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderDocentes();
                 
                 // Mostrar mensagem de sucesso
-                console.log('Docente removido com sucesso!');
+                console.warn('Docente removido com sucesso!');
                 
                 // Fechar o modal
                 fecharModalConfirmarDelecao();

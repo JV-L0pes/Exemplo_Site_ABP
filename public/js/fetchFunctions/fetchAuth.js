@@ -1,8 +1,5 @@
 export async function login(email, senha) {
     try {
-        console.log('Iniciando requisição de login...');
-        console.log('Dados enviados:', { email, senha });
-        
         const response = await fetch('https://errorsquad-server.onrender.com/login', {
             method: 'POST',
             headers: {
@@ -14,13 +11,10 @@ export async function login(email, senha) {
                 senha: senha
             })
         });
-
-        console.log('Status da resposta:', response.status);
         
         let data;
         try {
             data = await response.json();
-            console.log('Resposta parseada:', data);
         } catch (e) {
             console.error('Erro ao parsear resposta:', e);
             throw new Error('Erro ao processar resposta do servidor.');
