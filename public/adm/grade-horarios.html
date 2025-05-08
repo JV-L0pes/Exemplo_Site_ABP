@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Docentes - FATEC</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/docentes.css">
-    <link rel="stylesheet" href="css/profile-dropdown.css">
-    <link rel="stylesheet" href="css/notifications.css">
+    <title>Grade de Horários - FATEC</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/grade-horarios.css">
+    <link rel="stylesheet" href="../css/profile-dropdown.css">
+    <link rel="stylesheet" href="../css/notifications.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -17,7 +17,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo" id="collapse-btn" style="cursor: pointer;">
-                    <img src="image/CPS-removebg-preview.png" alt="Logo CPS">
+                    <img src="../image/CPS-removebg-preview.png" alt="Logo CPS">
                 </div>
             </div>
             
@@ -29,14 +29,14 @@
             </div>
             
             <div class="sidebar-item">
-                <a href="docentes.html" class="active">
+                <a href="docentes.html">
                     <i class="fas fa-chalkboard-teacher"></i>
                     <span>Docentes</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="grade-horarios.html">
+                <a href="grade-horarios.html" class="active">
                     <i class="fas fa-book"></i>
                     <span>Grade de Horários</span>
                 </a>
@@ -75,7 +75,7 @@
         <main class="main-content">
             <header class="topbar">
                 <div class="logo-container">
-                    <img src="image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
+                    <img src="../image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
                 </div>
                 
                 <div class="header-actions">
@@ -159,138 +159,161 @@
                     </a>
                 </div>
                 <div class="breadcrumb-item active">
-                    Docentes
+                    Grade de Horários
                 </div>
             </div>
 
-            <!-- Área de conteúdo de Docentes -->
-            <div class="docentes-container">
-                <div class="docentes-header">
+            <!-- Área da Grade de Horários -->
+            <div class="grade-container">
+                <div class="grade-header">
                     <h2>
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        Gerenciar Docentes
+                        <i class="fas fa-calendar-alt"></i>
+                        Grade de Horários
                     </h2>
-                    <div class="actions-container">
-                        <button class="btn btn-primary btn-add">
-                            <i class="fas fa-plus"></i>
-                            Adicionar Docente
+                    <div class="grade-actions">
+                        <select class="btn btn-secondary">
+                            <option value="DSM">DSM</option>
+                            <option value="GEO">GEO</option>
+                            <option value="MAR">MAR</option>
+                        </select>
+                        <select class="btn btn-secondary">
+                            <option value="1">1º Nível</option>
+                            <option value="2">2º Nível</option>
+                            <option value="3">3º Nível</option>
+                        </select>
+                        <select class="btn btn-secondary">
+                            <option value="noite">Período Noturno</option>
+                            <option value="manha">Período Matutino</option>
+                            <option value="tarde">Período Vespertino</option>
+                        </select>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-file-export"></i>
+                            Exportar CSV
                         </button>
                     </div>
                 </div>
-                
-                <div class="docentes-search">
-                    <input type="text" placeholder="Buscar docente..." id="search-docente">
-                    <button class="btn-search"><i class="fas fa-search"></i></button>
+
+                <div class="grade-content">
+                    <table class="grade-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <button class="horario-btn" onclick="abrirModalHorario()">
+                                        Horário
+                                        <i class="fas fa-plus-circle"></i>
+                                    </button>
+                                </th>
+                                <th>Segunda</th>
+                                <th>Terça</th>
+                                <th>Quarta</th>
+                                <th>Quinta</th>
+                                <th>Sexta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Será preenchido via JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
-                
-                <div class="docentes-list" id="docentes-list">
-                    <!-- Os cards serão inseridos dinamicamente aqui via JavaScript -->
+
+                <div class="docentes-section">
+                    <h4>Docentes</h4>
+                    <table class="docentes-table">
+                        <tbody>
+                            <!-- Será preenchido via JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
+            <!-- Container para os toasts -->
+            <div class="toast-container"></div>
         </main>
     </div>
 
-    <!-- Estrutura do Alerta Personalizado -->
-    <div id="custom-alert" class="custom-alert" style="display: none;">
-        <div class="alert-icon">
-            <i class="fas fa-exclamation-circle"></i>
-        </div>
-        <div class="alert-content">
-            <div class="alert-title">Atenção</div>
-            <div class="alert-message"></div>
-        </div>
-        <button class="alert-close">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
+    <script type="module" src="../js/script.js"></script>
+    <script src="../js/grade-horarios.js" type="module"></script>
+    <script src="../js/profile-dropdown.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/horario-modal.js"></script>
 
-    <!-- Scripts -->
-    <script src="js/script.js"></script>
-    <script src="js/docentes.js"></script>
-    <script src="js/profile-dropdown.js"></script>
-    <script src="js/notifications.js"></script>
-
-    <!-- Modal Adicionar Docente -->
-    <div id="modal-adicionar-docente" class="modal">
+    <!-- Modal de Detalhes da Matéria -->
+    <div id="materiaModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-user-plus"></i> Adicionar Novo Docente</h3>
+                <h3>Detalhes da Matéria</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="form-adicionar-docente">
+                <form id="editarMateriaForm">
                     <div class="form-group">
-                        <label for="nome">Nome Completo</label>
-                        <input type="text" id="nome" name="nome" required>
-                        <span class="error-message" id="nome-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="curso">Curso</label>
-                        <select id="curso" name="curso" required>
-                            <option value="">Selecione o curso</option>
-                            <option value="GEO">GEO</option>
-                            <option value="DSM">DSM</option>
-                            <option value="MAR">MAR</option>
+                        <label for="modalMateriaNome">Matéria:</label>
+                        <select id="modalMateriaNome" class="form-control">
+                            <!-- Será preenchido via JavaScript -->
                         </select>
-                        <span class="error-message" id="curso-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modalProfessorNome">Professor:</label>
+                        <select id="modalProfessorNome" class="form-control">
+                            <!-- Será preenchido via JavaScript -->
+                        </select>
+                    </div>
+
+                    <div class="horarios-section">
+                        <h4>Horários</h4>
+                        <div id="modalHorarios" class="horarios-grid">
+                            <!-- Será preenchido via JavaScript -->
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelar-adicionar">Cancelar</button>
-                <button class="btn btn-primary" id="salvar-docente" onclick="salvarDocente()">Salvar</button>
+                <button type="button" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="editarMateriaForm">Salvar Alterações</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Editar Docente -->
-    <div id="modal-editar-docente" class="modal">
+    <!-- Modal de Horário -->
+    <div id="horarioModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-edit"></i> Editar Docente</h3>
+                <h3>Associar Matéria ao Horário</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="form-editar-docente">
-                    <input type="hidden" id="edit-id" name="id">
+                <form id="associarMateriaForm">
                     <div class="form-group">
-                        <label for="edit-nome">Nome Completo</label>
-                        <input type="text" id="edit-nome" name="nome" required>
-                        <span class="error-message" id="edit-nome-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-curso">Curso</label>
-                        <select id="edit-curso" name="curso" required>
-                            <option value="">Selecione o curso</option>
-                            <option value="GEO">GEO</option>
-                            <option value="DSM">DSM</option>
-                            <option value="MAR">MAR</option>
+                        <label for="horarioModalMateria">Matéria:</label>
+                        <select id="horarioModalMateria" class="form-control" required>
+                            <!-- Será preenchido via JavaScript -->
                         </select>
-                        <span class="error-message" id="edit-curso-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="horarioModalDia">Dia da Semana:</label>
+                        <select id="horarioModalDia" class="form-control" required>
+                            <option value="">Selecione um dia</option>
+                            <option value="Segunda">Segunda</option>
+                            <option value="Terça">Terça</option>
+                            <option value="Quarta">Quarta</option>
+                            <option value="Quinta">Quinta</option>
+                            <option value="Sexta">Sexta</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="horarioModalHorario">Horário:</label>
+                        <select id="horarioModalHorario" class="form-control" required>
+                            <!-- Será preenchido via JavaScript -->
+                        </select>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelar-editar">Cancelar</button>
-                <button class="btn btn-primary" id="salvar-edicao" onclick="salvarEdicao()">Salvar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Confirmação de Deleção -->
-    <div id="modal-confirmar-delecao" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja excluir o(a) docente <strong id="nome-docente-delete"></strong>?</p>
-                <p class="text-warning">Esta ação não pode ser desfeita.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelar-delecao">Cancelar</button>
-                <button class="btn btn-danger" id="confirmar-delecao">Excluir</button>
+                <button type="button" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="associarMateriaForm">Associar Matéria</button>
             </div>
         </div>
     </div>
