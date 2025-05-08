@@ -1,3 +1,7 @@
+import { validateTokenOrLogout } from './fetchFunctions/fetchAuth.js';
+
+validateTokenOrLogout();
+
 /**
  * Script para o Painel Administrativo da FATEC
  */

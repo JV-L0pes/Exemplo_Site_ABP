@@ -1,3 +1,7 @@
+import { validateTokenOrLogout } from './fetchFunctions/fetchAuth.js';
+
+validateTokenOrLogout();
+
 // Script específico para a página de Semestres
 document.addEventListener("DOMContentLoaded", function() {
     // Elementos
