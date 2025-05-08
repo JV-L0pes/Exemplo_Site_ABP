@@ -1,97 +1,111 @@
 import { getToken, getUserData } from './fetchAuth.js';
 
+const API_URL = 'https://errorsquad-server.onrender.com';
+
 function getAdminId() {
     return getUserData().id;
 }
 
 export async function getDocentes() {
-  try {
-      console.log('Iniciando requisição GET para docentes...');
-      let response = await fetch(`https://errorsquad-server.onrender.com/admin/${getAdminId()}/docente`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${getToken()}`
-          },
-      });
+    try {
+        const response = await fetch(`${API_URL}/admin/${getAdminId()}/docente`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${getToken()}`
+            }
+        });
 
-      console.log('Status da resposta:', response.status);
-      
-      if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Erro na resposta:', errorText);
-          throw new Error(`HTTP error! status: ${response.status}`);
-      }
+        if (!response.ok) {
+            if (response.status === 401) {
+                console.error('Token inválido');
+                window.location.href = '/public/login.html';
+                return;
+            }
+            throw new Error(`Erro na requisição: ${response.status}`);
+        }
 
-      let result = await response.json();
-      console.log('Resposta recebida:', result);
-      console.log('Estrutura dos dados:', JSON.stringify(result.data, null, 2));
-
-      if (result === 'Token inválido.'){
-          console.error('Token inválido');
-          return null;
-      }
-
-      let data = result.data;
-      return data;
-  } catch (error) {
-      console.error('Erro detalhado:', error);
-      return null;
-  }
+        const result = await response.json();
+        return result.data;
+    } catch (error) {
+        console.error('Erro ao buscar docentes:', error);
+        throw error;
+    }
 }
 
 export async function createDocente(docente) {
-  try {
-      let response = await fetch(`https://errorsquad-server.onrender.com/admin/${getAdminId()}/docente`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${getToken()}`
-          },
-          body: JSON.stringify(docente)
-      });
+    try {
+        const response = await fetch(`${API_URL}/admin/${getAdminId()}/docente`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getToken()}`
+            },
+            body: JSON.stringify({
+                nome: docente.nome,
+                cor: docente.cor
+            })
+        });
 
-      let result = await response.json();
-      return result;
-  } catch (error) {
-      console.error('Erro:', error);
-      return null;
-  }
+        if (!response.ok) {
+            throw new Error(`Erro na requisição: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Erro:', error);
+        throw error;
+    }
 }
 
 export async function updateDocente(docente) {
-  try {
-      let response = await fetch(`https://errorsquad-server.onrender.com/admin/${getAdminId()}/docente/${docente.id}`, {
-          method: 'PUT',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${getToken()}`
-          },
-          body: JSON.stringify(docente)
-      });
+    try {
+        const response = await fetch(`${API_URL}/admin/${getAdminId()}/docente`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getToken()}`
+            },
+            body: JSON.stringify({
+                id: docente.id,
+                nome: docente.nome,
+                cor: docente.cor
+            })
+        });
 
-      let result = await response.json();
-      return result;
-  } catch (error) {
-      console.error('Erro:', error);
-      return null;
-  }
+        if (!response.ok) {
+            throw new Error(`Erro na requisição: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Erro:', error);
+        throw error;
+    }
 }
 
 export async function deleteDocente(id) {
-  try {
-      let response = await fetch(`https://errorsquad-server.onrender.com/admin/${getAdminId()}/docente/${id}`, {
-          method: 'DELETE',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${getToken()}`
-          }
-      });
+    try {
+        const response = await fetch(`${API_URL}/admin/${getAdminId()}/docente`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getToken()}`
+            },
+            body: JSON.stringify({ id })
+        });
 
-      let result = await response.json();
-      return result;
-  } catch (error) {
-      console.error('Erro:', error);
-      return null;
-  }
+        if (!response.ok) {
+            throw new Error(`Erro na requisição: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Erro:', error);
+        throw error;
+    }
 } 

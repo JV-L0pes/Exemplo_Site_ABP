@@ -1,5 +1,10 @@
 // Script para controlar o dropdown do perfil
 document.addEventListener("DOMContentLoaded", function() {
+    // Inicializar IRONGATE
+    if (typeof IRONGATE === 'function') {
+        IRONGATE();
+    }
+
     const userProfile = document.getElementById('userProfile');
     
     // Criar overlay para fechar o dropdown
@@ -40,19 +45,19 @@ document.addEventListener("DOMContentLoaded", function() {
             
             switch(action) {
                 case 'Gerenciar Perfil':
-                    console.log('Abrindo gerenciamento de perfil...');
+                    console.warn('Abrindo gerenciamento de perfil...');
                     break;
                 case 'Alterar Senha':
-                    console.log('Abrindo alteração de senha...');
+                    console.warn('Abrindo alteração de senha...');
                     break;
                 case 'Permissões':
-                    console.log('Abrindo gerenciamento de permissões...');
+                    console.warn('Abrindo gerenciamento de permissões...');
                     break;
                 case 'Histórico de Atividades':
-                    console.log('Carregando histórico de atividades...');
+                    console.warn('Carregando histórico de atividades...');
                     break;
                 case 'Sair':
-                    console.log('Saindo do sistema...');
+                    console.warn('Saindo do sistema...');
                     setTimeout(() => {
                         window.location.href = 'login.html';
                     }, 1000);

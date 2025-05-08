@@ -1,3 +1,8 @@
+// Inicializar IRONGATE
+if (typeof IRONGATE === 'function') {
+    IRONGATE();
+}
+
 // Script específico para o Painel Administrativo
 document.addEventListener("DOMContentLoaded", function() {
     // Elementos

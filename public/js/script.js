@@ -1,6 +1,7 @@
-import { validateTokenOrLogout } from './fetchFunctions/fetchAuth.js';
-
-validateTokenOrLogout();
+// Inicializar IRONGATE
+if (typeof IRONGATE === 'function') {
+    IRONGATE();
+}
 
 /**
  * Script para o Painel Administrativo da FATEC
@@ -135,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (entity) {
                 DOM.formContainer.classList.add('active');
                 createEntityForm(true);
-                console.log('Editando ' + utils.sanitizeHTML(entity.nome));
+                console.error('Erro ao editar:', utils.sanitizeHTML(entity.nome));
             }
         },
         
@@ -149,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     try {
                         if (DataManager.deleteEntity(state.currentEntity, entityId)) {
                             showEntityList(state.currentEntity);
-                            console.log('Item excluído com sucesso');
+                            console.warn('Item excluído com sucesso');
                         }
                     } catch (error) {
                         console.error('Erro ao excluir item');
@@ -960,7 +961,7 @@ document.addEventListener("DOMContentLoaded", function() {
             
             // Atualizar a lista
             showEntityList('docentes');
-            console.log('Docentes importados com sucesso');
+            console.warn('Docentes importados com sucesso');
             
         } catch (error) {
             console.error('Erro ao processar arquivo CSV');

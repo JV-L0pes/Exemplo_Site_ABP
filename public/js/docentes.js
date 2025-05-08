@@ -1,27 +1,7 @@
-import { validateTokenOrLogout } from './fetchFunctions/fetchAuth.js';
-
-validateTokenOrLogout();
-
-// Dados iniciais (comentados pois agora usamos o backend)
-/*
-const dadosIniciais = [
-    {
-        id: 1,
-        nome: "Prof. João Silva",
-        curso: "DSM"
-    },
-    {
-        id: 2,
-        nome: "Prof. Maria Santos",
-        curso: "GEO"
-    },
-    {
-        id: 3,
-        nome: "Prof. Pedro Oliveira",
-        curso: "MAR"
-    }
-];
-*/
+// Inicializar IRONGATE
+if (typeof IRONGATE === 'function') {
+    IRONGATE();
+}
 
 // Importando as funções do fetchDocentes.js
 import { getDocentes, createDocente, updateDocente, deleteDocente } from './fetchFunctions/fetchDocentes.js';
@@ -33,7 +13,7 @@ let docenteEditando = null;
 function salvarDados() {
     try {
         localStorage.setItem('docentes', JSON.stringify(docentes));
-        console.log('Dados salvos:', docentes);
+        console.warn('Dados salvos:', docentes);
     } catch (error) {
         console.error('Erro ao salvar dados:', error);
     }
@@ -43,15 +23,18 @@ function salvarDados() {
 async function carregarDados() {
     try {
         const data = await getDocentes();
-        if (data) {
-            docentes = data;
-            renderDocentes();
-        } else {
-            showAlert('Não foi possível carregar os docentes. Por favor, tente novamente.', 'error');
+        if (!data) {
+            throw new Error('Não foi possível carregar os dados dos docentes');
         }
+        docentes = data;
+        renderDocentes();
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
-        showAlert('Erro ao carregar dados. Por favor, tente novamente.', 'error');
+        showAlert('Erro ao carregar dados. Por favor, verifique sua conexão e tente novamente.', 'error');
+        // Redirecionar para login se o token estiver inválido
+        if (error.message.includes('Token inválido') || error.message.includes('não autorizado')) {
+            window.location.href = '/public/login.html';
+        }
     }
 }
 
@@ -93,7 +76,7 @@ function limparEInicializar() {
 
 // Funções para gerenciar docentes
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM carregado, iniciando...');
+    console.warn('DOM carregado, iniciando...');
     limparEInicializar();
     
     // Configurar busca
@@ -332,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
             renderDocentes();
             
             // Mostrar mensagem de sucesso
-            console.log('Docente adicionado com sucesso!');
+            console.warn('Docente adicionado com sucesso!');
             
             // Fechar o modal
             fecharModalAdicionarDocente();
@@ -398,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderDocentes();
                 
                 // Mostrar mensagem de sucesso
-                console.log('Docente atualizado com sucesso!');
+                console.warn('Docente atualizado com sucesso!');
                 
                 // Fechar o modal
                 fecharModalEditarDocente();
@@ -449,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderDocentes();
                 
                 // Mostrar mensagem de sucesso
-                console.log('Docente removido com sucesso!');
+                console.warn('Docente removido com sucesso!');
                 
                 // Fechar o modal
                 fecharModalConfirmarDelecao();

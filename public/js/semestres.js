@@ -1,6 +1,7 @@
-import { validateTokenOrLogout } from './fetchFunctions/fetchAuth.js';
+import { IRONGATE } from './auth-guard.js';
 
-validateTokenOrLogout();
+// Inicializar IRONGATE
+IRONGATE();
 
 // Script específico para a página de Semestres
 document.addEventListener("DOMContentLoaded", function() {

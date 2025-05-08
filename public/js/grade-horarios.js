@@ -1,3 +1,8 @@
+// Inicializar IRONGATE
+if (typeof IRONGATE === 'function') {
+    IRONGATE();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Dados de exemplo (posteriormente serão carregados da API)
     const horarios = [
@@ -540,7 +545,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const curso = document.querySelector('.grade-actions select:first-child').value;
             const nivel = document.querySelector('.grade-actions select:nth-child(2)').value;
             preencherGrade(curso, nivel);
-            console.log('Grade atualizada com sucesso!');
+            console.warn('Grade atualizada com sucesso!');
         });
     });
 
@@ -671,35 +676,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Função para registrar a troca de aula (será implementada posteriormente com o backend)
     function registrarTrocaAula(aulaData) {
-        // Aqui você implementará a lógica para salvar a troca no banco de dados
-        console.log('Troca registrada:', {
-            disciplina: aulaData.disciplina,
-            dia: aulaData.dia,
-            horario: aulaData.horario,
-            timestamp: new Date().toISOString()
-        });
-        
-        // Exemplo de como seria a chamada para a API
-        /*
-        fetch('/api/aulas/trocar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                disciplinaId: aulaData.disciplina.id,
+        try {
+            // Aqui você implementará a lógica para salvar a troca no banco de dados
+            console.log('Troca registrada:', {
+                disciplina: aulaData.disciplina,
                 dia: aulaData.dia,
-                horario: aulaData.horario
+                horario: aulaData.horario,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Exemplo de como seria a chamada para a API
+            /*
+            fetch('/api/aulas/trocar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    disciplinaId: aulaData.disciplina.id,
+                    dia: aulaData.dia,
+                    horario: aulaData.horario
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Troca registrada com sucesso:', data);
-        })
-        .catch(error => {
+            .then(response => response.json())
+            .then(data => {
+                console.log('Troca registrada com sucesso:', data);
+            })
+            .catch(error => {
+                console.error('Erro ao registrar troca:', error);
+            });
+            */
+        } catch (error) {
             console.error('Erro ao registrar troca:', error);
-        });
-        */
+            showToast('Erro ao registrar troca', 'error');
+        }
     }
 
     // Função para mostrar detalhes da matéria
@@ -1153,14 +1163,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.grade-actions select').forEach(select => {
         select.addEventListener('change', function() {
             // Aqui você implementaria a lógica para filtrar a grade
-            console.log('Filtros aplicados com sucesso!');
+            console.warn('Filtros aplicados com sucesso!');
         });
     });
 
     // Evento para exportação
     document.querySelector('.btn-primary').addEventListener('click', function() {
         // Aqui você implementaria a lógica para exportar a grade
-        console.log('Grade exportada com sucesso!');
+        console.warn('Grade exportada com sucesso!');
     });
 
     // Função para abrir o modal de horário
