@@ -1,5 +1,10 @@
 // Script para controlar o dropdown do perfil
 document.addEventListener("DOMContentLoaded", function() {
+    // Inicializar IRONGATE
+    if (typeof IRONGATE === 'function') {
+        IRONGATE();
+    }
+
     const userProfile = document.getElementById('userProfile');
     
     // Criar overlay para fechar o dropdown

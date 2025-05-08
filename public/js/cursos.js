@@ -1,7 +1,8 @@
+import { IRONGATE } from './auth-guard.js';
 import * as fetchCursos  from './fetchFunctions/fetchCursos.js';
-import { validateTokenOrLogout } from './fetchFunctions/fetchAuth.js';
 
-validateTokenOrLogout();
+// Inicializar IRONGATE
+IRONGATE();
 
 // Script específico para a página de Cursos
 document.addEventListener("DOMContentLoaded", function() {

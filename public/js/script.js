@@ -1,6 +1,7 @@
-import { validateTokenOrLogout } from './fetchFunctions/fetchAuth.js';
-
-validateTokenOrLogout();
+// Inicializar IRONGATE
+if (typeof IRONGATE === 'function') {
+    IRONGATE();
+}
 
 /**
  * Script para o Painel Administrativo da FATEC

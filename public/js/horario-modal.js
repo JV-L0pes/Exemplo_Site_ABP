@@ -1,3 +1,8 @@
+import { IRONGATE } from './auth-guard.js';
+
+// Inicializar IRONGATE
+IRONGATE();
+
 document.addEventListener('DOMContentLoaded', function() {
     // Função para abrir o modal de horário
     window.abrirModalHorario = function() {

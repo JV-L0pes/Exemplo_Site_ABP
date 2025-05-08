@@ -1,3 +1,8 @@
+// Inicializar IRONGATE
+if (typeof IRONGATE === 'function') {
+    IRONGATE();
+}
+
 // Script específico para a página de Disciplinas
 document.addEventListener("DOMContentLoaded", function() {
     // Elementos

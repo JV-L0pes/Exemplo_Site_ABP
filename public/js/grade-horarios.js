@@ -1,3 +1,8 @@
+// Inicializar IRONGATE
+if (typeof IRONGATE === 'function') {
+    IRONGATE();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Dados de exemplo (posteriormente serão carregados da API)
     const horarios = [
