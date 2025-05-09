@@ -62,13 +62,17 @@ export async function createDocente(docente) {
 
 export async function updateDocente(docente) {
     try {
-        const response = await fetch(`${API_URL}/admin/${getAdminId()}/docente/${docente.id}`, {
+        const adminId = getAdminId();
+        const endpoint = `${API_URL}/admin/${adminId}/docente`;
+        const token = getToken();
+        const response = await fetch(endpoint, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getToken()}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
+                id: docente.id,
                 nome: docente.nome,
                 cor: docente.cor
             })
