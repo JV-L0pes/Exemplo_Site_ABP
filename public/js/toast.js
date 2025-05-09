@@ -1,6 +1,5 @@
 // Sistema de Toast para mensagens de feedback
-function showToast(message, type = 'info') {
-    // Criar container de toast se não existir
+function showToast(message, type = 'success') {
     let toastContainer = document.querySelector('.toast-container');
     if (!toastContainer) {
         toastContainer = document.createElement('div');
@@ -8,43 +7,30 @@ function showToast(message, type = 'info') {
         document.body.appendChild(toastContainer);
     }
 
-    // Criar elemento toast
+    // Ícone SVG de acordo com o tipo
+    const icon = type === 'success'
+        ? '<svg width="20" height="20" fill="none"><circle cx="10" cy="10" r="10" fill="#4CAF50"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        : '<svg width="20" height="20" fill="none"><circle cx="10" cy="10" r="10" fill="#f44336"/><path d="M7 7l6 6M13 7l-6 6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>';
+
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
+    toast.className = `toast${type === 'error' ? ' error' : ''}`;
     toast.innerHTML = `
-        <i class="fas ${getIconForType(type)}"></i>
-        <span>${message}</span>
+        <span class="toast-icon">${icon}</span>
+        <span class="toast-message">${message}</span>
+        <button class="toast-close" aria-label="Fechar">&times;</button>
     `;
 
-    // Adicionar ao container
+    // Fechar ao clicar no X
+    toast.querySelector('.toast-close').onclick = () => {
+        toast.remove();
+    };
+
     toastContainer.appendChild(toast);
 
-    // Mostrar toast com animação
+    // Remover automaticamente após 5 segundos
     setTimeout(() => {
-        toast.classList.add('show');
-    }, 100);
-
-    // Remover após 3 segundos
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            toast.remove();
-        }, 300);
-    }, 3000);
-}
-
-// Função auxiliar para escolher o ícone baseado no tipo de mensagem
-function getIconForType(type) {
-    switch (type) {
-        case 'success':
-            return 'fa-check-circle';
-        case 'error':
-            return 'fa-exclamation-circle';
-        case 'warning':
-            return 'fa-exclamation-triangle';
-        default:
-            return 'fa-info-circle';
-    }
+        toast.remove();
+    }, 5000);
 }
 
 // Sistema de Toast compartilhado
@@ -55,25 +41,8 @@ class Toast {
         document.body.appendChild(this.container);
     }
 
-    show(message, type = 'info', duration = 3000) {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-        
-        this.container.appendChild(toast);
-
-        // Adiciona a animação de entrada
-        requestAnimationFrame(() => {
-            toast.style.animation = 'slideIn 0.3s ease-in-out';
-        });
-
-        // Remove o toast após a duração especificada
-        setTimeout(() => {
-            toast.style.animation = 'fadeOut 0.3s ease-in-out';
-            toast.addEventListener('animationend', () => {
-                this.container.removeChild(toast);
-            });
-        }, duration);
+    show(message, type = 'info', duration = 5000) {
+        showToast(message, type); // Usa o novo padrão visual
     }
 
     success(message, duration) {
@@ -94,4 +63,9 @@ class Toast {
 }
 
 // Cria uma instância global do Toast
-const toast = new Toast(); 
+const toast = new Toast();
+
+export { toast, showToast };
+
+// Deixa a função showToast disponível globalmente
+window.showToast = showToast; 

@@ -20,7 +20,7 @@ function IRONGATE() {
     const token = localStorage.getItem('token');
     if (!token) {
         console.error('[IRONGATE] Token não encontrado. Redirecionando para login...');
-        window.location.href = 'login.html';
+        window.location.href = '../login.html';
         return;
     }
 
@@ -36,7 +36,7 @@ function IRONGATE() {
         if (decodedToken.exp < currentTime) {
             console.error('[IRONGATE] Token expirado');
             localStorage.removeItem('token');
-            window.location.href = 'login.html';
+            window.location.href = '../login.html';
             return;
         }
 
@@ -44,7 +44,7 @@ function IRONGATE() {
         if (!decodedToken.id) {
             console.error('[IRONGATE] ID do usuário não encontrado no token');
             localStorage.removeItem('token');
-            window.location.href = 'login.html';
+            window.location.href = '../login.html';
             return;
         }
 
@@ -58,7 +58,7 @@ function IRONGATE() {
     } catch (error) {
         console.error('[IRONGATE] Erro na validação:', error);
         localStorage.removeItem('token');
-        window.location.href = 'login.html';
+        window.location.href = '../login.html';
     }
 }
 
@@ -80,7 +80,7 @@ function monitorarAtividade() {
         if (Date.now() - ultimaAtividade > tempoLimite) {
             console.warn('[IRONGATE] Inatividade detectada. Encerrando sessão...');
             localStorage.removeItem('token');
-            window.location.href = 'login.html';
+            window.location.href = '../login.html';
         }
     }, 60000); // Verificar a cada minuto
 }

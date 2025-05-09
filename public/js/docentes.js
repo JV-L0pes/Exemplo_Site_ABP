@@ -5,6 +5,7 @@ if (typeof IRONGATE === 'function') {
 
 // Importando as funções do fetchDocentes.js
 import { getDocentes, createDocente, updateDocente, deleteDocente } from './fetchFunctions/fetchDocentes.js';
+import { showToast } from './toast.js';
 
 let docentes = [];
 let docenteEditando = null;
@@ -24,16 +25,18 @@ async function carregarDados() {
     try {
         const data = await getDocentes();
         if (!data) {
-            throw new Error('Não foi possível carregar os dados dos docentes');
+            console.warn('Nenhum dado retornado do servidor, inicializando array vazio');
+            docentes = [];
+        } else {
+            docentes = data;
         }
-        docentes = data;
         renderDocentes();
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
         showAlert('Erro ao carregar dados. Por favor, verifique sua conexão e tente novamente.', 'error');
         // Redirecionar para login se o token estiver inválido
         if (error.message.includes('Token inválido') || error.message.includes('não autorizado')) {
-            window.location.href = '/public/login.html';
+            window.location.href = '../login.html';
         }
     }
 }
@@ -88,9 +91,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             cards.forEach(card => {
                 const nome = card.querySelector("h3").textContent.toLowerCase();
-                const curso = card.querySelector(".detail-value").textContent.toLowerCase();
                 
-                if (nome.includes(searchTerm) || curso.includes(searchTerm)) {
+                if (nome.includes(searchTerm)) {
                     card.style.display = "block";
                 } else {
                     card.style.display = "none";
@@ -205,7 +207,26 @@ function fecharModalAdicionarDocente() {
 
 function limparFormularioDocente() {
     const form = document.getElementById('form-adicionar-docente');
-    form.reset();
+    const nomeInput = document.getElementById('nome');
+    const corInput = document.getElementById('cor');
+    const corHexInput = document.getElementById('cor-hex');
+    
+    if (form) {
+        form.reset();
+    }
+    
+    if (corInput) {
+        corInput.value = '#FF0000';
+    }
+    
+    if (corHexInput) {
+        corHexInput.value = '#FF0000';
+    }
+    
+    // Limpar mensagens de erro
+    clearError('nome');
+    clearError('cor');
+    clearError('cor-hex');
 }
 
 // Função para mostrar mensagem e manter visível enquanto o modal estiver aberto
@@ -225,7 +246,7 @@ function renderDocentes() {
     docentesList.innerHTML = '';
 
     // Criar cards para cada docente
-    docentes.forEach(docente => {
+    docentes.forEach((docente, index) => {
         const card = document.createElement('div');
         card.className = 'docente-card';
         card.innerHTML = `
@@ -249,6 +270,8 @@ function renderDocentes() {
                 </button>
             </div>
         `;
+        // Adiciona delay crescente para animação em cascata
+        card.style.animationDelay = `${index * 0.07}s`;
         docentesList.appendChild(card);
     });
 
@@ -421,9 +444,11 @@ function showError(elementId, message) {
     const element = document.getElementById(elementId);
     const errorElement = document.getElementById(`${elementId}-error`);
     
-    element.classList.add('error');
-    errorElement.textContent = message;
-    errorElement.classList.add('show');
+    if (element && errorElement) {
+        element.classList.add('error');
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+    }
 }
 
 // Função para limpar mensagem de erro
@@ -431,89 +456,85 @@ function clearError(elementId) {
     const element = document.getElementById(elementId);
     const errorElement = document.getElementById(`${elementId}-error`);
     
-    element.classList.remove('error');
-    errorElement.textContent = '';
-    errorElement.classList.remove('show');
+    if (element && errorElement) {
+        element.classList.remove('error');
+        errorElement.textContent = '';
+        errorElement.classList.remove('show');
+    }
 }
 
-// Função para validar o formulário
-function validarFormularioDocente() {
+// Função para validar o formulário de adição
+function validarFormularioAdicao() {
     let isValid = true;
-    const nome = document.getElementById('nome').value.trim();
-    const curso = document.getElementById('curso').value.trim();
+    const nomeInput = document.getElementById('nome');
+    const corInput = document.getElementById('cor');
+    const corHexInput = document.getElementById('cor-hex');
+    
+    if (!nomeInput || !corInput || !corHexInput) {
+        console.error('Elementos do formulário não encontrados');
+        return false;
+    }
+    
+    const nome = nomeInput.value.trim();
+    const cor = corInput.value;
+    const corHex = corHexInput.value.trim();
     
     // Limpar erros anteriores
     clearError('nome');
-    clearError('curso');
+    clearError('cor');
+    clearError('cor-hex');
     
+    // Validar nome
     if (!nome) {
         showError('nome', 'Por favor, preencha o nome do docente');
         isValid = false;
+    } else if (nome.length < 3) {
+        showError('nome', 'O nome deve ter pelo menos 3 caracteres');
+        isValid = false;
     }
     
-    if (!curso) {
-        showError('curso', 'Por favor, selecione um curso');
+    // Validar cor
+    if (!cor) {
+        showError('cor', 'Por favor, selecione uma cor');
+        isValid = false;
+    }
+    
+    // Validar cor hexadecimal
+    if (!corHex) {
+        showError('cor-hex', 'Por favor, insira o código hexadecimal da cor');
+        isValid = false;
+    } else if (!corHex.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
+        showError('cor-hex', 'Código hexadecimal inválido');
         isValid = false;
     }
     
     return isValid;
-}
-
-// Função para validar o formulário de edição
-function validarFormularioEdicao() {
-    let isValid = true;
-    const nome = document.getElementById('edit-nome').value.trim();
-    const curso = document.getElementById('edit-curso').value.trim();
-    
-    // Limpar erros anteriores
-    clearError('edit-nome');
-    clearError('edit-curso');
-    
-    if (!nome) {
-        showError('edit-nome', 'Por favor, preencha o nome do docente');
-        isValid = false;
-    }
-    
-    if (!curso) {
-        showError('edit-curso', 'Por favor, selecione um curso');
-        isValid = false;
-    }
-    
-    return isValid;
-}
-
-// Função para salvar curso
-async function salvarCurso(curso) {
-    try {
-        if (!curso) {
-            showAlert('Por favor, selecione um curso.', 'error');
-            return false;
-        }
-
-        // Validar se o curso é válido
-        const cursosValidos = ['GEO', 'DSM', 'MAR'];
-        if (!cursosValidos.includes(curso)) {
-            showAlert('Curso inválido. Por favor, selecione um curso válido.', 'error');
-            return false;
-        }
-
-        return true;
-    } catch (error) {
-        console.error('Erro ao validar curso:', error);
-        showAlert('Erro ao validar curso. Por favor, tente novamente.', 'error');
-        return false;
-    }
 }
 
 // Função para salvar docente
 async function salvarDocente() {
     try {
-        const nome = document.getElementById('nome').value;
-        const cor = document.getElementById('cor').value;
-
-        if (!nome || !cor) {
-            showAlert('Por favor, preencha todos os campos.', 'error');
+        // Validar formulário
+        if (!validarFormularioAdicao()) {
             return;
+        }
+
+        const nomeInput = document.getElementById('nome');
+        const corInput = document.getElementById('cor');
+        
+        if (!nomeInput || !corInput) {
+            showAlert('Erro ao acessar os campos do formulário', 'error');
+            return;
+        }
+
+        const nome = nomeInput.value.trim();
+        const cor = corInput.value;
+
+        // Desabilitar botão de salvar durante o processo
+        const btnSalvar = document.getElementById('salvar-docente');
+        if (btnSalvar) {
+            btnSalvar.disabled = true;
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
         }
 
         const novoDocente = {
@@ -523,15 +544,26 @@ async function salvarDocente() {
 
         const result = await createDocente(novoDocente);
         if (result) {
+            // Atualizar a lista de docentes após adicionar
             await carregarDados();
+            // Fechar modal e mostrar mensagem
             fecharModalAdicionarDocente();
-            showAlert('Docente adicionado com sucesso!', 'success');
+            showToast('Docente adicionado com sucesso!', 'success');
+            // Limpar formulário
+            limparFormularioDocente();
         } else {
-            showAlert('Erro ao adicionar docente. Por favor, tente novamente.', 'error');
+            showToast('Erro ao adicionar docente. Por favor, tente novamente.', 'error');
         }
     } catch (error) {
         console.error('Erro ao salvar docente:', error);
-        showAlert('Erro ao adicionar docente. Por favor, tente novamente.', 'error');
+        showToast('Erro ao adicionar docente. Por favor, tente novamente.', 'error');
+    } finally {
+        // Reabilitar botão de salvar
+        const btnSalvar = document.getElementById('salvar-docente');
+        if (btnSalvar) {
+            btnSalvar.disabled = false;
+            btnSalvar.innerHTML = 'Salvar';
+        }
     }
 }
 
@@ -570,17 +602,33 @@ async function salvarEdicao() {
 // Função para deletar docente
 async function deletarDocente(id) {
     try {
-        const result = await deleteDocente(id);
-        if (result) {
-            await carregarDados();
+        const response = await deleteDocente(id);
+        
+        if (response.status === 200) {
+            // Fechar o modal de deleção
             fecharModalConfirmarDelecao();
-            showAlert('Docente excluído com sucesso!', 'success');
+            
+            // Remover o docente da lista local
+            docentes = docentes.filter(d => d.id !== id);
+            
+            // Atualizar a interface
+            renderDocentes();
+            
+            // Mostrar mensagem de sucesso usando o padrão do site
+            showToast(response.mensagem, 'success');
+            
+            // Tentar atualizar os dados do servidor
+            try {
+                await carregarDados();
+            } catch (error) {
+                console.warn('Erro ao atualizar dados do servidor, mas a interface foi atualizada:', error);
+            }
         } else {
-            showAlert('Erro ao excluir docente. Por favor, tente novamente.', 'error');
+            showToast('Erro ao excluir docente. Por favor, tente novamente.', 'error');
         }
     } catch (error) {
         console.error('Erro ao deletar docente:', error);
-        showAlert('Erro ao excluir docente. Por favor, tente novamente.', 'error');
+        showToast('Erro ao excluir docente. Por favor, tente novamente.', 'error');
     }
 }
 

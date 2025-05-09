@@ -55,7 +55,7 @@ export function logout() {
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
     // Redirecionar para a página de login
-    window.location.href = 'login.html';
+    window.location.href = '/login.html';
 }
 
 export function getToken() {

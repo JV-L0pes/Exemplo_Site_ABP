@@ -44,7 +44,7 @@ export async function createDocente(docente) {
             },
             body: JSON.stringify({
                 nome: docente.nome,
-                curso: docente.curso
+                cor: docente.cor
             })
         });
 
@@ -70,7 +70,7 @@ export async function updateDocente(docente) {
             },
             body: JSON.stringify({
                 nome: docente.nome,
-                curso: docente.curso
+                cor: docente.cor
             })
         });
 
