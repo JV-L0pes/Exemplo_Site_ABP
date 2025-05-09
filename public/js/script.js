@@ -200,13 +200,24 @@ document.addEventListener("DOMContentLoaded", function() {
         DOM.submenuLinks.forEach(link => {
             link.addEventListener("click", function(e) {
                 e.preventDefault();
-                
-                // Em modo colapsado, não fazemos nada - o hover cuidará disso
-                if (state.isCollapsed) return;
-                
-                // Em modo normal, alternamos a classe .open
                 this.classList.toggle("open");
             });
+        });
+    }
+    
+    // Adicionar evento de logout
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            // Limpar dados do localStorage
+            localStorage.removeItem('userData');
+            localStorage.removeItem('token');
+            localStorage.removeItem('email');
+            localStorage.removeItem('senha');
+            localStorage.removeItem('id');
+            
+            // Redirecionar para a página de login
+            window.location.href = '/public/login.html';
         });
     }
     
