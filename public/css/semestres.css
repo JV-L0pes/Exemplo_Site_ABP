@@ -355,4 +355,23 @@
     color: var(--danger);
     font-size: 0.9rem;
     margin-top: 0.5rem;
-} 
+}
+
+/* Badges para sigla do curso e turno */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-right: 6px;
+}
+
+.badge-dsm { background: #9c27b0; }
+.badge-geo { background: #795548; }
+.badge-mar { background: #2196f3; }
+.badge-noturno { background: #222; }
+.badge-matutino { background: #ff9800; }
+.badge-vespertino { background: #4caf50; }
+.badge-default { background: #888; } 

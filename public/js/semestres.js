@@ -1,445 +1,391 @@
 // Inicializar IRONGATE
-IRONGATE();
+if (typeof IRONGATE === 'function') {
+    IRONGATE();
+}
 
-// Script específico para a página de Semestres
-document.addEventListener("DOMContentLoaded", function() {
-    // Elementos
-    const semestresList = document.getElementById("semestres-list");
-    const searchInput = document.getElementById("search-semestre");
-    const addSemestreBtn = document.getElementById("add-semestre");
-    
-    // Dados simulados para demonstração
-    let semestres = [
-        { 
-            id: 1, 
-            periodo: 1, 
-            inicio: "2024-02-10", 
-            fim: "2024-07-05",
-            status: "concluido",
-            disciplinas: 12,
-            curso: "DSM"
-        },
-        { 
-            id: 2, 
-            periodo: 2, 
-            inicio: "2024-08-05", 
-            fim: "2024-12-15",
-            status: "ativo",
-            disciplinas: 12,
-            curso: "GEO"
-        },
-        { 
-            id: 3, 
-            periodo: 3, 
-            inicio: "2025-02-10", 
-            fim: "2025-07-05",
-            status: "planejado",
-            disciplinas: 12,
-            curso: "MAR"
-        },
-        { 
-            id: 4, 
-            periodo: 4, 
-            inicio: "2025-08-05", 
-            fim: "2025-12-15",
-            status: "planejado",
-            disciplinas: 12,
-            curso: "DSM"
-        },
-        { 
-            id: 5, 
-            periodo: 5, 
-            inicio: "2026-02-10", 
-            fim: "2026-07-05",
-            status: "planejado",
-            disciplinas: 12,
-            curso: "GEO"
-        },
-        { 
-            id: 6, 
-            periodo: 6, 
-            inicio: "2026-08-05", 
-            fim: "2026-12-15",
-            status: "planejado",
-            disciplinas: 12,
-            curso: "MAR"
+// Importando as funções do fetchSemestres.js
+import { getSemestres, createSemestre, updateSemestre, deleteSemestre } from './fetchFunctions/fetchSemestres.js';
+import { showToast } from './toast.js';
+
+let semestres = [];
+let semestreEditando = null;
+
+// Função para carregar dados do backend
+async function carregarDados() {
+    try {
+        const data = await getSemestres();
+        if (!data) {
+            console.warn('Nenhum dado retornado do servidor, inicializando array vazio');
+            semestres = [];
+        } else {
+            semestres = data;
         }
-    ];
-    
-    // Função para renderizar os cards de semestres
-    function renderSemestres(semestresToRender = semestres) {
-        semestresList.innerHTML = "";
-        
-        semestresToRender.forEach(semestre => {
-            const card = createSemestreCard(semestre);
-            semestresList.appendChild(card);
-        });
-    }
-    
-    // Função para criar um card de semestre
-    function createSemestreCard(semestre) {
-        const card = document.createElement("div");
-        card.className = "semestre-card";
-        card.dataset.id = semestre.id;
-        
-        // Definir classe de status
-        let statusClass = "";
-        switch(semestre.status) {
-            case "ativo": statusClass = "status-ativo"; break;
-            case "concluido": statusClass = "status-concluido"; break;
-            case "planejado": statusClass = "status-planejado"; break;
+        renderSemestres();
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        showToast('Erro ao carregar dados. Por favor, verifique sua conexão e tente novamente.', 'error');
+        // Redirecionar para login se o token estiver inválido
+        if (error.message.includes('Token inválido') || error.message.includes('não autorizado')) {
+            window.location.href = '../login.html';
         }
+    }
+}
 
-        // Definir classe do curso
-        let cursoClass = "";
-        switch(semestre.curso) {
-            case "DSM": cursoClass = "curso-dsm"; break;
-            case "GEO": cursoClass = "curso-geo"; break;
-            case "MAR": cursoClass = "curso-mar"; break;
-        }
-        
-        // Formatar datas
-        const dataInicio = new Date(semestre.inicio);
-        const dataFim = new Date(semestre.fim);
-        const anoInicio = dataInicio.getFullYear();
-        
-        card.innerHTML = `
-            <div class="semestre-header">
-                <div class="semestre-icon">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <div class="semestre-info">
-                    <h3>${anoInicio} - ${semestre.periodo}º Semestre</h3>
-                    <p>
-                        <span class="semestre-status ${statusClass}">${semestre.status.toUpperCase()}</span>
-                        <span class="semestre-curso ${cursoClass}">${semestre.curso}</span>
-                    </p>
-                </div>
-            </div>
-            <div class="semestre-details">
-                <div class="semestre-detail">
-                    <span class="detail-label">Início</span>
-                    <span class="detail-value">${dataInicio.toLocaleDateString('pt-BR')}</span>
-                </div>
-                <div class="semestre-detail">
-                    <span class="detail-label">Fim</span>
-                    <span class="detail-value">${dataFim.toLocaleDateString('pt-BR')}</span>
-                </div>
-                <div class="semestre-detail">
-                    <span class="detail-label">Disciplinas</span>
-                    <span class="detail-value">${semestre.disciplinas}</span>
-                </div>
-            </div>
-            <div class="semestre-actions">
-                <button class="btn-edit" onclick="editSemestre(${semestre.id})">
-                    <i class="fas fa-edit"></i> Editar
-                </button>
-                <button class="btn-delete" onclick="deleteSemestre(${semestre.id})">
-                    <i class="fas fa-trash"></i> Excluir
-                </button>
-            </div>
-        `;
-        
-        return card;
-    }
-    
-    // Função para buscar semestres
-    function searchSemestres(query) {
-        const filteredSemestres = semestres.filter(semestre => 
-            semestre.ano.toString().includes(query) ||
-            semestre.periodo.toString().includes(query) ||
-            semestre.status.toLowerCase().includes(query.toLowerCase()) ||
-            semestre.curso.toLowerCase().includes(query.toLowerCase())
-        );
-        
-        renderSemestres(filteredSemestres);
-    }
+// Função para renderizar os semestres
+function renderSemestres() {
+    const semestresList = document.getElementById('semestres-list');
+    if (!semestresList) return;
 
-    // Funções para controle do Modal de Adição
-    function abrirModalAdicionarSemestre() {
-        const modal = document.getElementById('modal-adicionar-semestre');
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-    }
+    semestresList.innerHTML = '';
 
-    function fecharModalAdicionarSemestre() {
-        const modal = document.getElementById('modal-adicionar-semestre');
-        modal.classList.remove('show');
-        document.body.style.overflow = 'auto';
-        limparFormularioSemestre();
-    }
-
-    // Funções para controle do Modal de Edição
-    function abrirModalEditarSemestre(semestre) {
-        const modal = document.getElementById('modal-editar-semestre');
-        const form = document.getElementById('form-editar-semestre');
-        
-        // Pegar o ano da data de início
-        const anoInicio = new Date(semestre.inicio).getFullYear();
-        
-        document.getElementById('edit-id').value = semestre.id;
-        document.getElementById('edit-ano').value = anoInicio;
-        document.getElementById('edit-periodo').value = semestre.periodo;
-        document.getElementById('edit-inicio').value = semestre.inicio;
-        document.getElementById('edit-fim').value = semestre.fim;
-        document.getElementById('edit-status').value = semestre.status;
-        document.getElementById('edit-curso').value = semestre.curso;
-        
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function fecharModalEditarSemestre() {
-        const modal = document.getElementById('modal-editar-semestre');
-        modal.classList.remove('show');
-        document.body.style.overflow = 'auto';
-        document.getElementById('form-editar-semestre').reset();
-    }
-
-    // Funções para controle do Modal de Deleção
-    function abrirModalConfirmarDelecao(semestre) {
-        const modal = document.getElementById('modal-confirmar-delecao');
-        const semestreDelete = document.getElementById('semestre-delete');
-        
-        semestreDelete.textContent = `${semestre.ano} - ${semestre.periodo}º Semestre (${semestre.curso})`;
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-        
-        modal.dataset.semestreId = semestre.id;
-    }
-
-    function fecharModalConfirmarDelecao() {
-        const modal = document.getElementById('modal-confirmar-delecao');
-        modal.classList.remove('show');
-        document.body.style.overflow = 'auto';
-    }
-    
-    // Event Listeners
-    searchInput.addEventListener("input", (e) => {
-        searchSemestres(e.target.value);
+    semestres.forEach(semestre => {
+        const card = createSemestreCard(semestre);
+        semestresList.appendChild(card);
     });
-    
-    addSemestreBtn.addEventListener("click", abrirModalAdicionarSemestre);
-    
-    // Event Listeners para o Modal de Adição
-    document.querySelector('#modal-adicionar-semestre .close-modal').addEventListener('click', fecharModalAdicionarSemestre);
-    document.getElementById('cancelar-adicionar').addEventListener('click', fecharModalAdicionarSemestre);
-    
-    // Função para mostrar mensagem de erro
-    function showError(elementId, message) {
-        const element = document.getElementById(elementId);
-        const errorElement = document.getElementById(`${elementId}-error`);
-        
-        element.classList.add('error');
-        errorElement.textContent = message;
-        errorElement.classList.add('show');
+
+    // Adiciona os event listeners após renderizar os cards
+    semestresList.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', () => {
+            const semestreId = parseInt(button.dataset.semestreId);
+            const semestre = semestres.find(s => s.id_semestre_cronograma === semestreId);
+            if (semestre) {
+                abrirModalEditarSemestre(semestre);
+            }
+        });
+    });
+
+    semestresList.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', () => {
+            const semestreId = parseInt(button.dataset.semestreId);
+            const semestre = semestres.find(s => s.id_semestre_cronograma === semestreId);
+            if (semestre) {
+                abrirModalConfirmarDelecao(semestre);
+            }
+        });
+    });
+}
+
+// Função para criar o card do semestre
+function createSemestreCard(semestre) {
+    const card = document.createElement('div');
+    card.className = 'semestre-card';
+
+    const ano = semestre.ano_semestre_cronograma || '';
+    const nivel = semestre.nivel_semestre_cronograma || '';
+    const siglaCurso = semestre.sigla_curso || '';
+    const nomeTurno = semestre.nome_turno || '';
+
+    // Definir classes de cor para badges
+    let badgeCursoClass = '';
+    switch (siglaCurso.toLowerCase()) {
+        case 'dsm': badgeCursoClass = 'badge-dsm'; break;
+        case 'geo': badgeCursoClass = 'badge-geo'; break;
+        case 'mar': badgeCursoClass = 'badge-mar'; break;
+        default: badgeCursoClass = 'badge-default'; break;
+    }
+    let badgeTurnoClass = '';
+    switch (nomeTurno.toLowerCase()) {
+        case 'noturno': badgeTurnoClass = 'badge-noturno'; break;
+        case 'matutino': badgeTurnoClass = 'badge-matutino'; break;
+        case 'vespertino': badgeTurnoClass = 'badge-vespertino'; break;
+        default: badgeTurnoClass = 'badge-default'; break;
     }
 
-    // Função para limpar mensagem de erro
-    function clearError(elementId) {
-        const element = document.getElementById(elementId);
-        const errorElement = document.getElementById(`${elementId}-error`);
-        
-        element.classList.remove('error');
+    card.innerHTML = `
+        <div class="semestre-header">
+            <div class="semestre-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="semestre-info">
+                <h3>${ano} - ${nivel}º Nível</h3>
+                <div style="margin-bottom: 6px;">
+                    <span class="badge ${badgeCursoClass}">${siglaCurso}</span>
+                    <span class="badge ${badgeTurnoClass}">${nomeTurno}</span>
+                </div>
+            </div>
+        </div>
+        <div class="semestre-details">
+            <div class="semestre-detail">
+                <span class="detail-label">Ano</span>
+                <span class="detail-value">${ano}</span>
+            </div>
+            <div class="semestre-detail">
+                <span class="detail-label">Nível</span>
+                <span class="detail-value">${nivel}</span>
+            </div>
+        </div>
+        <div class="semestre-actions">
+            <button class="btn-edit" data-semestre-id="${semestre.id_semestre_cronograma}">
+                <i class="fas fa-edit"></i> Editar
+            </button>
+            <button class="btn-delete" data-semestre-id="${semestre.id_semestre_cronograma}">
+                <i class="fas fa-trash"></i> Excluir
+            </button>
+        </div>
+    `;
+    return card;
+}
+
+// Função para salvar semestre
+async function salvarSemestre() {
+    try {
+        if (!validarFormularioSemestre()) return;
+
+        const form = document.getElementById('form-adicionar-semestre');
+        const formData = new FormData(form);
+
+        const novoSemestre = {
+            ano: parseInt(formData.get('ano')),
+            nivel: parseInt(formData.get('nivel')),
+            id_curso: parseInt(formData.get('id_curso')),
+            id_turno: parseInt(formData.get('id_turno'))
+        };
+
+        const result = await createSemestre(novoSemestre);
+        if (result) {
+            await carregarDados();
+            fecharModalAdicionarSemestre();
+            showToast('Semestre adicionado com sucesso!', 'success');
+            limparFormularioSemestre();
+        } else {
+            showToast('Erro ao adicionar semestre. Por favor, tente novamente.', 'error');
+        }
+    } catch (error) {
+        showToast('Erro ao adicionar semestre. Por favor, tente novamente.', 'error');
+    }
+}
+
+// Função para atualizar semestre
+async function atualizarSemestre() {
+    try {
+        if (!validarFormularioEdicao()) return;
+
+        const form = document.getElementById('form-editar-semestre');
+        const formData = new FormData(form);
+
+        const semestreAtualizado = {
+            id: parseInt(formData.get('id')),
+            ano: parseInt(formData.get('ano')),
+            nivel: parseInt(formData.get('nivel')),
+            id_curso: parseInt(formData.get('id_curso')),
+            id_turno: parseInt(formData.get('id_turno'))
+        };
+
+        const result = await updateSemestre(semestreAtualizado);
+        if (result) {
+            await carregarDados();
+            fecharModalEditarSemestre();
+            showToast('Semestre atualizado com sucesso!', 'success');
+        } else {
+            showToast('Erro ao atualizar semestre. Por favor, tente novamente.', 'error');
+        }
+    } catch (error) {
+        showToast('Erro ao atualizar semestre. Por favor, tente novamente.', 'error');
+    }
+}
+
+// Função para deletar semestre
+async function deletarSemestre(id) {
+    try {
+        const response = await deleteSemestre(id);
+
+        if (response.status === 200) {
+            fecharModalConfirmarDelecao();
+            semestres = semestres.filter(s => s.id !== id);
+            renderSemestres();
+            showToast('Semestre excluído com sucesso!', 'success');
+            await carregarDados();
+        } else {
+            showToast('Erro ao excluir semestre. Por favor, tente novamente.', 'error');
+        }
+    } catch (error) {
+        showToast('Erro ao excluir semestre. Por favor, tente novamente.', 'error');
+    }
+}
+
+// Funções para controle do Modal de Adição
+function abrirModalAdicionarSemestre() {
+    const modal = document.getElementById('modal-adicionar-semestre');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function fecharModalAdicionarSemestre() {
+    const modal = document.getElementById('modal-adicionar-semestre');
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
+    limparFormularioSemestre();
+}
+
+// Funções para controle do Modal de Edição
+function abrirModalEditarSemestre(semestre) {
+    const modal = document.getElementById('modal-editar-semestre');
+    const form = document.getElementById('form-editar-semestre');
+
+    document.getElementById('edit-id').value = semestre.id;
+    document.getElementById('edit-ano').value = semestre.ano;
+    document.getElementById('edit-nivel').value = semestre.nivel;
+    document.getElementById('edit-id_curso').value = semestre.id_curso;
+    document.getElementById('edit-id_turno').value = semestre.id_turno;
+
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function fecharModalEditarSemestre() {
+    const modal = document.getElementById('modal-editar-semestre');
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
+    document.getElementById('form-editar-semestre').reset();
+}
+
+// Funções para controle do Modal de Deleção
+function abrirModalConfirmarDelecao(semestre) {
+    const modal = document.getElementById('modal-confirmar-delecao');
+    const semestreDelete = document.getElementById('semestre-delete');
+    semestreDelete.textContent = `Tem certeza que deseja excluir o semestre ${semestre.ano_semestre_cronograma} - ${semestre.nivel_semestre_cronograma}º Nível (Curso: ${semestre.sigla_curso})?\n\nEsta ação não pode ser desfeita!`;
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    modal.dataset.semestreId = semestre.id_semestre_cronograma;
+}
+
+function fecharModalConfirmarDelecao() {
+    const modal = document.getElementById('modal-confirmar-delecao');
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
+}
+
+// Função para buscar semestres
+function searchSemestres(query) {
+    const filteredSemestres = semestres.filter(semestre => 
+        semestre.ano.toString().includes(query) ||
+        semestre.nivel.toString().includes(query) ||
+        semestre.status.toLowerCase().includes(query.toLowerCase()) ||
+        semestre.id_curso.toString().includes(query)
+    );
+    
+    renderSemestres(filteredSemestres);
+}
+
+// Função para mostrar mensagem de erro
+function showError(elementId, message) {
+    const element = document.getElementById(elementId);
+    const errorElement = document.getElementById(`${elementId}-error`);
+    
+    element.classList.add('error');
+    errorElement.textContent = message;
+    errorElement.classList.add('show');
+}
+
+// Função para limpar mensagem de erro
+function clearError(elementId) {
+    const element = document.getElementById(elementId);
+    const errorElement = document.getElementById(`${elementId}-error`);
+    if (element) element.classList.remove('error');
+    if (errorElement) {
         errorElement.textContent = '';
         errorElement.classList.remove('show');
     }
+}
 
-    // Função para validar o formulário de adição
-    function validarFormularioSemestre() {
-        let isValid = true;
-        const ano = document.getElementById('ano').value.trim();
-        const periodo = document.getElementById('periodo').value.trim();
-        const inicio = document.getElementById('inicio').value.trim();
-        const fim = document.getElementById('fim').value.trim();
-        const status = document.getElementById('status').value.trim();
-        const curso = document.getElementById('curso').value.trim();
-        
-        // Limpar erros anteriores
-        clearError('ano');
-        clearError('periodo');
-        clearError('inicio');
-        clearError('fim');
-        clearError('status');
-        clearError('curso');
-        
-        if (!ano || isNaN(ano) || ano < 2024 || ano > 2100) {
-            showError('ano', 'Por favor, preencha um ano válido (2024-2100)');
-            isValid = false;
-        }
-        
-        if (!periodo) {
-            showError('periodo', 'Por favor, selecione o período');
-            isValid = false;
-        }
-        
-        if (!inicio) {
-            showError('inicio', 'Por favor, selecione a data de início');
-            isValid = false;
-        }
-        
-        if (!fim) {
-            showError('fim', 'Por favor, selecione a data de término');
-            isValid = false;
-        }
-        
-        if (!status) {
-            showError('status', 'Por favor, selecione o status');
-            isValid = false;
-        }
-        
-        if (!curso) {
-            showError('curso', 'Por favor, selecione o curso');
-            isValid = false;
-        }
-        
-        return isValid;
+// Função para validar o formulário de adição
+function validarFormularioSemestre() {
+    let isValid = true;
+    const ano = document.getElementById('ano').value.trim();
+    const nivel = document.getElementById('nivel').value.trim();
+    const id_curso = document.getElementById('id_curso').value.trim();
+    const id_turno = document.getElementById('id_turno').value.trim();
+
+    clearError('ano');
+    clearError('nivel');
+    clearError('id_curso');
+    clearError('id_turno');
+
+    if (!ano || isNaN(ano) || ano < 2024 || ano > 2100) {
+        showError('ano', 'Por favor, preencha um ano válido (2024-2100)');
+        isValid = false;
     }
-
-    // Função para validar o formulário de edição
-    function validarFormularioEdicao() {
-        let isValid = true;
-        const ano = document.getElementById('edit-ano').value.trim();
-        const periodo = document.getElementById('edit-periodo').value.trim();
-        const inicio = document.getElementById('edit-inicio').value.trim();
-        const fim = document.getElementById('edit-fim').value.trim();
-        const status = document.getElementById('edit-status').value.trim();
-        const curso = document.getElementById('edit-curso').value.trim();
-        
-        // Limpar erros anteriores
-        clearError('edit-ano');
-        clearError('edit-periodo');
-        clearError('edit-inicio');
-        clearError('edit-fim');
-        clearError('edit-status');
-        clearError('edit-curso');
-        
-        if (!ano || isNaN(ano) || ano < 2024 || ano > 2100) {
-            showError('edit-ano', 'Por favor, preencha um ano válido (2024-2100)');
-            isValid = false;
-        }
-        
-        if (!periodo) {
-            showError('edit-periodo', 'Por favor, selecione o período');
-            isValid = false;
-        }
-        
-        if (!inicio) {
-            showError('edit-inicio', 'Por favor, selecione a data de início');
-            isValid = false;
-        }
-        
-        if (!fim) {
-            showError('edit-fim', 'Por favor, selecione a data de término');
-            isValid = false;
-        }
-        
-        if (!status) {
-            showError('edit-status', 'Por favor, selecione o status');
-            isValid = false;
-        }
-        
-        if (!curso) {
-            showError('edit-curso', 'Por favor, selecione o curso');
-            isValid = false;
-        }
-        
-        return isValid;
+    if (!nivel) {
+        showError('nivel', 'Por favor, preencha o nível');
+        isValid = false;
     }
-
-    // Função para limpar formulário
-    function limparFormularioSemestre() {
-        const form = document.getElementById('form-adicionar-semestre');
-        form.reset();
-        clearError('ano');
-        clearError('periodo');
-        clearError('inicio');
-        clearError('fim');
-        clearError('status');
-        clearError('curso');
+    if (!id_curso) {
+        showError('id_curso', 'Por favor, selecione o curso');
+        isValid = false;
     }
+    if (!id_turno) {
+        showError('id_turno', 'Por favor, selecione o turno');
+        isValid = false;
+    }
+    return isValid;
+}
 
-    // Atualizar a função de salvar semestre
-    document.getElementById('salvar-semestre').addEventListener('click', function() {
-        if (!validarFormularioSemestre()) {
-            return;
-        }
-        
-        const form = document.getElementById('form-adicionar-semestre');
-        const formData = new FormData(form);
-        
-        const novoSemestre = {
-            id: Date.now(),
-            periodo: parseInt(formData.get('periodo')),
-            inicio: formData.get('inicio'),
-            fim: formData.get('fim'),
-            status: formData.get('status'),
-            curso: formData.get('curso'),
-            disciplinas: 0
-        };
-        
-        semestres.push(novoSemestre);
-        renderSemestres();
-        fecharModalAdicionarSemestre();
-    });
-    
-    // Event Listeners para o Modal de Edição
-    document.querySelector('#modal-editar-semestre .close-modal').addEventListener('click', fecharModalEditarSemestre);
-    document.getElementById('cancelar-editar').addEventListener('click', fecharModalEditarSemestre);
-    
-    document.getElementById('salvar-edicao').addEventListener('click', function() {
-        if (!validarFormularioEdicao()) {
-            return;
-        }
+// Função para validar o formulário de edição
+function validarFormularioEdicao() {
+    let isValid = true;
+    const ano = document.getElementById('edit-ano').value.trim();
+    const nivel = document.getElementById('edit-nivel').value.trim();
+    const id_curso = document.getElementById('edit-id_curso').value.trim();
+    const id_turno = document.getElementById('edit-id_turno').value.trim();
 
-        const form = document.getElementById('form-editar-semestre');
-        const formData = new FormData(form);
-        const id = parseInt(formData.get('id'));
-        
-        const semestreIndex = semestres.findIndex(s => s.id === id);
-        if (semestreIndex !== -1) {
-            semestres[semestreIndex] = {
-                ...semestres[semestreIndex],
-                periodo: parseInt(formData.get('periodo')),
-                inicio: formData.get('inicio'),
-                fim: formData.get('fim'),
-                status: formData.get('status'),
-                curso: formData.get('curso')
-            };
-            
-            renderSemestres();
-            fecharModalEditarSemestre();
-        }
-    });
+    clearError('edit-ano');
+    clearError('edit-nivel');
+    clearError('edit-id_curso');
+    clearError('edit-id_turno');
+
+    if (!ano || isNaN(ano) || ano < 2024 || ano > 2100) {
+        showError('edit-ano', 'Por favor, preencha um ano válido (2024-2100)');
+        isValid = false;
+    }
+    if (!nivel) {
+        showError('edit-nivel', 'Por favor, preencha o nível');
+        isValid = false;
+    }
+    if (!id_curso) {
+        showError('edit-id_curso', 'Por favor, selecione o curso');
+        isValid = false;
+    }
+    if (!id_turno) {
+        showError('edit-id_turno', 'Por favor, selecione o turno');
+        isValid = false;
+    }
+    return isValid;
+}
+
+// Função para limpar formulário
+function limparFormularioSemestre() {
+    const form = document.getElementById('form-adicionar-semestre');
+    form.reset();
+    clearError('ano');
+    clearError('nivel');
+    clearError('id_curso');
+    clearError('id_turno');
+}
+
+// Inicializar a página
+document.addEventListener('DOMContentLoaded', () => {
+    carregarDados();
     
-    // Event Listeners para o Modal de Deleção
-    document.querySelector('#modal-confirmar-delecao .close-modal').addEventListener('click', fecharModalConfirmarDelecao);
-    document.getElementById('cancelar-delecao').addEventListener('click', fecharModalConfirmarDelecao);
+    // Event listeners para os botões
+    document.getElementById('add-semestre')?.addEventListener('click', abrirModalAdicionarSemestre);
+    document.getElementById('salvar-semestre')?.addEventListener('click', salvarSemestre);
+    document.getElementById('salvar-edicao')?.addEventListener('click', atualizarSemestre);
     
-    document.getElementById('confirmar-delecao').addEventListener('click', function() {
+    // Event listeners para os modais
+    document.querySelector('#modal-adicionar-semestre .close-modal')?.addEventListener('click', fecharModalAdicionarSemestre);
+    document.querySelector('#modal-editar-semestre .close-modal')?.addEventListener('click', fecharModalEditarSemestre);
+    document.querySelector('#modal-confirmar-delecao .close-modal')?.addEventListener('click', fecharModalConfirmarDelecao);
+    document.getElementById('cancelar-adicionar')?.addEventListener('click', fecharModalAdicionarSemestre);
+    document.getElementById('cancelar-editar')?.addEventListener('click', fecharModalEditarSemestre);
+    document.getElementById('cancelar-delecao')?.addEventListener('click', fecharModalConfirmarDelecao);
+    document.getElementById('confirmar-delecao')?.addEventListener('click', function() {
         const modal = document.getElementById('modal-confirmar-delecao');
         const semestreId = parseInt(modal.dataset.semestreId);
-        
-        semestres = semestres.filter(s => s.id !== semestreId);
-        renderSemestres();
-        fecharModalConfirmarDelecao();
+        deletarSemestre(semestreId);
     });
     
-    // Funções globais para edição e exclusão
-    window.editSemestre = function(id) {
-        const semestre = semestres.find(s => s.id === id);
-        if (semestre) {
-            abrirModalEditarSemestre(semestre);
-        }
-    };
-    
-    window.deleteSemestre = function(id) {
-        const semestre = semestres.find(s => s.id === id);
-        if (semestre) {
-            abrirModalConfirmarDelecao(semestre);
-        }
-    };
-    
-    // Inicializar a página
-    renderSemestres();
+    // Event listener para busca
+    document.getElementById('search-semestre')?.addEventListener('input', (e) => {
+        searchSemestres(e.target.value);
+    });
 }); 
