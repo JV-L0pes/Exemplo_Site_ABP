@@ -39,12 +39,12 @@ export async function createSemestre(semestre) {
     try {
         console.log('Enviando semestre:', semestre); // Debug
 
-        // Enviar todos os campos como arrays
+        // Enviar os campos como valores simples
         const dadosSemestre = {
-            nivel: [parseInt(semestre.nivel)],
-            ano: [parseInt(semestre.ano)],
-            nome_curso: [semestre.nome_curso],
-            nome_turno: [semestre.nome_turno]
+            nivel: parseInt(semestre.nivel),
+            ano: parseInt(semestre.ano),
+            nome_curso: semestre.nome_curso,
+            nome_turno: semestre.nome_turno
         };
 
         console.log('Dados formatados:', dadosSemestre); // Debug
