@@ -1,3 +1,4 @@
+/* Hallowed Be Thy Name. */
 /* Estilos específicos para a página de Semestres */
 .semestres-container {
     padding: 2rem;
@@ -120,6 +121,8 @@
     padding: 0.5rem 0;
     border-bottom: 1px solid #eee;
 }
+
+/* And Lead Us Not into Temptation, */
 
 .semestre-detail:last-child {
     border-bottom: none;

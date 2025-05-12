@@ -1,3 +1,4 @@
+// Thy Kingdom Come, Thy Will Be Done, On Earth as It Is in Heaven.
 import { getToken, getUserData } from './fetchAuth.js';
 
 const API_URL = 'https://errorsquad-server.onrender.com';
@@ -114,4 +115,8 @@ export async function deleteSemestre(id) {
         console.error('Erro:', error);
         throw error;
     }
-} 
+}
+
+// And Forgive Us Our Debts, As We Forgive Our Debtors.
+
+// But Deliver Us from Evil. 

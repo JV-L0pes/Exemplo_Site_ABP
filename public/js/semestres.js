@@ -1,3 +1,5 @@
+// May God Have Mercy on Our Souls
+
 // Inicializar IRONGATE
 if (typeof IRONGATE === 'function') {
     IRONGATE();
@@ -9,6 +11,29 @@ import { showToast } from './toast.js';
 
 let semestres = [];
 let semestreEditando = null;
+
+const siglasCursosFixas = ['DSM', 'GEO', 'MAR'];
+const turnosFixos = ['Matutino', 'Noturno'];
+
+function popularSelectsSemestre() {
+    // Cursos
+    const selectsCurso = [document.getElementById('sigla_curso'), document.getElementById('edit-sigla_curso')];
+    selectsCurso.forEach(select => {
+        if (select) {
+            select.innerHTML = '<option value="">Selecione o curso</option>' +
+                siglasCursosFixas.map(sigla => `<option value="${sigla}">${sigla}</option>`).join('');
+        }
+    });
+
+    // Turnos
+    const selectsTurno = [document.getElementById('nome_turno'), document.getElementById('edit-nome_turno')];
+    selectsTurno.forEach(select => {
+        if (select) {
+            select.innerHTML = '<option value="">Selecione o turno</option>' +
+                turnosFixos.map(turno => `<option value="${turno}">${turno}</option>`).join('');
+        }
+    });
+}
 
 // Função para carregar dados do backend
 async function carregarDados() {
@@ -31,7 +56,7 @@ async function carregarDados() {
     }
 }
 
-// Função para renderizar os semestres
+// Give Us This Day Our Daily Bread,
 function renderSemestres() {
     const semestresList = document.getElementById('semestres-list');
     if (!semestresList) return;
@@ -99,7 +124,7 @@ function createSemestreCard(semestre) {
             <div class="semestre-info">
                 <h3>${ano} - ${nivel}º Nível</h3>
                 <div style="margin-bottom: 6px;">
-                    <span class="badge ${badgeCursoClass}">${siglaCurso}</span>
+                    <span class="badge ${badgeCursoClass}">${siglaCurso.toUpperCase()}</span>
                     <span class="badge ${badgeTurnoClass}">${nomeTurno}</span>
                 </div>
             </div>
@@ -164,11 +189,11 @@ async function atualizarSemestre() {
         const formData = new FormData(form);
 
         const semestreAtualizado = {
-            id: parseInt(formData.get('id')),
-            ano: parseInt(formData.get('ano')),
-            nivel: parseInt(formData.get('nivel')),
-            id_curso: parseInt(formData.get('id_curso')),
-            id_turno: parseInt(formData.get('id_turno'))
+            id_semestre_cronograma: formData.get('id_semestre_cronograma'),
+            ano_semestre_cronograma: formData.get('ano_semestre_cronograma'),
+            nivel_semestre_cronograma: formData.get('nivel_semestre_cronograma'),
+            sigla_curso: formData.get('sigla_curso'),
+            nome_turno: formData.get('nome_turno')
         };
 
         const result = await updateSemestre(semestreAtualizado);
@@ -205,6 +230,7 @@ async function deletarSemestre(id) {
 
 // Funções para controle do Modal de Adição
 function abrirModalAdicionarSemestre() {
+    popularSelectsSemestre();
     const modal = document.getElementById('modal-adicionar-semestre');
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
@@ -218,16 +244,18 @@ function fecharModalAdicionarSemestre() {
 }
 
 // Funções para controle do Modal de Edição
+function capitalizeFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 function abrirModalEditarSemestre(semestre) {
+    popularSelectsSemestre();
     const modal = document.getElementById('modal-editar-semestre');
-    const form = document.getElementById('form-editar-semestre');
-
-    document.getElementById('edit-id').value = semestre.id;
-    document.getElementById('edit-ano').value = semestre.ano;
-    document.getElementById('edit-nivel').value = semestre.nivel;
-    document.getElementById('edit-id_curso').value = semestre.id_curso;
-    document.getElementById('edit-id_turno').value = semestre.id_turno;
-
+    document.getElementById('edit-id_semestre_cronograma').value = semestre.id_semestre_cronograma;
+    document.getElementById('edit-ano_semestre_cronograma').value = semestre.ano_semestre_cronograma;
+    document.getElementById('edit-nivel_semestre_cronograma').value = semestre.nivel_semestre_cronograma;
+    document.getElementById('edit-sigla_curso').value = (semestre.sigla_curso || '').toUpperCase();
+    document.getElementById('edit-nome_turno').value = capitalizeFirstLetter(semestre.nome_turno || '');
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
 }
@@ -323,30 +351,30 @@ function validarFormularioSemestre() {
 // Função para validar o formulário de edição
 function validarFormularioEdicao() {
     let isValid = true;
-    const ano = document.getElementById('edit-ano').value.trim();
-    const nivel = document.getElementById('edit-nivel').value.trim();
-    const id_curso = document.getElementById('edit-id_curso').value.trim();
-    const id_turno = document.getElementById('edit-id_turno').value.trim();
+    const ano = document.getElementById('edit-ano_semestre_cronograma').value.trim();
+    const nivel = document.getElementById('edit-nivel_semestre_cronograma').value.trim();
+    const id_curso = document.getElementById('edit-sigla_curso').value.trim();
+    const id_turno = document.getElementById('edit-nome_turno').value.trim();
 
-    clearError('edit-ano');
-    clearError('edit-nivel');
-    clearError('edit-id_curso');
-    clearError('edit-id_turno');
+    clearError('edit-ano_semestre_cronograma');
+    clearError('edit-nivel_semestre_cronograma');
+    clearError('edit-sigla_curso');
+    clearError('edit-nome_turno');
 
     if (!ano || isNaN(ano) || ano < 2024 || ano > 2100) {
-        showError('edit-ano', 'Por favor, preencha um ano válido (2024-2100)');
+        showError('edit-ano_semestre_cronograma', 'Por favor, preencha um ano válido (2024-2100)');
         isValid = false;
     }
     if (!nivel) {
-        showError('edit-nivel', 'Por favor, preencha o nível');
+        showError('edit-nivel_semestre_cronograma', 'Por favor, preencha o nível');
         isValid = false;
     }
     if (!id_curso) {
-        showError('edit-id_curso', 'Por favor, selecione o curso');
+        showError('edit-sigla_curso', 'Por favor, selecione o curso');
         isValid = false;
     }
     if (!id_turno) {
-        showError('edit-id_turno', 'Por favor, selecione o turno');
+        showError('edit-nome_turno', 'Por favor, selecione o turno');
         isValid = false;
     }
     return isValid;
@@ -388,4 +416,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('search-semestre')?.addEventListener('input', (e) => {
         searchSemestres(e.target.value);
     });
-}); 
+});
+
+// For Thine is the Kingdom, and the Power, and the Glory, for ever and ever. Amen. 

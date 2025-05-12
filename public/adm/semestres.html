@@ -1,3 +1,4 @@
+<!-- Our Father, Who Art in Heaven, -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -137,6 +138,7 @@
                         Adicionar Semestre
                     </button>
                 </div>
+                <!-- Our Father, Who Art in Heaven, -->
                 
                 <div class="semestres-search">
                     <input type="text" placeholder="Buscar semestre..." id="search-semestre">
@@ -165,47 +167,23 @@
                         <span class="error-message" id="ano-error"></span>
                     </div>
                     <div class="form-group">
-                        <label for="periodo">Período</label>
-                        <select id="periodo" name="periodo" required>
-                            <option value="">Selecione o período</option>
-                            <option value="1">1º Semestre</option>
-                            <option value="2">2º Semestre</option>
-                            <option value="3">3º Semestre</option>
-                            <option value="4">4º Semestre</option>
-                            <option value="5">5º Semestre</option>
-                            <option value="6">6º Semestre</option>
+                        <label for="nivel">Nível</label>
+                        <input type="number" id="nivel" name="nivel" required min="1">
+                        <span class="error-message" id="nivel-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sigla_curso">Sigla do Curso</label>
+                        <select id="sigla_curso" name="sigla_curso" required>
+                            <!-- opções preenchidas via JS -->
                         </select>
-                        <span class="error-message" id="periodo-error"></span>
+                        <span class="error-message" id="sigla_curso-error"></span>
                     </div>
                     <div class="form-group">
-                        <label for="inicio">Data de Início</label>
-                        <input type="date" id="inicio" name="inicio" required>
-                        <span class="error-message" id="inicio-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="fim">Data de Término</label>
-                        <input type="date" id="fim" name="fim" required>
-                        <span class="error-message" id="fim-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select id="status" name="status" required>
-                            <option value="">Selecione o status</option>
-                            <option value="planejado">Planejado</option>
-                            <option value="ativo">Ativo</option>
-                            <option value="concluido">Concluído</option>
+                        <label for="nome_turno">Turno</label>
+                        <select id="nome_turno" name="nome_turno" required>
+                            <!-- opções preenchidas via JS -->
                         </select>
-                        <span class="error-message" id="status-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="curso">Curso</label>
-                        <select id="curso" name="curso" required>
-                            <option value="">Selecione o curso</option>
-                            <option value="DSM">DSM</option>
-                            <option value="GEO">GEO</option>
-                            <option value="MAR">MAR</option>
-                        </select>
-                        <span class="error-message" id="curso-error"></span>
+                        <span class="error-message" id="nome_turno-error"></span>
                     </div>
                 </form>
             </div>
@@ -225,54 +203,30 @@
             </div>
             <div class="modal-body">
                 <form id="form-editar-semestre">
-                    <input type="hidden" id="edit-id" name="id">
+                    <input type="hidden" id="edit-id_semestre_cronograma" name="id_semestre_cronograma">
                     <div class="form-group">
-                        <label for="edit-ano">Ano</label>
-                        <input type="number" id="edit-ano" name="ano" required min="2024" max="2100">
-                        <span class="error-message" id="edit-ano-error"></span>
+                        <label for="edit-ano_semestre_cronograma">Ano</label>
+                        <input type="number" id="edit-ano_semestre_cronograma" name="ano_semestre_cronograma" required min="2024" max="2100">
+                        <span class="error-message" id="edit-ano_semestre_cronograma-error"></span>
                     </div>
                     <div class="form-group">
-                        <label for="edit-periodo">Período</label>
-                        <select id="edit-periodo" name="periodo" required>
-                            <option value="">Selecione o período</option>
-                            <option value="1">1º Semestre</option>
-                            <option value="2">2º Semestre</option>
-                            <option value="3">3º Semestre</option>
-                            <option value="4">4º Semestre</option>
-                            <option value="5">5º Semestre</option>
-                            <option value="6">6º Semestre</option>
+                        <label for="edit-nivel_semestre_cronograma">Nível</label>
+                        <input type="number" id="edit-nivel_semestre_cronograma" name="nivel_semestre_cronograma" required min="1">
+                        <span class="error-message" id="edit-nivel_semestre_cronograma-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-sigla_curso">Sigla do Curso</label>
+                        <select id="edit-sigla_curso" name="sigla_curso" required>
+                            <!-- opções preenchidas via JS -->
                         </select>
-                        <span class="error-message" id="edit-periodo-error"></span>
+                        <span class="error-message" id="edit-sigla_curso-error"></span>
                     </div>
                     <div class="form-group">
-                        <label for="edit-inicio">Data de Início</label>
-                        <input type="date" id="edit-inicio" name="inicio" required>
-                        <span class="error-message" id="edit-inicio-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-fim">Data de Término</label>
-                        <input type="date" id="edit-fim" name="fim" required>
-                        <span class="error-message" id="edit-fim-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-status">Status</label>
-                        <select id="edit-status" name="status" required>
-                            <option value="">Selecione o status</option>
-                            <option value="planejado">Planejado</option>
-                            <option value="ativo">Ativo</option>
-                            <option value="concluido">Concluído</option>
+                        <label for="edit-nome_turno">Turno</label>
+                        <select id="edit-nome_turno" name="nome_turno" required>
+                            <!-- opções preenchidas via JS -->
                         </select>
-                        <span class="error-message" id="edit-status-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-curso">Curso</label>
-                        <select id="edit-curso" name="curso" required>
-                            <option value="">Selecione o curso</option>
-                            <option value="DSM">DSM</option>
-                            <option value="GEO">GEO</option>
-                            <option value="MAR">MAR</option>
-                        </select>
-                        <span class="error-message" id="edit-curso-error"></span>
+                        <span class="error-message" id="edit-nome_turno-error"></span>
                     </div>
                 </form>
             </div>
@@ -312,5 +266,6 @@
         link.href = `/public/adm/${page}`;
     });
     </script>
+    <!-- And Forgive Us Our Debts, As We Forgive Our Debtors. -->
 </body>
 </html> 
