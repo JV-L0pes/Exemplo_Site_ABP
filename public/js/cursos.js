@@ -6,11 +6,12 @@ if (typeof IRONGATE === 'function') {
 import * as fetchCursos  from './fetchFunctions/fetchCursos.js';
 
 // Script específico para a página de Cursos
+let cursos = [];
+
 document.addEventListener("DOMContentLoaded", function() {
 
     // Inicializar a página
-    
-    let cursos = initializeCursos();
+    initializeCursos();
     
     // Elementos
     const cursosList = document.getElementById("cursos-list");
@@ -73,13 +74,16 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     
     async function initializeCursos(){
-        let cursos = await fetchCursos.getCursos(); // Aguarda o resultado da função async
-        if (cursos) {
-            renderCursos(cursos); // Chama renderCursos com os dados
+        let cursosData = await fetchCursos.getCursos();
+        console.log('Cursos retornados do backend:', cursosData);
+        if (cursosData) {
+            cursos = cursosData;
+            renderCursos(cursos);
         } else {
+            cursos = [];
+            renderCursos([]);
             console.error('Token inválido');
         }
-        return cursos;
     }
 
     // Dados simulados para demonstração
@@ -145,10 +149,20 @@ document.addEventListener("DOMContentLoaded", function() {
                 <div class="curso-info ${curso.sigla === 'Geo' ? 'geo-title' : ''} ${curso.sigla === 'Dsm' ? 'dsm-title' : ''} ${curso.sigla === 'Mrh' ? 'mrh-title' : ''}">
                     <h3>${curso.nome}</h3>
                     <div class="curso-badges">
-                        <span class="curso-sigla ${cursoClass}">${curso.sigla}</span>
-                        <span class="curso-tipo">Nível Superior</span>
+                        <span class="curso-sigla ${
+                            curso.sigla && curso.sigla.toUpperCase() === 'DSM' ? 'curso-dsm' :
+                            curso.sigla && curso.sigla.toUpperCase() === 'GEO' ? 'curso-geo' :
+                            curso.sigla && curso.sigla.toUpperCase() === 'MAR' ? 'curso-mrh' : ''
+                        }">${curso.sigla ? curso.sigla.toUpperCase() : ''}</span>
                     </div>
-                    <p class="semestres"> 6 semestres</p>
+                    <p class="datas">
+                        <span class="data-badge">
+                            <i class="fas fa-calendar-alt"></i> ${curso.inicio}
+                        </span>
+                        <span class="data-badge">
+                            <i class="fas fa-calendar-check"></i> ${curso.fim}
+                        </span>
+                    </p>
                     <p class="coordenador">${curso.coordenador}</p>
                 </div>
             </div>
@@ -200,15 +214,38 @@ document.addEventListener("DOMContentLoaded", function() {
     // Funções para controle do Modal de Edição
     function abrirModalEditarCurso(curso) {
         const modal = document.getElementById('modal-editar-curso');
-        const form = document.getElementById('form-editar-curso');
-        
+
         document.getElementById('edit-id').value = curso.id;
-        document.getElementById('edit-nome').value = curso.nome;
-        document.getElementById('edit-sigla').value = curso.sigla;
-        document.getElementById('edit-coordenador').value = curso.coordenador;
-        
+
+        // Nome do Curso agora é input type text
+        const nomeInput = document.getElementById('edit-nome');
+        nomeInput.value = curso.nome;
+
+        // Sigla e Coordenador agora são input type text
+        document.getElementById('edit-sigla').value = curso.sigla ? curso.sigla.toUpperCase() : '';
+        document.getElementById('edit-coordenador').value = curso.coordenador || '';
+
+        // Datas
+        document.getElementById('edit-data-inicio').value = converterParaInputDate(curso.inicio);
+        document.getElementById('edit-data-fim').value = converterParaInputDate(curso.fim);
+
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
+    }
+
+    // Função auxiliar para converter dd/mm/aaaa para yyyy-mm-dd
+    function converterParaInputDate(data) {
+        if (!data || typeof data !== 'string') return '';
+        // Se já estiver no formato yyyy-mm-dd
+        if (/^\d{4}-\d{2}-\d{2}$/.test(data)) return data;
+        // Se estiver no formato dd/mm/aaaa
+        const partes = data.split('/');
+        if (partes.length === 3) {
+            const [dia, mes, ano] = partes;
+            if (!dia || !mes || !ano) return '';
+            return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+        }
+        return '';
     }
 
     function fecharModalEditarCurso() {
@@ -279,37 +316,81 @@ document.addEventListener("DOMContentLoaded", function() {
         const nome = form.querySelector('[name="nome"]');
         const sigla = form.querySelector('[name="sigla"]');
         const coordenador = form.querySelector('[name="coordenador"]');
+        const dataInicio = form.querySelector('[name="data-inicio"]');
+        const dataFim = form.querySelector('[name="data-fim"]');
 
         if (!validateField(nome, 'Nome do curso')) isValid = false;
         if (!validateField(sigla, 'Sigla')) isValid = false;
         if (!validateField(coordenador, 'Coordenador')) isValid = false;
+        if (!validateField(dataInicio, 'Data de início')) isValid = false;
+        if (!validateField(dataFim, 'Data de término')) isValid = false;
+
+        // Validar se a data de início é anterior à data de fim
+        if (dataInicio.value && dataFim.value) {
+            const inicio = new Date(dataInicio.value);
+            const fim = new Date(dataFim.value);
+            
+            if (inicio >= fim) {
+                showError(dataFim, 'A data de término deve ser posterior à data de início');
+                isValid = false;
+            }
+        }
 
         return isValid;
     }
 
     // Event Listeners para o Modal de Adição
-    document.getElementById('salvar-curso').addEventListener('click', function(e) {
+    document.getElementById('salvar-curso').addEventListener('click', async function(e) {
         e.preventDefault();
         const form = document.getElementById('form-adicionar-curso');
         
         if (validateForm(form)) {
             const formData = new FormData(form);
             
-            const novoCurso = {
-                id: Date.now(),
-                nome: formData.get('nome'),
-                sigla: formData.get('sigla'),
-                tipo: formData.get('tipo'),
-                semestres: parseInt(formData.get('semestres')),
-                coordenador: formData.get('coordenador'),
-                alunos: 0
-            };
+            const nome = formData.get('nome');
+            const sigla = formData.get('sigla');
+            const coordenador = formData.get('coordenador');
+            const dataInicio = formData.get('data-inicio');
+            const dataFim = formData.get('data-fim');
             
-            cursos.push(novoCurso);
-            renderCursos();
-            fecharModalAdicionarCurso();
+            const result = await fetchCursos.createCurso(nome, sigla, coordenador, dataInicio, dataFim);
+            
+            if (result.ok) {
+                // Toast de sucesso
+                showToast('Curso criado com sucesso!', 'success');
+                
+                // Atualizar a lista de cursos
+                cursos = await fetchCursos.getCursos();
+                renderCursos();
+                fecharModalAdicionarCurso();
+            } else {
+                // Toast de erro
+                showToast(result.error, 'error');
+            }
         }
     });
+
+    // Função para mostrar toast
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        
+        document.body.appendChild(toast);
+        
+        // Animar entrada
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+        
+        // Remover após 3 segundos
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
 
     // Event Listeners para o Modal de Edição
     document.getElementById('salvar-edicao').addEventListener('click', function(e) {
@@ -326,8 +407,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     ...cursos[cursoIndex],
                     nome: formData.get('nome'),
                     sigla: formData.get('sigla'),
-                    tipo: formData.get('tipo'),
-                    semestres: parseInt(formData.get('semestres')),
                     coordenador: formData.get('coordenador')
                 };
                 
@@ -341,20 +420,30 @@ document.addEventListener("DOMContentLoaded", function() {
     document.querySelector('#modal-confirmar-delecao .close-modal').addEventListener('click', fecharModalConfirmarDelecao);
     document.getElementById('cancelar-delecao').addEventListener('click', fecharModalConfirmarDelecao);
     
-    document.getElementById('confirmar-delecao').addEventListener('click', function() {
+    document.getElementById('confirmar-delecao').addEventListener('click', async function() {
         const modal = document.getElementById('modal-confirmar-delecao');
         const cursoId = parseInt(modal.dataset.cursoId);
-        
-        cursos = cursos.filter(c => c.id !== cursoId);
-        renderCursos();
-        fecharModalConfirmarDelecao();
+        try {
+            console.log('Tentando deletar curso com ID:', cursoId); // Debug
+            await fetchCursos.deleteCurso(cursoId);
+            cursos = await fetchCursos.getCursos(); // Recarrega do backend
+            renderCursos();
+            fecharModalConfirmarDelecao();
+            showToast('Curso deletado com sucesso!', 'success');
+        } catch (error) {
+            if (error.message.includes('404')) {
+                showToast('Curso não encontrado ou já removido.', 'error');
+            } else {
+                showToast('Erro ao deletar curso.', 'error');
+            }
+        }
     });
     
     // Funções globais para edição e exclusão
-    window.editCurso = async function(id) {
-        
-        if (id) {
-            abrirModalEditarCurso(id);
+    window.editCurso = function(id) {
+        const curso = cursos.find(c => c.id === id);
+        if (curso) {
+            abrirModalEditarCurso(curso);
         }
     };
     
@@ -377,5 +466,4 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     preencherSelectCoordenadores();
-    
 }); 

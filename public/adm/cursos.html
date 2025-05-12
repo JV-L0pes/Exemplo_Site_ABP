@@ -184,12 +184,6 @@
                             <span class="error-message" id="sigla-error"></span>
                         </div>
                         <div class="form-group">
-                            <label for="tipo">Tipo do Curso</label>
-                            <input type="text" id="tipo" name="tipo"
-                                value="Nível Superior" readonly>
-                        </div>
-
-                        <div class="form-group">
                             <label for="coordenador">Coordenador</label>
                             <input id="coordenador" name="coordenador"
                                 maxlength="30" required>
@@ -198,18 +192,14 @@
                         </div>
                         <div class="flex-column">
                             <div class="form-group">
-                                <label for="semestres">Número de
-                                    Semestres</label>
-                                <input type="number" id="semestres"
-                                    name="semestres" value="6" min="1" max="12"
-                                    required>
+                                <label for="data-inicio">Data de Início</label>
+                                <input type="date" id="data-inicio"
+                                    name="data-inicio" required>
                             </div>
                             <div class="form-group">
-                                <label for="semestres">Número de
-                                    Semestres</label>
-                                <input type="number" id="semestres"
-                                    name="semestres" value="6" min="1" max="12"
-                                    required>
+                                <label for="data-fim">Data de Término</label>
+                                <input type="date" id="data-fim"
+                                    name="data-fim" required>
                             </div>
                         </div>
                     </form>
@@ -235,52 +225,28 @@
                         <input type="hidden" id="edit-id" name="id">
                         <div class="form-group">
                             <label for="edit-nome">Nome do Curso</label>
-                            <select id="edit-nome" name="nome" required>
-                                <option value>Selecione o curso</option>
-                                <option
-                                    value="Desenvolvimento de Software Multiplataforma">Desenvolvimento
-                                    de Software Multiplataforma</option>
-                                <option
-                                    value="Geoprocessamento">Geoprocessamento</option>
-                                <option
-                                    value="Meio Ambiente e Recursos Hídricos">Meio
-                                    Ambiente e Recursos Hídricos</option>
-                            </select>
-                            <span class="error-message"
-                                id="edit-nome-error"></span>
+                            <input type="text" id="edit-nome" name="nome" maxlength="50" required>
+                            <span class="error-message" id="edit-nome-error"></span>
                         </div>
                         <div class="form-group">
                             <label for="edit-sigla">Sigla</label>
-                            <select id="edit-sigla" name="sigla" required>
-                                <option value>Selecione a sigla</option>
-                                <option value="DSM">DSM</option>
-                                <option value="GEO">GEO</option>
-                                <option value="MAR">MAR</option>
-                            </select>
-                            <span class="error-message"
-                                id="edit-sigla-error"></span>
+                            <input type="text" id="edit-sigla" name="sigla" maxlength="4" required>
+                            <span class="error-message" id="edit-sigla-error"></span>
                         </div>
                         <div class="form-group">
-                            <label for="edit-tipo">Tipo do Curso</label>
-                            <input type="text" id="edit-tipo" name="tipo"
-                                value="Nível Superior" readonly>
+                            <label for="edit-data-inicio">Data de Início</label>
+                            <input type="date" id="edit-data-inicio"
+                                name="data-inicio" required>
                         </div>
                         <div class="form-group">
-                            <label for="edit-semestres">Número de
-                                Semestres</label>
-                            <input type="number" id="edit-semestres"
-                                name="semestres" value="6" min="1" max="12"
-                                required>
+                            <label for="edit-data-fim">Data de Término</label>
+                            <input type="date" id="edit-data-fim"
+                                name="data-fim" required>
                         </div>
                         <div class="form-group">
                             <label for="edit-coordenador">Coordenador</label>
-                            <select id="edit-coordenador" name="coordenador"
-                                required>
-                                <option value>Selecione o coordenador</option>
-                                <!-- Será preenchido dinamicamente -->
-                            </select>
-                            <span class="error-message"
-                                id="edit-coordenador-error"></span>
+                            <input type="text" id="edit-coordenador" name="coordenador" maxlength="30" required>
+                            <span class="error-message" id="edit-coordenador-error"></span>
                         </div>
                     </form>
                 </div>

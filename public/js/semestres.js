@@ -1,5 +1,3 @@
-import { IRONGATE } from './auth-guard.js';
-
 // Inicializar IRONGATE
 IRONGATE();
 
