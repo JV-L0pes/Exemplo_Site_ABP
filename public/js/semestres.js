@@ -15,6 +15,13 @@ let semestreEditando = null;
 const siglasCursosFixas = ['DSM', 'GEO', 'MAR'];
 const turnosFixos = ['Matutino', 'Noturno'];
 
+// Mapeamento de siglas para IDs
+const cursoIds = {
+    'DSM': 1,
+    'GEO': 2,
+    'MAR': 3
+};
+
 function popularSelectsSemestre() {
     // Cursos
     const selectsCurso = [document.getElementById('sigla_curso'), document.getElementById('edit-sigla_curso')];
@@ -154,19 +161,38 @@ function createSemestreCard(semestre) {
 // Função para salvar semestre
 async function salvarSemestre() {
     try {
-        if (!validarFormularioSemestre()) return;
+        console.log('Iniciando salvamento do semestre...');
+        if (!validarFormularioSemestre()) {
+            console.log('Validação do formulário falhou');
+            return;
+        }
 
         const form = document.getElementById('form-adicionar-semestre');
         const formData = new FormData(form);
+        const siglaCurso = formData.get('sigla_curso');
+        
+        console.log('Sigla do curso selecionada:', siglaCurso);
+        console.log('ID do curso mapeado:', cursoIds[siglaCurso]);
 
+        // Garantir que os campos estejam no formato correto
         const novoSemestre = {
-            ano: parseInt(formData.get('ano')),
-            nivel: parseInt(formData.get('nivel')),
-            id_curso: parseInt(formData.get('id_curso')),
-            id_turno: parseInt(formData.get('id_turno'))
+            ano: String(formData.get('ano')).trim(),
+            nivel: String(formData.get('nivel')).trim(),
+            nome_curso: String(siglaCurso).toUpperCase().trim(),
+            nome_turno: String(formData.get('nome_turno')).trim()
         };
 
+        console.log('Dados do semestre a serem enviados:', novoSemestre);
+        console.log('Tipo dos dados:', {
+            ano: typeof novoSemestre.ano,
+            nivel: typeof novoSemestre.nivel,
+            nome_curso: typeof novoSemestre.nome_curso,
+            nome_turno: typeof novoSemestre.nome_turno
+        });
+
         const result = await createSemestre(novoSemestre);
+        console.log('Resultado da criação:', result);
+        
         if (result) {
             await carregarDados();
             fecharModalAdicionarSemestre();
@@ -176,6 +202,7 @@ async function salvarSemestre() {
             showToast('Erro ao adicionar semestre. Por favor, tente novamente.', 'error');
         }
     } catch (error) {
+        console.error('Erro ao salvar semestre:', error);
         showToast('Erro ao adicionar semestre. Por favor, tente novamente.', 'error');
     }
 }
@@ -321,13 +348,13 @@ function validarFormularioSemestre() {
     let isValid = true;
     const ano = document.getElementById('ano').value.trim();
     const nivel = document.getElementById('nivel').value.trim();
-    const id_curso = document.getElementById('id_curso').value.trim();
-    const id_turno = document.getElementById('id_turno').value.trim();
+    const sigla_curso = document.getElementById('sigla_curso').value.trim();
+    const nome_turno = document.getElementById('nome_turno').value.trim();
 
     clearError('ano');
     clearError('nivel');
-    clearError('id_curso');
-    clearError('id_turno');
+    clearError('sigla_curso');
+    clearError('nome_turno');
 
     if (!ano || isNaN(ano) || ano < 2024 || ano > 2100) {
         showError('ano', 'Por favor, preencha um ano válido (2024-2100)');
@@ -337,12 +364,12 @@ function validarFormularioSemestre() {
         showError('nivel', 'Por favor, preencha o nível');
         isValid = false;
     }
-    if (!id_curso) {
-        showError('id_curso', 'Por favor, selecione o curso');
+    if (!sigla_curso) {
+        showError('sigla_curso', 'Por favor, selecione o curso');
         isValid = false;
     }
-    if (!id_turno) {
-        showError('id_turno', 'Por favor, selecione o turno');
+    if (!nome_turno) {
+        showError('nome_turno', 'Por favor, selecione o turno');
         isValid = false;
     }
     return isValid;
@@ -386,8 +413,8 @@ function limparFormularioSemestre() {
     form.reset();
     clearError('ano');
     clearError('nivel');
-    clearError('id_curso');
-    clearError('id_turno');
+    clearError('sigla_curso');
+    clearError('nome_turno');
 }
 
 // Inicializar a página

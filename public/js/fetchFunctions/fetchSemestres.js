@@ -37,29 +37,38 @@ export async function getSemestres() {
 
 export async function createSemestre(semestre) {
     try {
+        console.log('Enviando semestre:', semestre); // Debug
+
+        // Enviar todos os campos como arrays
+        const dadosSemestre = {
+            nivel: [parseInt(semestre.nivel)],
+            ano: [parseInt(semestre.ano)],
+            nome_curso: [semestre.nome_curso],
+            nome_turno: [semestre.nome_turno]
+        };
+
+        console.log('Dados formatados:', dadosSemestre); // Debug
+        console.log('Dados formatados (string):', JSON.stringify(dadosSemestre)); // Debug
+
         const response = await fetch(`${API_URL}/admin/${getAdminId()}/semestre`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getToken()}`
             },
-            body: JSON.stringify({
-                periodo: semestre.periodo,
-                inicio: semestre.inicio,
-                fim: semestre.fim,
-                status: semestre.status,
-                curso: semestre.curso
-            })
+            body: JSON.stringify(dadosSemestre)
         });
 
+        const result = await response.json();
+        console.log('Resposta do backend:', result); // Debug
+
         if (!response.ok) {
-            throw new Error(`Erro na requisição: ${response.status}`);
+            throw new Error(result.message || `Erro na requisição: ${response.status}`);
         }
 
-        const result = await response.json();
         return result;
     } catch (error) {
-        console.error('Erro:', error);
+        console.error('Erro ao criar semestre:', error); // Debug
         throw error;
     }
 }
