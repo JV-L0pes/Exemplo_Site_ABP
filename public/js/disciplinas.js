@@ -1,4 +1,7 @@
 import { getDisciplinas, createDisciplina, updateDisciplina, deleteDisciplina } from './fetchFunctions/fetchDisciplinas.js';
+import { getDocentes } from './fetchFunctions/fetchDocentes.js';
+import { getCursos } from './fetchFunctions/fetchCursos.js';
+import { showToast } from './toast.js';
 
 // Inicializar IRONGATE
 if (typeof IRONGATE === 'function') {
@@ -12,43 +15,78 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById("search-disciplina");
     const addDisciplinaBtn = document.getElementById("add-disciplina");
     
-    // Lista de professores
-    const professores = [
-        "João Silva",
-        "Maria Santos",
-        "Pedro Oliveira",
-        "Ana Costa",
-        "Carlos Pereira",
-        "Lucia Mendes",
-        "Rafael Souza",
-        "Juliana Lima"
-    ];
+    // Lista de professores (REMOVIDO - agora vem do backend)
+    // const professores = [
+    //     "João Silva",
+    //     "Maria Santos",
+    //     "Pedro Oliveira",
+    //     "Ana Costa",
+    //     "Carlos Pereira",
+    //     "Lucia Mendes",
+    //     "Rafael Souza",
+    //     "Juliana Lima"
+    // ];
 
-    // Função para preencher os selects de professores
-    function preencherSelectProfessores() {
+    // Função para preencher os selects de professores e cursos com dados reais
+    async function preencherSelectsDisciplina() {
+        // Preencher professores
         const selectAdicionar = document.getElementById('professor');
         const selectEditar = document.getElementById('edit-professor');
-        
-        professores.forEach(professor => {
-            const option = document.createElement('option');
-            option.value = professor;
-            option.textContent = professor;
-            
-            selectAdicionar.appendChild(option.cloneNode(true));
-            selectEditar.appendChild(option);
-        });
+        selectAdicionar.innerHTML = '<option value="">Selecione o professor</option>';
+        selectEditar.innerHTML = '<option value="">Selecione o professor</option>';
+        try {
+            const docentes = await getDocentes();
+            docentes.forEach(docente => {
+                const optionAdd = document.createElement('option');
+                optionAdd.value = docente.nome;
+                optionAdd.textContent = docente.nome;
+                selectAdicionar.appendChild(optionAdd);
+                const optionEdit = document.createElement('option');
+                optionEdit.value = docente.nome;
+                optionEdit.textContent = docente.nome;
+                selectEditar.appendChild(optionEdit);
+            });
+        } catch (error) {
+            console.error('Erro ao carregar docentes:', error);
+        }
+        // Preencher cursos
+        const selectCursoAdd = document.getElementById('curso');
+        const selectCursoEdit = document.getElementById('edit-curso');
+        selectCursoAdd.innerHTML = '<option value="">Selecione o curso</option>';
+        selectCursoEdit.innerHTML = '<option value="">Selecione o curso</option>';
+        try {
+            const cursos = await getCursos();
+            cursos.forEach(curso => {
+                const optionAdd = document.createElement('option');
+                optionAdd.value = curso.sigla;
+                optionAdd.textContent = curso.sigla;
+                selectCursoAdd.appendChild(optionAdd);
+                const optionEdit = document.createElement('option');
+                optionEdit.value = curso.sigla;
+                optionEdit.textContent = curso.sigla;
+                selectCursoEdit.appendChild(optionEdit);
+            });
+        } catch (error) {
+            console.error('Erro ao carregar cursos:', error);
+        }
     }
     
-    // Remover array simulado
-    let disciplinas = [];
+    // Variável global para armazenar todas as disciplinas
+    let todasDisciplinas = [];
 
-    // Buscar disciplinas reais do backend ao carregar a página
+    // Função para carregar disciplinas
     async function carregarDisciplinas() {
         try {
-            const data = await getDisciplinas();
-            // Se o backend retorna { data: [...] }
-            disciplinas = data.data || data;
-            renderDisciplinas(disciplinas);
+            const response = await getDisciplinas();
+            console.log('Resposta completa:', response);
+            
+            if (response && response.data) {
+                todasDisciplinas = response.data;
+                renderDisciplinas(todasDisciplinas);
+            } else {
+                console.error('Resposta inválida da API:', response);
+                disciplinasList.innerHTML = '<p class="erro">Erro ao carregar disciplinas: resposta inválida</p>';
+            }
         } catch (error) {
             console.error('Erro ao carregar disciplinas:', error);
             disciplinasList.innerHTML = '<p class="erro">Erro ao carregar disciplinas.</p>';
@@ -56,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     
     // Função para renderizar os cards de disciplinas
-    function renderDisciplinas(disciplinasToRender = disciplinas) {
+    function renderDisciplinas(disciplinasToRender = []) {
         disciplinasList.innerHTML = "";
         disciplinasToRender.forEach(disciplina => {
             // Badge de curso
@@ -80,10 +118,23 @@ document.addEventListener("DOMContentLoaded", function() {
                     <p><i class="fas fa-hashtag"></i> ID: ${disciplina.id_disciplina}</p>
                 </div>
                 <div class="disciplina-actions">
-                    <button class="btn-edit" title="Editar"><i class="fas fa-edit"></i> Editar</button>
-                    <button class="btn-delete" title="Excluir"><i class="fas fa-trash"></i> Excluir</button>
+                    <button class="btn-edit" title="Editar"><i class="fas fa-edit"></i></button>
+                    <button class="btn-delete" title="Excluir"><i class="fas fa-trash"></i></button>
                 </div>
             `;
+
+            // Adicionar eventos aos botões
+            const btnEdit = card.querySelector('.btn-edit');
+            const btnDelete = card.querySelector('.btn-delete');
+
+            btnEdit.addEventListener('click', () => {
+                abrirModalEditarDisciplina(disciplina);
+            });
+
+            btnDelete.addEventListener('click', () => {
+                abrirModalConfirmarDelecao(disciplina);
+            });
+
             disciplinasList.appendChild(card);
         });
     }
@@ -115,10 +166,10 @@ document.addEventListener("DOMContentLoaded", function() {
             </div>
             <div class="disciplina-actions">
                 <button class="btn-edit" onclick="editDisciplina(${disciplina.id})">
-                    <i class="fas fa-edit"></i> Editar
+                    <i class="fas fa-edit"></i>
                 </button>
                 <button class="btn-delete" onclick="deleteDisciplina(${disciplina.id})">
-                    <i class="fas fa-trash"></i> Excluir
+                    <i class="fas fa-trash"></i>
                 </button>
             </div>
         `;
@@ -126,14 +177,20 @@ document.addEventListener("DOMContentLoaded", function() {
         return card;
     }
     
-    // Adaptar busca para usar os dados reais
+    // Função de busca
     function searchDisciplinas(query) {
-        const filteredDisciplinas = disciplinas.filter(disciplina => 
-            (disciplina.nome || '').toLowerCase().includes(query.toLowerCase()) ||
-            (disciplina.codigo || '').toLowerCase().includes(query.toLowerCase()) ||
-            (disciplina.curso || '').toLowerCase().includes(query.toLowerCase()) ||
-            (disciplina.professor || '').toLowerCase().includes(query.toLowerCase())
+        if (!query) {
+            renderDisciplinas(todasDisciplinas);
+            return;
+        }
+
+        query = query.toLowerCase();
+        const filteredDisciplinas = todasDisciplinas.filter(disciplina => 
+            disciplina.nome_disciplina.toLowerCase().includes(query) ||
+            disciplina.nome_docente.toLowerCase().includes(query) ||
+            disciplina.sigla_curso.toLowerCase().includes(query)
         );
+        
         renderDisciplinas(filteredDisciplinas);
     }
 
@@ -151,20 +208,19 @@ document.addEventListener("DOMContentLoaded", function() {
         limparFormularioDisciplina();
     }
 
-    // Funções para controle do Modal de Edição
+    // Função para abrir o modal de edição e preencher os dados
     function abrirModalEditarDisciplina(disciplina) {
         const modal = document.getElementById('modal-editar-disciplina');
         const form = document.getElementById('form-editar-disciplina');
-        
-        document.getElementById('edit-id').value = disciplina.id;
-        document.getElementById('edit-nome').value = disciplina.nome;
-        document.getElementById('edit-professor').value = disciplina.professor;
-        document.getElementById('edit-curso').value = disciplina.curso;
-        
+        document.getElementById('edit-id').value = disciplina.id_disciplina;
+        document.getElementById('edit-nome').value = disciplina.nome_disciplina;
+        document.getElementById('edit-professor').value = disciplina.nome_docente;
+        document.getElementById('edit-curso').value = disciplina.sigla_curso;
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
 
+    // Função para fechar o modal de edição
     function fecharModalEditarDisciplina() {
         const modal = document.getElementById('modal-editar-disciplina');
         modal.classList.remove('show');
@@ -172,107 +228,168 @@ document.addEventListener("DOMContentLoaded", function() {
         limparFormularioEdicao();
     }
 
-    // Funções para controle do Modal de Deleção
+    // Função para abrir o modal de confirmação de deleção
     function abrirModalConfirmarDelecao(disciplina) {
         const modal = document.getElementById('modal-confirmar-delecao');
         const disciplinaDelete = document.getElementById('disciplina-delete');
-        
-        disciplinaDelete.textContent = `${disciplina.nome} (${disciplina.codigo})`;
+        disciplinaDelete.textContent = `${disciplina.nome_disciplina}`;
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
-        
-        modal.dataset.disciplinaId = disciplina.id;
+        modal.dataset.disciplinaId = disciplina.id_disciplina;
     }
 
+    // Função para fechar o modal de deleção
     function fecharModalConfirmarDelecao() {
         const modal = document.getElementById('modal-confirmar-delecao');
         modal.classList.remove('show');
         document.body.style.overflow = 'auto';
     }
-    
+
+    // Adicionar eventos aos botões dos cards
+    function adicionarEventosAosCards() {
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = btn.closest('.disciplina-card');
+                const id = card.querySelector('.disciplina-info p:last-child').textContent.replace('ID: ', '').trim();
+                const disciplina = [];
+                if (disciplina.find(d => d.id_disciplina == id)) abrirModalEditarDisciplina(disciplina.find(d => d.id_disciplina == id));
+            });
+        });
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = btn.closest('.disciplina-card');
+                const id = card.querySelector('.disciplina-info p:last-child').textContent.replace('ID: ', '').trim();
+                const disciplina = [];
+                if (disciplina.find(d => d.id_disciplina == id)) abrirModalConfirmarDelecao(disciplina.find(d => d.id_disciplina == id));
+            });
+        });
+    }
+
+    // Atualizar renderDisciplinas para adicionar eventos após renderizar
+    const renderDisciplinasOriginal = renderDisciplinas;
+    renderDisciplinas = function(...args) {
+        renderDisciplinasOriginal.apply(this, args);
+        adicionarEventosAosCards();
+    };
+
+    // Eventos dos modais
+    document.querySelector('#modal-editar-disciplina .close-modal').addEventListener('click', fecharModalEditarDisciplina);
+    document.getElementById('cancelar-editar').addEventListener('click', fecharModalEditarDisciplina);
+    document.querySelector('#modal-confirmar-delecao .close-modal').addEventListener('click', fecharModalConfirmarDelecao);
+    document.getElementById('cancelar-delecao').addEventListener('click', fecharModalConfirmarDelecao);
+
+    // Função para salvar disciplina
+    async function salvarDisciplina() {
+        if (!validarFormularioDisciplina()) {
+            return;
+        }
+
+        const nome = document.getElementById('nome').value;
+        const professorId = document.getElementById('professor').value;
+        const cursoId = document.getElementById('curso').value;
+
+        try {
+            const disciplinaData = {
+                nome: nome,
+                docente: professorId,
+                curso: cursoId
+            };
+
+            console.log('Dados sendo enviados:', disciplinaData);
+            const result = await createDisciplina(disciplinaData);
+            console.log('Resultado da criação:', result);
+            
+            if (result) {
+                showToast('Disciplina adicionada com sucesso!', 'success');
+                fecharModalAdicionarDisciplina();
+                // Aguardar um momento antes de recarregar para garantir que o backend processou
+                setTimeout(() => {
+                    carregarDisciplinas();
+                }, 1000);
+            }
+        } catch (error) {
+            console.error('Erro ao salvar disciplina:', error);
+            showToast('Erro ao adicionar disciplina. Tente novamente.', 'error');
+        }
+    }
+
+    // Função para salvar edição
+    async function salvarEdicao() {
+        if (!validarFormularioEdicao()) {
+            return;
+        }
+
+        const id = document.getElementById('edit-id').value;
+        const nome = document.getElementById('edit-nome').value;
+        const professorNome = document.getElementById('edit-professor').value;
+        const cursoSigla = document.getElementById('edit-curso').value;
+
+        try {
+            const disciplinaData = {
+                id: id,
+                nome: nome,
+                nome_docente: professorNome,
+                nome_curso: cursoSigla
+            };
+
+            const result = await updateDisciplina(id, disciplinaData);
+            
+            if (result) {
+                showToast('Disciplina atualizada com sucesso!', 'success');
+                fecharModalEditarDisciplina();
+                setTimeout(() => {
+                    carregarDisciplinas();
+                }, 1000);
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar disciplina:', error);
+            showToast('Erro ao atualizar disciplina. Tente novamente.', 'error');
+        }
+    }
+
+    // Adicionar event listeners
+    document.getElementById('salvar-disciplina').addEventListener('click', salvarDisciplina);
+    document.getElementById('salvar-edicao').addEventListener('click', salvarEdicao);
+    document.getElementById('confirmar-delecao').addEventListener('click', async function() {
+        const modal = document.getElementById('modal-confirmar-delecao');
+        const disciplinaId = modal.dataset.disciplinaId;
+        
+        try {
+            await deleteDisciplina(disciplinaId);
+            showToast('Disciplina excluída com sucesso!', 'success');
+            fecharModalConfirmarDelecao();
+            carregarDisciplinas(); // Recarrega a lista após excluir
+        } catch (error) {
+            console.error('Erro ao excluir disciplina:', error);
+            showToast('Erro ao excluir disciplina. Tente novamente.', 'error');
+        }
+    });
+
+    // Event listeners para os botões de cancelar
+    document.getElementById('cancelar-adicionar').addEventListener('click', fecharModalAdicionarDisciplina);
+    document.getElementById('cancelar-editar').addEventListener('click', fecharModalEditarDisciplina);
+    document.getElementById('cancelar-delecao').addEventListener('click', fecharModalConfirmarDelecao);
+
+    // Event listener para o botão de adicionar
+    document.getElementById('add-disciplina').addEventListener('click', abrirModalAdicionarDisciplina);
+
     // Event Listeners
     searchInput.addEventListener("input", (e) => {
         searchDisciplinas(e.target.value);
     });
     
-    addDisciplinaBtn.addEventListener("click", abrirModalAdicionarDisciplina);
-    
-    // Event Listeners para o Modal de Adição
-    document.querySelector('#modal-adicionar-disciplina .close-modal').addEventListener('click', fecharModalAdicionarDisciplina);
-    document.getElementById('cancelar-adicionar').addEventListener('click', fecharModalAdicionarDisciplina);
-    
-    document.getElementById('salvar-disciplina').addEventListener('click', function() {
-        if (!validarFormularioDisciplina()) {
-            return;
-        }
-
-        const form = document.getElementById('form-adicionar-disciplina');
-        const formData = new FormData(form);
-        
-        const novaDisciplina = {
-            id: Date.now(),
-            nome: formData.get('nome'),
-            professor: formData.get('professor'),
-            curso: formData.get('curso')
-        };
-        
-        disciplinas.push(novaDisciplina);
-        renderDisciplinas();
-        fecharModalAdicionarDisciplina();
-    });
-    
-    // Event Listeners para o Modal de Edição
-    document.querySelector('#modal-editar-disciplina .close-modal').addEventListener('click', fecharModalEditarDisciplina);
-    document.getElementById('cancelar-editar').addEventListener('click', fecharModalEditarDisciplina);
-    
-    document.getElementById('salvar-edicao').addEventListener('click', function() {
-        if (!validarFormularioEdicao()) {
-            return;
-        }
-
-        const form = document.getElementById('form-editar-disciplina');
-        const formData = new FormData(form);
-        const id = parseInt(formData.get('id'));
-        
-        const disciplinaIndex = disciplinas.findIndex(d => d.id === id);
-        if (disciplinaIndex !== -1) {
-            disciplinas[disciplinaIndex] = {
-                ...disciplinas[disciplinaIndex],
-                nome: formData.get('nome'),
-                professor: formData.get('professor'),
-                curso: formData.get('curso')
-            };
-            
-            renderDisciplinas();
-            fecharModalEditarDisciplina();
-        }
-    });
-    
-    // Event Listeners para o Modal de Deleção
-    document.querySelector('#modal-confirmar-delecao .close-modal').addEventListener('click', fecharModalConfirmarDelecao);
-    document.getElementById('cancelar-delecao').addEventListener('click', fecharModalConfirmarDelecao);
-    
-    document.getElementById('confirmar-delecao').addEventListener('click', function() {
-        const modal = document.getElementById('modal-confirmar-delecao');
-        const disciplinaId = parseInt(modal.dataset.disciplinaId);
-        
-        disciplinas = disciplinas.filter(d => d.id !== disciplinaId);
-        renderDisciplinas();
-        fecharModalConfirmarDelecao();
-    });
-    
     // Funções globais para edição e exclusão
     window.editDisciplina = function(id) {
-        const disciplina = disciplinas.find(d => d.id === id);
-        if (disciplina) {
-            abrirModalEditarDisciplina(disciplina);
+        const disciplina = [];
+        if (disciplina.find(d => d.id_disciplina === id)) {
+            abrirModalEditarDisciplina(disciplina.find(d => d.id_disciplina === id));
         }
     };
     
     window.deleteDisciplina = function(id) {
-        const disciplina = disciplinas.find(d => d.id === id);
-        if (disciplina) {
-            abrirModalConfirmarDelecao(disciplina);
+        const disciplina = [];
+        if (disciplina.find(d => d.id_disciplina === id)) {
+            abrirModalConfirmarDelecao(disciplina.find(d => d.id_disciplina === id));
         }
     };
     
@@ -373,26 +490,8 @@ document.addEventListener("DOMContentLoaded", function() {
         clearError('edit-professor');
         clearError('edit-curso');
     }
-
-    // Atualizar a função de salvar disciplina
-    function salvarDisciplina() {
-        if (!validarFormularioDisciplina()) {
-            return;
-        }
-        
-        // ... resto do código de salvar ...
-    }
-
-    // Atualizar a função de salvar edição
-    function salvarEdicao() {
-        if (!validarFormularioEdicao()) {
-            return;
-        }
-        
-        // ... resto do código de salvar edição ...
-    }
     
     // Inicializar a página
-    preencherSelectProfessores();
+    preencherSelectsDisciplina();
     carregarDisciplinas();
 }); 
