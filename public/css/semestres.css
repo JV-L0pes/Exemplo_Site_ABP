@@ -71,7 +71,31 @@
     padding: 1.5rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
+    animation: fadeIn 0.5s ease-out;
+    opacity: 0;
+    animation-fill-mode: forwards;
 }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ajustar o delay para cada card aparecer sequencialmente */
+.semestres-list .semestre-card:nth-child(1) { animation-delay: 0.1s; }
+.semestres-list .semestre-card:nth-child(2) { animation-delay: 0.2s; }
+.semestres-list .semestre-card:nth-child(3) { animation-delay: 0.3s; }
+.semestres-list .semestre-card:nth-child(4) { animation-delay: 0.4s; }
+.semestres-list .semestre-card:nth-child(5) { animation-delay: 0.5s; }
+.semestres-list .semestre-card:nth-child(6) { animation-delay: 0.6s; }
+.semestres-list .semestre-card:nth-child(7) { animation-delay: 0.7s; }
+.semestres-list .semestre-card:nth-child(8) { animation-delay: 0.8s; }
 
 .semestre-card:hover {
     transform: translateY(-5px);
@@ -358,7 +382,7 @@
     color: var(--danger);
     font-size: 0.9rem;
     margin-top: 0.5rem;
-}
+} 
 
 /* Badges para sigla do curso e turno */
 .badge {
@@ -377,4 +401,47 @@
 .badge-noturno { background: #222; }
 .badge-matutino { background: #ff9800; }
 .badge-vespertino { background: #4caf50; }
-.badge-default { background: #888; } 
+.badge-default { background: #888; }
+
+[data-add-semestre] {
+    transition: all 0.3s ease;
+}
+
+[data-add-semestre].success {
+    background-color: #4caf50;
+    color: white;
+}
+
+[data-add-semestre].error {
+    background-color: #f44336;
+    color: white;
+}
+
+[data-add-semestre]:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.semestre-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.btn-remove {
+    background: none;
+    border: none;
+    color: #f44336;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.btn-remove:hover {
+    background-color: #ffebee;
+} 

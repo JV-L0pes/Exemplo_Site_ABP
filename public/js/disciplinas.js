@@ -1,3 +1,5 @@
+import { getDisciplinas, createDisciplina, updateDisciplina, deleteDisciplina } from './fetchFunctions/fetchDisciplinas.js';
+
 // Inicializar IRONGATE
 if (typeof IRONGATE === 'function') {
     IRONGATE();
@@ -37,46 +39,51 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    // Dados simulados para demonstração
-    let disciplinas = [
-        { 
-            id: 1, 
-            nome: "Programação Web",
-            codigo: "DSM001",
-            curso: "DSM", 
-            semestre: 1,
-            cargaHoraria: 80,
-            professor: "João Silva",
-            alunos: 30
-        },
-        { 
-            id: 2, 
-            nome: "Geologia Geral",
-            codigo: "GEO001",
-            curso: "GEO",
-            semestre: 1,
-            cargaHoraria: 60,
-            professor: "Maria Santos",
-            alunos: 25
-        },
-        { 
-            id: 3, 
-            nome: "Navegação Marítima",
-            codigo: "MAR001",
-            curso: "MAR",
-            semestre: 1,
-            cargaHoraria: 70,
-            professor: "Pedro Oliveira",
-            alunos: 28
+    // Remover array simulado
+    let disciplinas = [];
+
+    // Buscar disciplinas reais do backend ao carregar a página
+    async function carregarDisciplinas() {
+        try {
+            const data = await getDisciplinas();
+            // Se o backend retorna { data: [...] }
+            disciplinas = data.data || data;
+            renderDisciplinas(disciplinas);
+        } catch (error) {
+            console.error('Erro ao carregar disciplinas:', error);
+            disciplinasList.innerHTML = '<p class="erro">Erro ao carregar disciplinas.</p>';
         }
-    ];
+    }
     
     // Função para renderizar os cards de disciplinas
     function renderDisciplinas(disciplinasToRender = disciplinas) {
         disciplinasList.innerHTML = "";
-        
         disciplinasToRender.forEach(disciplina => {
-            const card = createDisciplinaCard(disciplina);
+            // Badge de curso
+            let badgeClass = '';
+            let cursoLabel = (disciplina.sigla_curso || '').toUpperCase();
+            switch (cursoLabel) {
+                case 'DSM': badgeClass = 'badge-dsm'; break;
+                case 'GEO': badgeClass = 'badge-geo'; break;
+                case 'MAR': badgeClass = 'badge-mar'; break;
+                default: badgeClass = 'badge-dsm'; // fallback
+            }
+            const card = document.createElement('div');
+            card.className = 'disciplina-card';
+            card.innerHTML = `
+                <div class="disciplina-header">
+                    <span class="badge ${badgeClass}">${cursoLabel}</span>
+                    <h3>${disciplina.nome_disciplina}</h3>
+                </div>
+                <div class="disciplina-info">
+                    <p><i class="fas fa-user"></i> ${disciplina.nome_docente}</p>
+                    <p><i class="fas fa-hashtag"></i> ID: ${disciplina.id_disciplina}</p>
+                </div>
+                <div class="disciplina-actions">
+                    <button class="btn-edit" title="Editar"><i class="fas fa-edit"></i> Editar</button>
+                    <button class="btn-delete" title="Excluir"><i class="fas fa-trash"></i> Excluir</button>
+                </div>
+            `;
             disciplinasList.appendChild(card);
         });
     }
@@ -119,15 +126,14 @@ document.addEventListener("DOMContentLoaded", function() {
         return card;
     }
     
-    // Função para buscar disciplinas
+    // Adaptar busca para usar os dados reais
     function searchDisciplinas(query) {
         const filteredDisciplinas = disciplinas.filter(disciplina => 
-            disciplina.nome.toLowerCase().includes(query.toLowerCase()) ||
-            disciplina.codigo.toLowerCase().includes(query.toLowerCase()) ||
-            disciplina.curso.toLowerCase().includes(query.toLowerCase()) ||
-            disciplina.professor.toLowerCase().includes(query.toLowerCase())
+            (disciplina.nome || '').toLowerCase().includes(query.toLowerCase()) ||
+            (disciplina.codigo || '').toLowerCase().includes(query.toLowerCase()) ||
+            (disciplina.curso || '').toLowerCase().includes(query.toLowerCase()) ||
+            (disciplina.professor || '').toLowerCase().includes(query.toLowerCase())
         );
-        
         renderDisciplinas(filteredDisciplinas);
     }
 
@@ -388,5 +394,5 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Inicializar a página
     preencherSelectProfessores();
-    renderDisciplinas();
+    carregarDisciplinas();
 }); 

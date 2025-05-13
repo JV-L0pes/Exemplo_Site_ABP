@@ -1,12 +1,19 @@
-async function getDisciplinas() {
+const API_URL = 'https://errorsquad-server.onrender.com';
+
+function getAdminId() {
+    return localStorage.getItem('userId');
+}
+
+export async function getDisciplinas() {
     const token = localStorage.getItem('token');
+    const id = getAdminId();
     if (!token) {
         window.location.href = '/public/login.html';
         return;
     }
 
     try {
-        const response = await fetch('https://errorsquad-server.onrender.com/disciplinas', {
+        const response = await fetch(`${API_URL}/admin/${id}/disciplina`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -23,22 +30,24 @@ async function getDisciplinas() {
         }
 
         const result = await response.json();
-        return result;
+        console.log('Resposta da API:', result);
+        return result.data;
     } catch (error) {
         console.error('Erro ao buscar disciplinas:', error);
         throw error;
     }
 }
 
-async function createDisciplina(disciplinaData) {
+export async function createDisciplina(disciplinaData) {
     const token = localStorage.getItem('token');
+    const id = getAdminId();
     if (!token) {
         window.location.href = '/public/login.html';
         return;
     }
 
     try {
-        const response = await fetch('https://errorsquad-server.onrender.com/disciplinas', {
+        const response = await fetch(`${API_URL}/admin/${id}/disciplina`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -57,6 +66,7 @@ async function createDisciplina(disciplinaData) {
         }
 
         const result = await response.json();
+        console.log('Resposta da API:', result);
         return result;
     } catch (error) {
         console.error('Erro ao criar disciplina:', error);
@@ -64,15 +74,16 @@ async function createDisciplina(disciplinaData) {
     }
 }
 
-async function updateDisciplina(id, disciplinaData) {
+export async function updateDisciplina(idDisciplina, disciplinaData) {
     const token = localStorage.getItem('token');
+    const id = getAdminId();
     if (!token) {
         window.location.href = '/public/login.html';
         return;
     }
 
     try {
-        const response = await fetch(`https://errorsquad-server.onrender.com/disciplinas/${id}`, {
+        const response = await fetch(`${API_URL}/admin/${id}/disciplina/${idDisciplina}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -91,6 +102,7 @@ async function updateDisciplina(id, disciplinaData) {
         }
 
         const result = await response.json();
+        console.log('Resposta da API:', result);
         return result;
     } catch (error) {
         console.error('Erro ao atualizar disciplina:', error);
@@ -98,15 +110,16 @@ async function updateDisciplina(id, disciplinaData) {
     }
 }
 
-async function deleteDisciplina(id) {
+export async function deleteDisciplina(idDisciplina) {
     const token = localStorage.getItem('token');
+    const id = getAdminId();
     if (!token) {
         window.location.href = '/public/login.html';
         return;
     }
 
     try {
-        const response = await fetch(`https://errorsquad-server.onrender.com/disciplinas/${id}`, {
+        const response = await fetch(`${API_URL}/admin/${id}/disciplina/${idDisciplina}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`

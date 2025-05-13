@@ -15,6 +15,13 @@ let semestreEditando = null;
 const siglasCursosFixas = ['DSM', 'GEO', 'MAR'];
 const turnosFixos = ['Matutino', 'Noturno'];
 
+// Mapeamento de siglas para IDs
+const cursoIds = {
+    'DSM': 1,
+    'GEO': 2,
+    'MAR': 3
+};
+
 function popularSelectsSemestre() {
     // Cursos
     const selectsCurso = [document.getElementById('sigla_curso'), document.getElementById('edit-sigla_curso')];
@@ -154,19 +161,38 @@ function createSemestreCard(semestre) {
 // Função para salvar semestre
 async function salvarSemestre() {
     try {
-        if (!validarFormularioSemestre()) return;
+        console.log('Iniciando salvamento do semestre...');
+        if (!validarFormularioSemestre()) {
+            console.log('Validação do formulário falhou');
+            return;
+        }
 
         const form = document.getElementById('form-adicionar-semestre');
         const formData = new FormData(form);
+        const siglaCurso = formData.get('sigla_curso');
+        
+        console.log('Sigla do curso selecionada:', siglaCurso);
+        console.log('ID do curso mapeado:', cursoIds[siglaCurso]);
 
+        // Garantir que os campos estejam no formato correto
         const novoSemestre = {
-            ano: parseInt(formData.get('ano')),
-            nivel: parseInt(formData.get('nivel')),
-            id_curso: parseInt(formData.get('id_curso')),
-            id_turno: parseInt(formData.get('id_turno'))
+            ano: String(formData.get('ano')).trim(),
+            nivel: String(formData.get('nivel')).trim(),
+            nome_curso: String(siglaCurso).toUpperCase().trim(),
+            nome_turno: String(formData.get('nome_turno')).trim()
         };
 
+        console.log('Dados do semestre a serem enviados:', novoSemestre);
+        console.log('Tipo dos dados:', {
+            ano: typeof novoSemestre.ano,
+            nivel: typeof novoSemestre.nivel,
+            nome_curso: typeof novoSemestre.nome_curso,
+            nome_turno: typeof novoSemestre.nome_turno
+        });
+
         const result = await createSemestre(novoSemestre);
+        console.log('Resultado da criação:', result);
+        
         if (result) {
             await carregarDados();
             fecharModalAdicionarSemestre();
@@ -176,6 +202,7 @@ async function salvarSemestre() {
             showToast('Erro ao adicionar semestre. Por favor, tente novamente.', 'error');
         }
     } catch (error) {
+        console.error('Erro ao salvar semestre:', error);
         showToast('Erro ao adicionar semestre. Por favor, tente novamente.', 'error');
     }
 }
@@ -188,13 +215,40 @@ async function atualizarSemestre() {
         const form = document.getElementById('form-editar-semestre');
         const formData = new FormData(form);
 
+        // Log dos valores brutos do formulário
+        console.log('Valores do formulário:', {
+            id: formData.get('id_semestre_cronograma'),
+            ano: formData.get('ano_semestre_cronograma'),
+            nivel: formData.get('nivel_semestre_cronograma'),
+            curso: formData.get('sigla_curso'),
+            turno: formData.get('nome_turno')
+        });
+
+        // Garantir que os valores numéricos sejam válidos
+        const id = parseInt(formData.get('id_semestre_cronograma'));
+        const ano = parseInt(formData.get('ano_semestre_cronograma'));
+        const nivel = parseInt(formData.get('nivel_semestre_cronograma'));
+
+        // Log dos valores convertidos
+        console.log('Valores convertidos:', { id, ano, nivel });
+
+        // Verificar se os valores numéricos são válidos
+        if (isNaN(id) || isNaN(ano) || isNaN(nivel)) {
+            console.error('Valores inválidos:', { id, ano, nivel });
+            showToast('Erro: Valores inválidos no formulário', 'error');
+            return;
+        }
+
+        // Ajustando o formato dos dados para corresponder ao esperado pela API
         const semestreAtualizado = {
-            id_semestre_cronograma: formData.get('id_semestre_cronograma'),
-            ano_semestre_cronograma: formData.get('ano_semestre_cronograma'),
-            nivel_semestre_cronograma: formData.get('nivel_semestre_cronograma'),
-            sigla_curso: formData.get('sigla_curso'),
-            nome_turno: formData.get('nome_turno')
+            id_semestre_cronograma: id,
+            ano_semestre_cronograma: ano,
+            nivel_semestre_cronograma: nivel,
+            sigla_curso: (formData.get('sigla_curso') || '').toUpperCase(),
+            nome_turno: formData.get('nome_turno') || ''
         };
+
+        console.log('Dados a serem enviados:', semestreAtualizado);
 
         const result = await updateSemestre(semestreAtualizado);
         if (result) {
@@ -205,6 +259,7 @@ async function atualizarSemestre() {
             showToast('Erro ao atualizar semestre. Por favor, tente novamente.', 'error');
         }
     } catch (error) {
+        console.error('Erro ao atualizar semestre:', error);
         showToast('Erro ao atualizar semestre. Por favor, tente novamente.', 'error');
     }
 }
@@ -251,11 +306,14 @@ function capitalizeFirstLetter(str) {
 function abrirModalEditarSemestre(semestre) {
     popularSelectsSemestre();
     const modal = document.getElementById('modal-editar-semestre');
+    
+    // Preencher os campos do formulário
     document.getElementById('edit-id_semestre_cronograma').value = semestre.id_semestre_cronograma;
     document.getElementById('edit-ano_semestre_cronograma').value = semestre.ano_semestre_cronograma;
     document.getElementById('edit-nivel_semestre_cronograma').value = semestre.nivel_semestre_cronograma;
     document.getElementById('edit-sigla_curso').value = (semestre.sigla_curso || '').toUpperCase();
-    document.getElementById('edit-nome_turno').value = capitalizeFirstLetter(semestre.nome_turno || '');
+    document.getElementById('edit-nome_turno').value = semestre.nome_turno || '';
+    
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
 }
@@ -285,12 +343,24 @@ function fecharModalConfirmarDelecao() {
 
 // Função para buscar semestres
 function searchSemestres(query) {
-    const filteredSemestres = semestres.filter(semestre => 
-        semestre.ano.toString().includes(query) ||
-        semestre.nivel.toString().includes(query) ||
-        semestre.status.toLowerCase().includes(query.toLowerCase()) ||
-        semestre.id_curso.toString().includes(query)
-    );
+    if (!query) {
+        renderSemestres(semestres);
+        return;
+    }
+
+    const searchTerm = query.toLowerCase().trim();
+    
+    const filteredSemestres = semestres.filter(semestre => {
+        const ano = String(semestre.ano_semestre_cronograma || '').toLowerCase();
+        const nivel = String(semestre.nivel_semestre_cronograma || '').toLowerCase();
+        const curso = String(semestre.sigla_curso || '').toLowerCase();
+        const turno = String(semestre.nome_turno || '').toLowerCase();
+
+        return ano.includes(searchTerm) ||
+               nivel.includes(searchTerm) ||
+               curso.includes(searchTerm) ||
+               turno.includes(searchTerm);
+    });
     
     renderSemestres(filteredSemestres);
 }
@@ -321,13 +391,13 @@ function validarFormularioSemestre() {
     let isValid = true;
     const ano = document.getElementById('ano').value.trim();
     const nivel = document.getElementById('nivel').value.trim();
-    const id_curso = document.getElementById('id_curso').value.trim();
-    const id_turno = document.getElementById('id_turno').value.trim();
+    const sigla_curso = document.getElementById('sigla_curso').value.trim();
+    const nome_turno = document.getElementById('nome_turno').value.trim();
 
     clearError('ano');
     clearError('nivel');
-    clearError('id_curso');
-    clearError('id_turno');
+    clearError('sigla_curso');
+    clearError('nome_turno');
 
     if (!ano || isNaN(ano) || ano < 2024 || ano > 2100) {
         showError('ano', 'Por favor, preencha um ano válido (2024-2100)');
@@ -337,12 +407,12 @@ function validarFormularioSemestre() {
         showError('nivel', 'Por favor, preencha o nível');
         isValid = false;
     }
-    if (!id_curso) {
-        showError('id_curso', 'Por favor, selecione o curso');
+    if (!sigla_curso) {
+        showError('sigla_curso', 'Por favor, selecione o curso');
         isValid = false;
     }
-    if (!id_turno) {
-        showError('id_turno', 'Por favor, selecione o turno');
+    if (!nome_turno) {
+        showError('nome_turno', 'Por favor, selecione o turno');
         isValid = false;
     }
     return isValid;
@@ -353,30 +423,41 @@ function validarFormularioEdicao() {
     let isValid = true;
     const ano = document.getElementById('edit-ano_semestre_cronograma').value.trim();
     const nivel = document.getElementById('edit-nivel_semestre_cronograma').value.trim();
-    const id_curso = document.getElementById('edit-sigla_curso').value.trim();
-    const id_turno = document.getElementById('edit-nome_turno').value.trim();
+    const sigla_curso = document.getElementById('edit-sigla_curso').value.trim();
+    const nome_turno = document.getElementById('edit-nome_turno').value.trim();
+
+    console.log('Valores do formulário para validação:', { ano, nivel, sigla_curso, nome_turno });
 
     clearError('edit-ano_semestre_cronograma');
     clearError('edit-nivel_semestre_cronograma');
     clearError('edit-sigla_curso');
     clearError('edit-nome_turno');
 
-    if (!ano || isNaN(ano) || ano < 2024 || ano > 2100) {
+    // Validar ano
+    if (!ano || isNaN(ano) || parseInt(ano) < 2024 || parseInt(ano) > 2100) {
         showError('edit-ano_semestre_cronograma', 'Por favor, preencha um ano válido (2024-2100)');
         isValid = false;
     }
-    if (!nivel) {
-        showError('edit-nivel_semestre_cronograma', 'Por favor, preencha o nível');
+
+    // Validar nível
+    if (!nivel || isNaN(nivel) || parseInt(nivel) < 1 || parseInt(nivel) > 10) {
+        showError('edit-nivel_semestre_cronograma', 'Por favor, preencha um nível válido (1-10)');
         isValid = false;
     }
-    if (!id_curso) {
+
+    // Validar curso
+    if (!sigla_curso) {
         showError('edit-sigla_curso', 'Por favor, selecione o curso');
         isValid = false;
     }
-    if (!id_turno) {
+
+    // Validar turno
+    if (!nome_turno) {
         showError('edit-nome_turno', 'Por favor, selecione o turno');
         isValid = false;
     }
+
+    console.log('Resultado da validação:', isValid);
     return isValid;
 }
 
@@ -386,8 +467,8 @@ function limparFormularioSemestre() {
     form.reset();
     clearError('ano');
     clearError('nivel');
-    clearError('id_curso');
-    clearError('id_turno');
+    clearError('sigla_curso');
+    clearError('nome_turno');
 }
 
 // Inicializar a página
@@ -419,3 +500,67 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // For Thine is the Kingdom, and the Power, and the Glory, for ever and ever. Amen. 
+
+function addSemestre(disciplinaId) {
+    const btn = document.querySelector(`[data-add-semestre="${disciplinaId}"]`);
+    const originalText = btn.innerHTML;
+    
+    // Desabilita o botão e mostra loading
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adicionando...';
+    
+    fetch(`/api/disciplinas/${disciplinaId}/semestres`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao adicionar semestre');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Feedback visual de sucesso
+        btn.innerHTML = '<i class="fas fa-check"></i> Adicionado!';
+        btn.classList.add('success');
+        
+        // Atualiza a lista de semestres
+        updateSemestresList(disciplinaId, data.semestres);
+        
+        // Restaura o botão após 2 segundos
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            btn.classList.remove('success');
+        }, 2000);
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        // Feedback visual de erro
+        btn.innerHTML = '<i class="fas fa-times"></i> Erro!';
+        btn.classList.add('error');
+        
+        // Restaura o botão após 2 segundos
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            btn.classList.remove('error');
+        }, 2000);
+    });
+}
+
+function updateSemestresList(disciplinaId, semestres) {
+    const semestresContainer = document.querySelector(`#semestres-${disciplinaId}`);
+    if (semestresContainer) {
+        semestresContainer.innerHTML = semestres.map(semestre => `
+            <div class="semestre-item">
+                <span>${semestre.ano}/${semestre.periodo}</span>
+                <button onclick="removeSemestre(${disciplinaId}, ${semestre.id})" class="btn-remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+} 
