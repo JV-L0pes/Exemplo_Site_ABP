@@ -13,6 +13,7 @@ export async function getDisciplinas() {
     }
 
     try {
+        console.log('Buscando disciplinas para admin:', id);
         const response = await fetch(`${API_URL}/admin/${id}/disciplina`, {
             method: 'GET',
             headers: {
@@ -30,8 +31,9 @@ export async function getDisciplinas() {
         }
 
         const result = await response.json();
-        console.log('Resposta da API:', result);
-        return result.data;
+        console.log('Resposta completa da API:', result);
+        console.log('Dados das disciplinas:', result.data);
+        return result;
     } catch (error) {
         console.error('Erro ao buscar disciplinas:', error);
         throw error;
@@ -62,6 +64,8 @@ export async function createDisciplina(disciplinaData) {
                 window.location.href = '/public/login.html';
                 return;
             }
+            const errorBody = await response.text();
+            console.error('Corpo da resposta de erro:', errorBody);
             throw new Error(`Erro ao criar disciplina: ${response.status}`);
         }
 
@@ -83,13 +87,13 @@ export async function updateDisciplina(idDisciplina, disciplinaData) {
     }
 
     try {
-        const response = await fetch(`${API_URL}/admin/${id}/disciplina/${idDisciplina}`, {
+        const response = await fetch(`${API_URL}/admin/${id}/disciplina`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(disciplinaData)
+            body: JSON.stringify({ id: idDisciplina, ...disciplinaData })
         });
 
         if (!response.ok) {
@@ -119,11 +123,13 @@ export async function deleteDisciplina(idDisciplina) {
     }
 
     try {
-        const response = await fetch(`${API_URL}/admin/${id}/disciplina/${idDisciplina}`, {
+        const response = await fetch(`${API_URL}/admin/${id}/disciplina`, {
             method: 'DELETE',
             headers: {
+                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            }
+            },
+            body: JSON.stringify({ id: idDisciplina })
         });
 
         if (!response.ok) {
