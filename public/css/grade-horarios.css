@@ -1,199 +1,222 @@
 /* Estilos gerais do container */
 .grade-container {
-    padding: 20px;
+    padding: 24px;
     background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .grade-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: #fff;
-    border-radius: 8px;
+    margin-bottom: 24px;
+    padding: 20px;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 .grade-header h2 {
     margin: 0;
-    font-size: 1.5rem;
-    color: #333;
+    font-size: 1.6rem;
+    color: #1a1a1a;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    font-weight: 600;
 }
 
 .grade-header h2 i {
-    color: var(--primary);
+    color: #b71c1c;
+    font-size: 1.4rem;
 }
 
 .grade-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
 }
 
 .btn {
-    padding: 8px 15px;
+    padding: 10px 18px;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
     font-weight: 500;
     transition: all 0.3s ease;
+    font-size: 0.95rem;
 }
 
 .btn-primary {
-    background-color: #007bff;
+    background: linear-gradient(145deg, #b71c1c, #d32f2f);
     color: white;
+    box-shadow: 0 2px 8px rgba(183, 28, 28, 0.2);
 }
 
 .btn-primary:hover {
-    background-color: #0056b3;
+    background: linear-gradient(145deg, #d32f2f, #b71c1c);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(183, 28, 28, 0.25);
 }
 
 .btn-secondary {
-    background-color: #6c757d;
-    color: white;
+    background: #f8f9fa;
+    color: #444;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .btn-secondary:hover {
-    background-color: #545b62;
+    background: #fff;
+    border-color: #d0d0d0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
 }
 
 /* Estilos da grade de horários */
 .grade-content {
     background-color: #fff;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
 .grade-table {
+    border-collapse: separate;
+    border-spacing: 0;
     width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-.grade-table th {
-    background-color: #f8f9fa;
-    padding: 15px;
-    text-align: center;
-    font-weight: 600;
-    color: #495057;
-    border: 1px solid #dee2e6;
-}
-
-.grade-table td {
-    padding: 15px;
-    text-align: center;
-    border: 1px solid #dee2e6;
-    position: relative;
-}
-
-.aula-cell {
-    padding: 10px;
-    border-radius: 4px;
-    cursor: grab;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    user-select: none;
-    position: relative;
+    background: #fff;
+    border-radius: 12px;
     overflow: hidden;
 }
 
-.aula-cell:active {
-    cursor: grabbing;
+.grade-table th, .grade-table td {
+    text-align: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
 }
 
-.aula-cell::before {
-    content: '';
-    position: absolute;
+.grade-table th:first-child {
+    background: linear-gradient(145deg, #fafafa, #f5f5f5);
+    color: #b71c1c;
+    font-weight: 600;
+    font-size: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+    position: sticky;
     top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.1);
-    opacity: 0;
-    transition: opacity 0.3s;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 16px 0;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    margin: 0 4px;
 }
 
-.aula-cell:hover::before {
-    opacity: 1;
+/* Sombra suave nos cabeçalhos dos dias */
+.grade-table th:not(:first-child) {
+    background: linear-gradient(145deg, #fafafa, #f5f5f5);
+    color: #b71c1c;
+    font-weight: 600;
+    font-size: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 16px 0;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    margin: 0 4px;
 }
 
-.aula-cell.dragging {
-    opacity: 0.8;
-    transform: scale(1.05) rotate(1deg);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    animation: pulse 1.5s infinite;
+.grade-table td {
+    background: #fff;
+    cursor: pointer;
+    border-right: 1px solid #f5f5f5;
+    border-left: 1px solid #f5f5f5;
+    border-radius: 8px;
+    position: relative;
+    min-width: 100px;
+    min-height: 60px;
+    vertical-align: middle;
+    transition: all 0.3s ease;
 }
 
-@keyframes pulse {
-    0% {
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    }
-    50% {
-        box-shadow: 0 8px 24px rgba(66, 153, 225, 0.3);
-    }
-    100% {
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    }
-}
-
-.aula-cell.drag-over {
-    border: 2px dashed #4299e1;
-    background-color: rgba(66, 153, 225, 0.1);
+.grade-table td:hover {
+    background: #fff8f8;
     transform: scale(1.02);
-    animation: bounce 0.5s;
+    box-shadow: 0 4px 12px rgba(183, 28, 28, 0.08);
+    z-index: 1;
 }
 
-@keyframes bounce {
-    0%, 100% {
-        transform: scale(1.02);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-}
-
-/* Efeito de brilho ao passar o mouse */
-.aula-cell::after {
-    content: '';
+.grade-table td:not(.celula-preenchida):hover::after {
+    content: '+';
+    color: #b71c1c;
+    font-size: 1.4rem;
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent,
-        rgba(255, 255, 255, 0.1),
-        transparent
-    );
-    transform: rotate(45deg);
-    transition: all 0.3s;
-    opacity: 0;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.2;
+    pointer-events: none;
 }
 
-.aula-cell:hover::after {
-    animation: shine 1.5s infinite;
+.grade-table td.celula-preenchida {
+    background: linear-gradient(145deg, #fff5f5, #fff0f0);
+    box-shadow: 0 2px 8px rgba(183, 28, 28, 0.06);
+    animation: fadeInCell 0.4s;
 }
 
-@keyframes shine {
-    0% {
-        transform: translateX(-100%) rotate(45deg);
-        opacity: 0;
-    }
-    20% {
-        opacity: 0.5;
-    }
-    100% {
-        transform: translateX(100%) rotate(45deg);
-        opacity: 0;
-    }
+@keyframes fadeInCell {
+    from { background: #fff; opacity: 0.2; transform: scale(0.98); }
+    to { background: linear-gradient(145deg, #fff5f5, #fff0f0); opacity: 1; transform: scale(1); }
+}
+
+.aula-item {
+    animation: fadeInAula 0.4s;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    color: #b71c1c;
+    font-weight: 500;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.aula-item strong {
+    color: #b71c1c;
+    font-size: 1rem;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.aula-item p {
+    margin: 0;
+    color: #555;
+    font-size: 0.9rem;
+    font-weight: 400;
+    margin-bottom: 2px;
+}
+
+.aula-item small {
+    color: #888;
+    font-size: 0.85rem;
+    display: block;
+}
+
+@keyframes fadeInAula {
+    from { opacity: 0; transform: scale(0.95) translateY(5px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 /* Cores das disciplinas - Versão mais vibrante */
@@ -519,33 +542,139 @@
 
 /* Estilo para o botão de horário */
 .horario-btn {
-    background-color: var(--primary);
-    border: none;
-    color: white;
-    font-weight: 500;
-    cursor: pointer;
+    display: none !important;
+}
+
+/* Modal de Edição */
+#modal-edicao {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 15px;
-    font-size: inherit;
-    transition: all 0.3s ease;
-    border-radius: 4px;
-    width: 100%;
+    align-items: flex-start;
     justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
 }
 
-.horario-btn:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+#modal-edicao .modal-content {
+    background: #fff;
+    max-width: 420px;
+    margin: 22vh auto 0 auto;
+    padding: 32px;
+    border-radius: 16px;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    font-family: inherit;
+    animation: modalZoomIn 0.35s cubic-bezier(.4,1.4,.6,1);
 }
 
-.horario-btn i {
-    font-size: 0.9em;
-    opacity: 0.9;
+@keyframes modalZoomIn {
+    from { opacity: 0; transform: scale(0.92) translateY(-30px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.horario-btn:hover i {
-    opacity: 1;
+#modal-edicao h3 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+#modal-edicao label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #444;
+    font-size: 0.95rem;
+}
+
+#modal-edicao input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    border: 1.5px solid #eee;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+#modal-edicao input[type="text"]:focus {
+    border: 1.5px solid #b71c1c;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(183, 28, 28, 0.1);
+    background: #fff;
+}
+
+#modal-edicao .botoes-modal {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    justify-content: flex-end;
+}
+
+#modal-edicao .btn-salvar {
+    background: linear-gradient(145deg, #b71c1c, #d32f2f);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(183, 28, 28, 0.2);
+}
+
+#modal-edicao .btn-salvar:hover {
+    background: linear-gradient(145deg, #d32f2f, #b71c1c);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(183, 28, 28, 0.25);
+}
+
+#modal-edicao .btn-cancelar {
+    background: #f8f9fa;
+    color: #444;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-weight: 500;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+#modal-edicao .btn-cancelar:hover {
+    background: #fff;
+    border-color: #d0d0d0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+.grade-table th .btn-adicionar-horario {
+    background: #fff;
+    border: 1.5px solid #e0e0e0;
+    color: #b71c1c;
+    font-size: 1.1rem;
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.grade-table th .btn-adicionar-horario:hover {
+    background: #fff8f8;
+    border-color: #d32f2f;
+    color: #d32f2f;
 } 
