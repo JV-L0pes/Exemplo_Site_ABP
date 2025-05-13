@@ -75,24 +75,32 @@ export async function createSemestre(semestre) {
 
 export async function updateSemestre(semestre) {
     try {
+        console.log('Enviando dados para atualização:', semestre); // Debug
+
+        // Formatar os dados para corresponder ao formato esperado pelo controller
+        const dadosSemestre = {
+            id: parseInt(semestre.id_semestre_cronograma),
+            nivel: parseInt(semestre.nivel_semestre_cronograma),
+            ano: parseInt(semestre.ano_semestre_cronograma),
+            nome_curso: semestre.sigla_curso,
+            nome_turno: semestre.nome_turno
+        };
+
+        console.log('Dados formatados:', dadosSemestre); // Debug
+
         const response = await fetch(`${API_URL}/admin/${getAdminId()}/semestre`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getToken()}`
             },
-            body: JSON.stringify({
-                id: semestre.id,
-                periodo: semestre.periodo,
-                inicio: semestre.inicio,
-                fim: semestre.fim,
-                status: semestre.status,
-                curso: semestre.curso
-            })
+            body: JSON.stringify(dadosSemestre)
         });
 
         if (!response.ok) {
-            throw new Error(`Erro na requisição: ${response.status}`);
+            const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
+            console.error('Resposta de erro da API:', errorData); // Debug adicional
+            throw new Error(errorData.message || `Erro na requisição: ${response.status}`);
         }
 
         const result = await response.json();
