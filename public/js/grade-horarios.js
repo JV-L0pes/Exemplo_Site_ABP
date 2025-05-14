@@ -3,6 +3,9 @@ if (typeof IRONGATE === 'function') {
     IRONGATE();
 }
 
+// Importar funções da API
+import { fetchGradeData, getToken, getAdminId, uploadCSV, filtrarDocentes } from './fetchfunctions/fetchGrade.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     // Adicionar link para o CSS
     const link = document.createElement('link');
@@ -13,100 +16,56 @@ document.addEventListener('DOMContentLoaded', function() {
     // URL base da API
     const API_URL = 'https://errorsquad-server.onrender.com';
 
-    // Função para obter o token
-    function getToken() {
-        return localStorage.getItem('token');
-    }
-
-    // Função para obter o ID do admin
-    function getAdminId() {
-        return localStorage.getItem('userId');
-    }
-
     // Objeto para armazenar os dados da grade
     let gradeData = {
         dias: [],
         horarios: [],
         cursos: [],
         turnos: [],
-        periodos: []
+        periodos: [],
+        docente: []
     };
 
-    // Função para buscar os dados da API
-    async function fetchGradeData() {
+    // Função para mostrar mensagem de erro
+    function showErrorToast(message) {
+        const toastContainer = document.querySelector('.toast-container');
+        if (toastContainer) {
+            const toast = document.createElement('div');
+            toast.className = 'toast error';
+            toast.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                <span>${message}</span>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+    }
+
+    // Função para buscar e processar os dados da grade
+    async function buscarDadosGrade() {
         try {
-            const token = getToken();
-            if (!token) {
-                window.location.href = '/public/login.html';
-                return;
-            }
-
-            console.log('Buscando dados da grade...');
-            const response = await fetch(`${API_URL}/admin/${getAdminId()}/grade`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            if (!response.ok) {
-                if (response.status === 401) {
-                    localStorage.removeItem('token');
-                    window.location.href = '/public/login.html';
-                    return;
-                }
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new TypeError("A resposta não é um JSON válido!");
-            }
-
-            const result = await response.json();
-            console.log('Resposta da API:', result);
-            
-            if (result.data && Array.isArray(result.data) && result.data.length > 0) {
-                // O primeiro item do array contém todos os dados
-                const dadosGrade = result.data[0];
-                console.log('Dados da grade:', dadosGrade);
-
+            const dadosGrade = await fetchGradeData();
+            if (dadosGrade) {
                 // Atualizar o objeto gradeData com os dados recebidos
                 gradeData = {
                     dias: dadosGrade.dias || [],
                     horarios: dadosGrade.horarios || [],
                     cursos: dadosGrade.cursos || [],
                     turnos: dadosGrade.turnos || [],
-                    periodos: dadosGrade.periodos || []
+                    periodos: dadosGrade.periodos || [],
+                    docente: dadosGrade.docente || []
                 };
 
                 console.log('Grade data atualizado:', gradeData);
                 atualizarFiltros();
                 preencherGrade();
-        } else {
-                console.error('Erro: Dados não encontrados na resposta');
+                atualizarListaDocentes();
+            } else {
                 showErrorToast('Dados não encontrados na resposta da API');
             }
         } catch (error) {
-            console.error('Erro ao buscar dados da grade:', error);
+            console.error('Erro ao carregar a grade:', error);
             showErrorToast('Erro ao carregar a grade de horários. Por favor, tente novamente mais tarde.');
-        }
-    }
-
-    // Função para mostrar mensagem de erro
-    function showErrorToast(message) {
-        const toastContainer = document.querySelector('.toast-container');
-        if (toastContainer) {
-        const toast = document.createElement('div');
-            toast.className = 'toast error';
-        toast.innerHTML = `
-                <i class="fas fa-exclamation-circle"></i>
-                <span>${message}</span>
-        `;
-        toastContainer.appendChild(toast);
-            setTimeout(() => toast.remove(), 5000);
         }
     }
 
@@ -136,14 +95,32 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
 
-        // Limpar e preencher o select de níveis (mantendo os 3 níveis fixos)
-        nivelSelect.innerHTML = `
-            <option value="1">1º Nível</option>
-            <option value="2">2º Nível</option>
-            <option value="3">3º Nível</option>
-        `;
+        // Limpar e preencher o select de níveis
+        nivelSelect.innerHTML = '';
+        const niveis = [...new Set(gradeData.periodos
+            .map(p => p.nivel_semestre)
+            .filter(n => n)
+            .sort((a, b) => parseInt(a) - parseInt(b)))];
+        if (niveis.length > 0) {
+            niveis.forEach(nivel => {
+                const option = document.createElement('option');
+                option.value = nivel;
+                option.textContent = `${nivel}º Nível`;
+                nivelSelect.appendChild(option);
+            });
+        } else {
+            console.warn('Nenhum nível encontrado nos dados');
+            nivelSelect.innerHTML = `
+                <option value="1">1º Nível</option>
+                <option value="2">2º Nível</option>
+                <option value="3">3º Nível</option>
+                <option value="4">4º Nível</option>
+                <option value="5">5º Nível</option>
+                <option value="6">6º Nível</option>
+            `;
+        }
 
-        // Limpar e preencher o select de turnos
+        // Limpar e preencher o select de turnos sempre com todos os turnos do backend
         turnoSelect.innerHTML = '';
         if (gradeData.turnos && gradeData.turnos.length > 0) {
             gradeData.turnos.forEach(turno => {
@@ -152,14 +129,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 option.textContent = `Período ${turno.nome}`;
                 turnoSelect.appendChild(option);
             });
-        } else {
-            console.warn('Nenhum turno encontrado nos dados');
-            // Adicionar opções padrão
-            turnoSelect.innerHTML = `
-                <option value="noturno">Período Noturno</option>
-                <option value="matutino">Período Matutino</option>
-                <option value="vespertino">Período Vespertino</option>
-            `;
         }
     }
 
@@ -295,17 +264,68 @@ document.addEventListener('DOMContentLoaded', function() {
         return filtrados;
     }
 
-    // Função para preencher a grade com as aulas do curso selecionado
+    // Função para atualizar a lista de docentes
+    function atualizarListaDocentes() {
+        try {
+            const cursoSelecionado = document.querySelector('.btn-secondary:nth-child(1)').value;
+            const nivelSelecionado = document.querySelector('.btn-secondary:nth-child(2)').value;
+            const turnoSelecionado = document.querySelector('.btn-secondary:nth-child(3)').value.toLowerCase();
+
+            // Filtrar docentes usando a função do fetchGrade.js
+            const docentesFiltrados = filtrarDocentes(
+                gradeData.docente,
+                gradeData.periodos,
+                cursoSelecionado,
+                nivelSelecionado,
+                turnoSelecionado
+            );
+
+            const docentesTable = document.querySelector('.docentes-table tbody');
+            docentesTable.innerHTML = '';
+            
+            if (docentesFiltrados.length > 0) {
+                docentesFiltrados.forEach(docente => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="docente-item" style="background-color: ${docente.cor || '#ffffff'}">
+                                ${docente.nome}
+                            </div>
+                        </td>
+                    `;
+                    docentesTable.appendChild(tr);
+                });
+            } else {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td>Nenhum docente encontrado</td>';
+                docentesTable.appendChild(tr);
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar lista de docentes:', error);
+            showErrorToast('Erro ao carregar lista de docentes');
+        }
+    }
+
+    // Função para preencher a grade com as aulas
     function preencherGrade() {
         console.log('Preenchendo grade com dados:', gradeData);
         const cursoSelecionado = document.querySelector('.btn-secondary:nth-child(1)').value.toUpperCase();
         const nivelSelecionado = document.querySelector('.btn-secondary:nth-child(2)').value;
         const turnoSelecionado = document.querySelector('.btn-secondary:nth-child(3)').value.toLowerCase();
 
-        console.log('Filtros selecionados:', { cursoSelecionado, nivelSelecionado, turnoSelecionado });
+        console.log('Filtros selecionados:', {
+            curso: cursoSelecionado,
+            nivel: nivelSelecionado,
+            turno: turnoSelecionado
+        });
 
         // Usar apenas dias e horários únicos
         const diasGrade = diasUnicos(gradeData.dias || []);
+        // Ordenar os dias na ordem correta da semana
+        const ordemDias = ['segunda', 'terca', 'terça', 'quarta', 'quinta', 'sexta', 'sabado', 'sábado', 'domingo'];
+        diasGrade.sort((a, b) => {
+            return ordemDias.indexOf(a.nome.toLowerCase()) - ordemDias.indexOf(b.nome.toLowerCase());
+        });
         let horariosGrade = horariosUnicos(gradeData.horarios || []);
 
         // Filtrar horários conforme o turno selecionado
@@ -321,42 +341,82 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Filtrar períodos pelo curso, nível e turno selecionados
         const periodosFiltrados = gradeData.periodos.filter(periodo => {
-            const siglaCurso = (periodo.sigla_curso || '').toUpperCase();
-            const nivelSemestre = (periodo.nivel_semestre || '').toString();
-            const nomeTurno = (periodo.nome_turno || '').toLowerCase();
-            return siglaCurso === cursoSelecionado &&
-                   nivelSemestre === nivelSelecionado &&
-                   nomeTurno === turnoSelecionado;
+            // Garantir que os valores sejam strings e estejam no formato correto
+            const siglaCurso = String(periodo.sigla_curso || '').toUpperCase().trim();
+            const nivelSemestre = String(periodo.nivel_semestre || '').trim();
+            const nomeTurno = String(periodo.nome_turno || '').toLowerCase().trim();
+            
+            // Verificar cada condição separadamente para debug
+            const cursoMatch = siglaCurso === cursoSelecionado;
+            const nivelMatch = nivelSemestre === nivelSelecionado;
+            const turnoMatch = nomeTurno === turnoSelecionado;
+            
+            const match = cursoMatch && nivelMatch && turnoMatch;
+
+            // Log detalhado apenas para períodos que têm pelo menos uma correspondência
+            if (cursoMatch || nivelMatch || turnoMatch) {
+                console.log('Comparando período:', {
+                    periodo: periodo,
+                    siglaCurso,
+                    nivelSemestre,
+                    nomeTurno,
+                    cursoSelecionado,
+                    nivelSelecionado,
+                    turnoSelecionado,
+                    cursoMatch,
+                    nivelMatch,
+                    turnoMatch,
+                    match
+                });
+            }
+           
+            return match;
         });
 
-        // Renderizar todas as células (mesmo sem dados)
+        console.log('Períodos filtrados:', periodosFiltrados);
+
+        // Renderizar todas as células
         horariosGrade.forEach((horario, horarioIndex) => {
             diasGrade.forEach((dia, diaIndex) => {
                 const cell = document.querySelector(`td[data-dia="${diaIndex + 1}"][data-horario="${horarioIndex}"]`);
                 if (cell) {
-                    // Procurar se existe um período para este dia/horário/turno/curso/nível
+                    // Procurar se existe um período para este dia/horário
                     const periodo = periodosFiltrados.find(periodo => {
                         const nomeDia = (periodo.nome_dia || '').toLowerCase();
                         const hrInicio = periodo.hr_inicio?.value || periodo.hr_inicio || '';
                         const hrFim = periodo.hr_fim?.value || periodo.hr_fim || '';
                         const hInicio = horario.hr_inicio?.value || horario.hr_inicio;
                         const hFim = horario.hr_fim?.value || horario.hr_fim;
-                        return nomeDia === dia.nome.toLowerCase() &&
-                               hrInicio === hInicio &&
-                               hrFim === hFim;
+                        
+                        const diaMatch = nomeDia === dia.nome.toLowerCase();
+                        const horarioMatch = hrInicio === hInicio && hrFim === hFim;
+                        
+                        if (diaMatch && horarioMatch) {
+                            console.log('Encontrou período para célula:', {
+                                dia: dia.nome,
+                                horario: `${hInicio} - ${hFim}`,
+                                periodo: periodo
+                            });
+                        }
+                        
+                        return diaMatch && horarioMatch;
                     });
-                    if (periodo && periodo.nome_disciplina && periodo.nome_docente) {
+
+                    if (periodo) {
+                        // Encontrar o docente para obter a cor
+                        const docente = gradeData.docente.find(d => d.nome === periodo.nome_docente);
+                        const corDocente = docente?.cor || '#ffffff';
+
                         cell.innerHTML = `
-                            <div class="aula-item">
-                                <strong>${periodo.nome_disciplina}</strong>
-                                <p>${periodo.nome_docente}</p>
-                                <small>${periodo.nome_ambiente || ''}</small>
+                            <div class="aula-item" style="background-color: ${corDocente}">
+                                <strong>${periodo.nome_disciplina || 'Disciplina não definida'}</strong>
+                                <p>${periodo.nome_docente || 'Docente não definido'}</p>
+                                <small>${periodo.nome_ambiente || 'Ambiente não definido'}</small>
                             </div>
                         `;
                         cell.classList.add('celula-preenchida');
                         cell.onclick = () => abrirModalEdicao(cell, periodo);
                     } else {
-                        // Célula vazia, mas editável
                         cell.innerHTML = '';
                         cell.classList.remove('celula-preenchida');
                         cell.onclick = () => abrirModalEdicao(cell);
@@ -365,65 +425,89 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Atualizar a lista de docentes (apenas os preenchidos)
-        const periodosPreenchidos = gradeData.periodos.filter(p => p.nome_docente);
-        atualizarListaDocentes(periodosPreenchidos);
-    }
-
-    // Função para atualizar a lista de docentes
-    function atualizarListaDocentes(periodos) {
-        const docentesTable = document.querySelector('.docentes-table tbody');
-        docentesTable.innerHTML = '';
-        
-        // Obter docentes únicos
-        const docentesUnicos = [...new Set(periodos.map(p => p.nome_docente))];
-        
-        docentesUnicos.forEach(docente => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${docente}</td>`;
-            docentesTable.appendChild(tr);
-        });
+        // Atualizar a lista de docentes
+        atualizarListaDocentes();
     }
 
     // Função para exportar grade para CSV
-    function exportarParaCSV() {
-        const cursoSelecionado = document.querySelector('.btn-secondary:nth-child(1)').value;
-        const nivelSelecionado = document.querySelector('.btn-secondary:nth-child(2)').value;
-        const turnoSelecionado = document.querySelector('.btn-secondary:nth-child(3)').value;
+    async function exportarParaCSV() {
+        try {
+            const cursoSelecionado = document.querySelector('.btn-secondary:nth-child(1)').value;
+            const nivelSelecionado = document.querySelector('.btn-secondary:nth-child(2)').value;
+            const turnoSelecionado = document.querySelector('.btn-secondary:nth-child(3)').value;
 
-        // Filtrar os períodos
-        const periodosFiltrados = gradeData.periodos.filter(periodo => 
-            periodo.sigla_curso === cursoSelecionado && 
-            periodo.nivel_semestre === nivelSelecionado &&
-            periodo.nome_turno.toLowerCase() === turnoSelecionado
-        );
+            // Filtrar os períodos
+            const periodosFiltrados = gradeData.periodos.filter(periodo => 
+                periodo.sigla_curso === cursoSelecionado && 
+                periodo.nivel_semestre === nivelSelecionado &&
+                periodo.nome_turno.toLowerCase() === turnoSelecionado
+            );
 
-        // Criar cabeçalho do CSV
-        let csv = 'Dia,Hora Início,Hora Fim,Disciplina,Docente,Ambiente\n';
+            // Criar cabeçalho do CSV
+            let csv = 'Dia,Hora Início,Hora Fim,Disciplina,Docente,Ambiente\n';
 
-        // Adicionar dados
-        periodosFiltrados.forEach(periodo => {
-            csv += `${periodo.nome_dia},${periodo.hr_inicio},${periodo.hr_fim},${periodo.nome_disciplina},${periodo.nome_docente},${periodo.nome_ambiente}\n`;
+            // Adicionar dados
+            periodosFiltrados.forEach(periodo => {
+                csv += `${periodo.nome_dia},${periodo.hr_inicio?.value || periodo.hr_inicio},${periodo.hr_fim?.value || periodo.hr_fim},${periodo.nome_disciplina},${periodo.nome_docente},${periodo.nome_ambiente}\n`;
+            });
+
+            // Criar blob e link para download
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `grade_${cursoSelecionado}_${nivelSelecionado}_${turnoSelecionado}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Erro ao exportar CSV:', error);
+            showErrorToast('Erro ao exportar grade para CSV');
+        }
+    }
+
+    // Função para importar CSV
+    async function importarCSV(file) {
+        try {
+            const result = await uploadCSV(file);
+            if (result) {
+                showErrorToast('CSV importado com sucesso!');
+                // Recarregar os dados da grade
+                await buscarDadosGrade();
+            }
+        } catch (error) {
+            console.error('Erro ao importar CSV:', error);
+            showErrorToast('Erro ao importar CSV');
+        }
+    }
+
+    // Adicionar event listener para o input de arquivo
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                importarCSV(file);
+            }
         });
-
-        // Criar blob e link para download
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        
-        link.setAttribute('href', url);
-        link.setAttribute('download', `grade_${cursoSelecionado}_${nivelSelecionado}_${turnoSelecionado}.csv`);
-        link.style.visibility = 'hidden';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     }
 
     // Adicionar event listeners para os filtros
-    document.querySelector('.btn-secondary:nth-child(1)').addEventListener('change', preencherGrade);
-    document.querySelector('.btn-secondary:nth-child(2)').addEventListener('change', preencherGrade);
-    document.querySelector('.btn-secondary:nth-child(3)').addEventListener('change', preencherGrade);
+    document.querySelector('.btn-secondary:nth-child(1)').addEventListener('change', () => {
+        preencherGrade();
+        atualizarListaDocentes();
+    });
+    document.querySelector('.btn-secondary:nth-child(2)').addEventListener('change', () => {
+        preencherGrade();
+        atualizarListaDocentes();
+    });
+    document.querySelector('.btn-secondary:nth-child(3)').addEventListener('change', () => {
+        preencherGrade();
+        atualizarListaDocentes();
+    });
 
     // Adicionar event listener para o botão de exportar
     document.querySelector('.btn-primary').addEventListener('click', exportarParaCSV);
@@ -444,5 +528,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Buscar dados iniciais
-    fetchGradeData();
+    buscarDadosGrade();
 }); 
