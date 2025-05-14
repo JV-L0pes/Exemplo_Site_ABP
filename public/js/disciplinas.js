@@ -96,47 +96,52 @@ document.addEventListener("DOMContentLoaded", function() {
     // Função para renderizar os cards de disciplinas
     function renderDisciplinas(disciplinasToRender = []) {
         disciplinasList.innerHTML = "";
-        disciplinasToRender.forEach(disciplina => {
-            // Badge de curso
-            let badgeClass = '';
-            let cursoLabel = (disciplina.sigla_curso || '').toUpperCase();
-            switch (cursoLabel) {
-                case 'DSM': badgeClass = 'badge-dsm'; break;
-                case 'GEO': badgeClass = 'badge-geo'; break;
-                case 'MAR': badgeClass = 'badge-mar'; break;
-                default: badgeClass = 'badge-dsm'; // fallback
-            }
-            const card = document.createElement('div');
-            card.className = 'disciplina-card';
-            card.innerHTML = `
-                <div class="disciplina-header">
-                    <span class="badge ${badgeClass}">${cursoLabel}</span>
-                    <h3>${disciplina.nome_disciplina}</h3>
-                </div>
-                <div class="disciplina-info">
-                    <p><i class="fas fa-user"></i> ${disciplina.nome_docente}</p>
-                    <p><i class="fas fa-hashtag"></i> ID: ${disciplina.id_disciplina}</p>
-                </div>
-                <div class="disciplina-actions">
-                    <button class="btn-edit" title="Editar"><i class="fas fa-edit"></i></button>
-                    <button class="btn-delete" title="Excluir"><i class="fas fa-trash"></i></button>
-                </div>
-            `;
+        
+        // Pequeno delay para garantir que a animação seja visível
+        setTimeout(() => {
+            disciplinasToRender.forEach((disciplina, index) => {
+                // Badge de curso
+                let badgeClass = '';
+                let cursoLabel = (disciplina.sigla_curso || '').toUpperCase();
+                switch (cursoLabel) {
+                    case 'DSM': badgeClass = 'badge-dsm'; break;
+                    case 'GEO': badgeClass = 'badge-geo'; break;
+                    case 'MAR': badgeClass = 'badge-mar'; break;
+                    default: badgeClass = 'badge-dsm'; // fallback
+                }
+                const card = document.createElement('div');
+                card.className = 'disciplina-card';
+                card.style.animationDelay = `${(index + 1) * 0.1}s`;
+                card.innerHTML = `
+                    <div class="disciplina-header">
+                        <span class="badge ${badgeClass}">${cursoLabel}</span>
+                        <h3>${disciplina.nome_disciplina}</h3>
+                    </div>
+                    <div class="disciplina-info">
+                        <p><i class="fas fa-user"></i> ${disciplina.nome_docente}</p>
+                        <p><i class="fas fa-hashtag"></i> ID: ${disciplina.id_disciplina}</p>
+                    </div>
+                    <div class="disciplina-actions">
+                        <button class="btn-edit" title="Editar"><i class="fas fa-edit"></i></button>
+                        <button class="btn-delete" title="Excluir"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
 
-            // Adicionar eventos aos botões
-            const btnEdit = card.querySelector('.btn-edit');
-            const btnDelete = card.querySelector('.btn-delete');
+                // Adicionar eventos aos botões
+                const btnEdit = card.querySelector('.btn-edit');
+                const btnDelete = card.querySelector('.btn-delete');
 
-            btnEdit.addEventListener('click', () => {
-                abrirModalEditarDisciplina(disciplina);
+                btnEdit.addEventListener('click', () => {
+                    abrirModalEditarDisciplina(disciplina);
+                });
+
+                btnDelete.addEventListener('click', () => {
+                    abrirModalConfirmarDelecao(disciplina);
+                });
+
+                disciplinasList.appendChild(card);
             });
-
-            btnDelete.addEventListener('click', () => {
-                abrirModalConfirmarDelecao(disciplina);
-            });
-
-            disciplinasList.appendChild(card);
-        });
+        }, 100);
     }
     
     // Função para criar um card de disciplina

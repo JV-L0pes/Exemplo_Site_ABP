@@ -2,12 +2,19 @@
 let currentFloor = 0;
 let selectedRoom = null;
 let roomsData = {};
+let searchTimeout = null;
+let popupGlobalContainer = null;
 
 // Carrega o mapa inicial quando a página carregar
 document.addEventListener('DOMContentLoaded', () => {
     loadFloorMap(0);
+    setupEventListeners();
+    initializeSearch();
+    criarOverlayPopup();
+});
 
-    // Adiciona evento para o seletor de andar
+function setupEventListeners() {
+    // Seletor de andar
     const floorSelector = document.getElementById('floor-selector');
     if (floorSelector) {
         floorSelector.addEventListener('change', (e) => {
@@ -15,24 +22,59 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Funcionalidade da Sidebar
-    const collapseBtn = document.getElementById('collapse-btn');
-    const container = document.querySelector('.container');
-    
-    if (collapseBtn) {
-        collapseBtn.addEventListener('click', function() {
-            container.classList.toggle('collapsed');
-            const icon = this.querySelector('i');
-            if (container.classList.contains('collapsed')) {
-                icon.classList.remove('fa-chevron-left');
-                icon.classList.add('fa-chevron-right');
+    // Botão de busca
+    const searchBtn = document.querySelector('.btn-search');
+    if (searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = 'Buscar sala...';
+            searchInput.className = 'search-input';
+            
+            const searchContainer = document.createElement('div');
+            searchContainer.className = 'search-container';
+            searchContainer.appendChild(searchInput);
+            
+            const existingSearch = document.querySelector('.search-container');
+            if (existingSearch) {
+                existingSearch.remove();
             } else {
-                icon.classList.remove('fa-chevron-right');
-                icon.classList.add('fa-chevron-left');
+                document.querySelector('.mapa-actions').appendChild(searchContainer);
+                searchInput.focus();
             }
         });
     }
-});
+}
+
+function initializeSearch() {
+    document.addEventListener('input', (e) => {
+        if (e.target.classList.contains('search-input')) {
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            searchTimeout = setTimeout(() => {
+                const searchTerm = e.target.value.toLowerCase();
+                highlightRooms(searchTerm);
+            }, 300);
+        }
+    });
+}
+
+function highlightRooms(searchTerm) {
+    const rooms = document.querySelectorAll('.sala');
+    rooms.forEach(room => {
+        const roomName = room.querySelector('.nome-sala').textContent.toLowerCase();
+        const roomNumber = room.querySelector('.numero-sala').textContent.toLowerCase();
+        
+        if (roomName.includes(searchTerm) || roomNumber.includes(searchTerm)) {
+            room.classList.add('highlight');
+            room.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            room.classList.remove('highlight');
+        }
+    });
+}
 
 // CARREGAR ANDAR
 async function loadFloorMap(floor) {
@@ -54,7 +96,6 @@ async function loadFloorMap(floor) {
             displayName = 'Térreo';
     }
 
-    // Aqui, pega svg do mapa correspondente. Poderia utilizar esses arquivos svg (renomeando eles e alterando aqui) para arquivo shtml contendo o conteúdo do mapa
     try {
         const response = await fetch(`mapas/andar-${floor}.html`);
         if (!response.ok) {
@@ -69,23 +110,23 @@ async function loadFloorMap(floor) {
         
         mapContent.innerHTML = svgContent;
         
-    //   Adiciona eventos de clique nas salas
-         const rooms = mapContent.querySelectorAll(`.sala`);
-                
-         rooms.forEach(room => {
-             // Mantém o data-room-id original
-            const roomId = room.getAttribute('data-room-id');
-            
-             // Adiciona evento de clique único que seleciona a sala
-             room.addEventListener('click', () => {
-                 console.log('Sala clicada:', room);
-                 selectRoomOnMap(room);
-            });
-         });
-         
-         updateAllRoomsVisual();
+        // Oculta todos os popups ao carregar o mapa
+        mapContent.querySelectorAll('.pop-up').forEach(p => {
+            p.style.display = 'none';
+        });
         
-     } catch (error) {
+        // Adiciona eventos de clique para abrir o popup global
+        mapContent.querySelectorAll('.sala, .biblioteca').forEach(el => {
+            const popup = el.querySelector('.pop-up');
+            if (popup) {
+                el.onclick = e => {
+                    e.stopPropagation();
+                    abrirPopupGlobal(popup);
+                };
+            }
+        });
+        
+    } catch (error) {
         console.error('Erro ao carregar mapa:', error);
     }
 }
@@ -94,26 +135,17 @@ function selectRoomOnMap(roomElement) {
     if (!roomElement) return;
     
     // Remove seleção anterior
-    const previousSelected = document.querySelector('.room.selected');
+    const previousSelected = document.querySelector('.sala.selected');
     if (previousSelected) {
         previousSelected.classList.remove('selected');
     }
     
     // Seleciona nova sala
     roomElement.classList.add('selected');
-    selectedRoom = roomElement;
+    selectedRoom = roomElement.getAttribute('data-room-id');
     
-    // Obtém e exibe detalhes da sala
-    const roomId = roomElement.getAttribute('data-room-id');
-    const roomDetails = getRoomDetails(roomId);
-    
-    if (!roomDetails) {
-        console.error('Detalhes da sala não encontrados');
-        return;
-    }
-    
-    // Atualiza o painel de informações
-    updateRoomInfoPanel(roomDetails);
+    // Atualiza informações da sala
+    updateRoomDetails(selectedRoom);
 }
 
 // Dados Mock para Teste
@@ -546,4 +578,54 @@ function obterInformacoesSala(salaId) {
         recursos: ['projetor', 'computadores'],
         ocupada: false
     };
-} 
+}
+
+function criarOverlayPopup() {
+    if (!document.querySelector('.popup-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'popup-overlay';
+        document.body.appendChild(overlay);
+        // Não fecha ao clicar no overlay
+    }
+}
+
+function criarPopupGlobalContainer() {
+    if (!document.getElementById('popup-global')) {
+        popupGlobalContainer = document.createElement('div');
+        popupGlobalContainer.id = 'popup-global';
+        document.body.appendChild(popupGlobalContainer);
+    } else {
+        popupGlobalContainer = document.getElementById('popup-global');
+    }
+}
+
+function abrirPopupGlobal(popupOriginal) {
+    criarPopupGlobalContainer();
+    fecharPopupGlobal();
+    // Clona o conteúdo do popup da sala
+    const popupClone = popupOriginal.cloneNode(true);
+    popupClone.classList.add('centralizado');
+    popupClone.style.display = 'flex';
+    // Adiciona botão de fechar
+    if (!popupClone.querySelector('.btn-fechar-popup')) {
+        const btn = document.createElement('button');
+        btn.className = 'btn-fechar-popup';
+        btn.innerHTML = '&times;';
+        btn.onclick = fecharPopupGlobal;
+        popupClone.appendChild(btn);
+    }
+    popupGlobalContainer.innerHTML = '';
+    popupGlobalContainer.appendChild(popupClone);
+    document.querySelector('.popup-overlay').classList.add('ativo');
+}
+
+function fecharPopupGlobal() {
+    criarPopupGlobalContainer();
+    popupGlobalContainer.innerHTML = '';
+    const overlay = document.querySelector('.popup-overlay');
+    if (overlay) overlay.classList.remove('ativo');
+}
+
+// Remover o listener global de clique fora
+window._popupClickOutsideListenerAdded = false;
+// (Se quiser garantir, pode remover o eventListener, mas como só adiciona se não existir, basta não usar mais) 

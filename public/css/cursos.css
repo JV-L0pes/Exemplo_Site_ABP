@@ -77,7 +77,33 @@
     border: 1px solid rgba(0,0,0,0.05);
     position: relative;
     overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
 }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Adiciona delay para cada card baseado no índice */
+.curso-card:nth-child(1) { animation-delay: 0.1s; }
+.curso-card:nth-child(2) { animation-delay: 0.2s; }
+.curso-card:nth-child(3) { animation-delay: 0.3s; }
+.curso-card:nth-child(4) { animation-delay: 0.4s; }
+.curso-card:nth-child(5) { animation-delay: 0.5s; }
+.curso-card:nth-child(6) { animation-delay: 0.6s; }
+.curso-card:nth-child(7) { animation-delay: 0.7s; }
+.curso-card:nth-child(8) { animation-delay: 0.8s; }
+.curso-card:nth-child(9) { animation-delay: 0.9s; }
+.curso-card:nth-child(10) { animation-delay: 1s; }
 
 .curso-card:hover {
     transform: translateY(-5px);
