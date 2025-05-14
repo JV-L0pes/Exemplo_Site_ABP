@@ -48,6 +48,7 @@ body {
     background-color: #e6e6e6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden !important;
 }
 
 a {
@@ -64,6 +65,8 @@ ul {
     display: flex;
     min-height: 100vh;
     position: relative;
+    max-width: 100vw;
+    overflow-x: hidden !important;
 }
 
 /* Sidebar */
@@ -327,6 +330,9 @@ ul {
     transition: var(--transition);
     min-height: 100vh;
     background-color: var(--lighter-gray);
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .collapsed .main-content {

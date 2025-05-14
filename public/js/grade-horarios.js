@@ -285,10 +285,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (docentesFiltrados.length > 0) {
                 docentesFiltrados.forEach(docente => {
+                    const corDocente = (docente.cor && docente.cor.toLowerCase() !== '#ffffff') ? docente.cor : '#ffffff';
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>
-                            <div class="docente-item" style="background-color: ${docente.cor || '#ffffff'}">
+                            <div class="docente-item" style="background-color: ${corDocente}">
                                 ${docente.nome}
                             </div>
                         </td>
@@ -403,8 +404,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
 
                     if (periodo) {
-                        // Encontrar o docente para obter a cor
-                        const docente = gradeData.docente.find(d => d.nome === periodo.nome_docente);
+                        // Encontrar o docente para obter a cor (case-insensitive, trim)
+                        const docente = gradeData.docente.find(d => d.nome && periodo.nome_docente && d.nome.trim().toLowerCase() === periodo.nome_docente.trim().toLowerCase());
                         const corDocente = docente?.cor || '#ffffff';
 
                         cell.innerHTML = `
@@ -484,13 +485,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Adicionar event listener para o input de arquivo
-    const fileInput = document.querySelector('input[type="file"]');
-    if (fileInput) {
-        fileInput.addEventListener('change', (e) => {
+    // Adicionar botão de importar CSV ao lado do botão de exportar CSV
+    const exportBtn = document.querySelector('.btn-primary');
+    if (exportBtn) {
+        // Criar botão de importar
+        const importBtn = document.createElement('button');
+        importBtn.id = 'btn-importar-csv';
+        importBtn.className = 'btn btn-secondary';
+        importBtn.innerHTML = '<i class="fas fa-file-arrow-up"></i> Importar CSV';
+        exportBtn.parentNode.insertBefore(importBtn, exportBtn.nextSibling);
+
+        // Criar input de arquivo oculto
+        const inputCSV = document.createElement('input');
+        inputCSV.type = 'file';
+        inputCSV.id = 'input-csv';
+        inputCSV.accept = '.csv';
+        inputCSV.style.display = 'none';
+        exportBtn.parentNode.insertBefore(inputCSV, importBtn.nextSibling);
+
+        // Criar feedback visual
+        const feedback = document.createElement('span');
+        feedback.id = 'csv-feedback';
+        feedback.style.marginLeft = '10px';
+        feedback.style.fontWeight = '500';
+        exportBtn.parentNode.insertBefore(feedback, inputCSV.nextSibling);
+
+        // Evento do botão de importar
+        importBtn.addEventListener('click', () => {
+            inputCSV.value = '';
+            inputCSV.click();
+        });
+
+        // Evento do input de arquivo
+        inputCSV.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (file) {
-                importarCSV(file);
+                feedback.textContent = 'Enviando...';
+                feedback.style.color = '#b71c1c';
+                try {
+                    await importarCSV(file);
+                    feedback.textContent = 'CSV importado com sucesso!';
+                    feedback.style.color = 'green';
+                } catch (err) {
+                    feedback.textContent = 'Erro ao importar CSV!';
+                    feedback.style.color = 'red';
+                }
+                setTimeout(() => feedback.textContent = '', 4000);
             }
         });
     }
@@ -508,9 +548,6 @@ document.addEventListener('DOMContentLoaded', function() {
         preencherGrade();
         atualizarListaDocentes();
     });
-
-    // Adicionar event listener para o botão de exportar
-    document.querySelector('.btn-primary').addEventListener('click', exportarParaCSV);
 
     // Preencher a tabela de horários
     const tbody = document.querySelector('.grade-table tbody');
