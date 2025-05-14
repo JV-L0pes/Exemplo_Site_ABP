@@ -180,18 +180,10 @@
   
       /* Estilo dos banheiros */
       .banheiro {
-        grid-column: span 2;
+        grid-column: span 1;
         grid-row: span 4;
-        background-color: #f8f9fa;
-        padding: 10px;
-        margin: 0 2px;
-        border-radius: 4px;
-        font-size: 1.2rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #333;
+        background-color: lightyellow;
+        border: 1px solid #333;
       }
 /*Estilos pagina*/
 .mapa-header {
@@ -570,7 +562,7 @@
 
     background-color: brown;
 padding: 10px;
-
+margin: 0 2px;
 border-radius: 4px;
 
 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -578,12 +570,6 @@ box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 display: flex;
 flex-direction: column;
 
-}
-
-.pop-up-nome-sala {
-    display: flex;
-    flex-direction: column;
-    gap: 2em;
 }
 
 .pop-up-nome-sala h1 {

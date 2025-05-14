@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Interativo - FATEC</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/mapa-interativo.css">
-    <link rel="stylesheet" href="css/salas.css">
-    <link rel="stylesheet" href="css/notifications.css">
+    <link rel="icon" type="image/x-icon" href="../image/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="../image/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../image/favicon-16x16.png">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/mapa-interativo.css">
+    <link rel="stylesheet" href="../css/salas.css">
+    <link rel="stylesheet" href="../css/profile-dropdown.css">
+    <link rel="stylesheet" href="../css/notifications.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -17,66 +21,66 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo" id="collapse-btn" style="cursor: pointer;">
-                    <img src="image/CPS-removebg-preview.png" alt="Logo CPS">
+                    <img src="../image/CPS-removebg-preview.png" alt="Logo CPS">
                 </div>
             </div>
             
             <div class="sidebar-item">
-                <a href="home.html">
+                <a data-protected-link data-page="home.html">
                     <i class="fas fa-home"></i>
                     <span>Início</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="docentes.html">
+                <a data-protected-link data-page="docentes.html">
                     <i class="fas fa-chalkboard-teacher"></i>
                     <span>Docentes</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="grade-horarios.html">
+                <a data-protected-link data-page="grade-horarios.html">
                     <i class="fas fa-book"></i>
-                    <span>Aulas</span>
+                    <span>Grade de Horários</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="mapa-interativo.html" class="active">
+                <a data-protected-link data-page="mapa-interativo.html">
                     <i class="fas fa-door-open"></i>
-                    <span>Salas</span>
+                    <span>Mapa Interativo</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="semestres.html">
+                <a data-protected-link data-page="semestres.html">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Semestres</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="disciplinas.html">
+                <a data-protected-link data-page="disciplinas.html">
                     <i class="fas fa-laptop-code"></i>
                     <span>Disciplinas</span>
                 </a>
             </div>
             
             <div class="sidebar-item">
-                <a href="cursos.html">
+                <a data-protected-link data-page="cursos.html">
                     <i class="fas fa-graduation-cap"></i>
                     <span>Cursos</span>
                 </a>
             </div>
             
-            <!-- Sidebar ADM simplificado -->
             <div class="sidebar-item">
                 <a href="admin.html" class="sidebar-link" id="adm-link">
                     <i class="fas fa-user-shield"></i>
                     <span>Admin</span>
                 </a>
             </div>
+            
             <div class="sidebar-item">
                 <button type="button" class="sidebar-link text-danger" id="logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
@@ -89,7 +93,7 @@
         <main class="main-content">
             <header class="topbar">
                 <div class="logo-container">
-                    <img src="image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
+                    <img src="../image/Fatec-removebg-preview.png" alt="FATEC" class="header-logo">
                 </div>
                 
                 <div class="header-actions">
@@ -105,19 +109,6 @@
                         </div>
                     </div>
                     
-                    <div class="user-profile" id="userProfile">
-                        <div class="profile-trigger">
-                            <div class="user-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="user-info">
-                                <div class="user-name">Administrador</div>
-                                <div class="user-role">Gerente do Sistema</div>
-                            </div>
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
-                    </div>
-                    
                     <button id="toggle-menu" class="menu-toggle">
                         <i class="fas fa-bars"></i>
                     </button>
@@ -126,7 +117,7 @@
 
             <div class="breadcrumb">
                 <div class="breadcrumb-item">
-                    <a href="home.html">
+                    <a data-protected-link data-page="home.html">
                         <i class="fas fa-home"></i> Início
                     </a>
                 </div>
@@ -164,8 +155,23 @@
             </div>
         </main>
     </div>
-    <script src="js/script.js"></script>
-    <script src="js/mapa-interativo.js"></script>
-    <script src="js/notifications.js"></script>
+    <!-- Estrutura do Alerta Personalizado -->
+    <div id="custom-alert" class="custom-alert" style="display: none;">
+        <div class="alert-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div class="alert-content">
+            <div class="alert-title">Atenção</div>
+            <div class="alert-message"></div>
+        </div>
+        <button class="alert-close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <!-- Scripts -->
+    <script src="../js/auth-guard.js"></script>
+    <script type="module" src="../js/script.js"></script>
+    <script src="../js/mapa-interativo.js"></script>
+    <script src="../js/notifications.js"></script>
 </body>
 </html> 

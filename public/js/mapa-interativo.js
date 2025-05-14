@@ -91,7 +91,7 @@ async function loadFloorMap(floor) {
 }
 
 function selectRoomOnMap(roomElement) {
-    if (!roomElement) return "Sala não encontrada";
+    if (!roomElement) return;
     
     // Remove seleção anterior
     const previousSelected = document.querySelector('.room.selected');
@@ -105,26 +105,16 @@ function selectRoomOnMap(roomElement) {
     
     // Obtém e exibe detalhes da sala
     const roomId = roomElement.getAttribute('data-room-id');
+    const roomDetails = getRoomDetails(roomId);
+    
+    if (!roomDetails) {
+        console.error('Detalhes da sala não encontrados');
+        return;
+    }
     
     // Atualiza o painel de informações
     updateRoomInfoPanel(roomDetails);
 }
-
-function updateRoomInfoPanel(roomDetails) {
-    const popUp = document.querySelector('.pop-up');
-
-    const nomeSala = popUp.querySelector('.pop-up-nome-sala').firstChild;
-    const nomeCurso = popUp.querySelector('.pop-up-nome-sala').lastChild;
-    const nomeProf = popUp.querySelector('.pop-up-nome-prof');
-    const nomeMateria = popUp.querySelector('.pop-up-materia');
-    const horario = popUp.querySelector('.pop-up-horario');
-    const nivel = popUp.querySelector('.pop-up-nivel');
-
-    const logo = popUp.querySelector('.pop-up-nome-sala');
-
-    console.log({nomeSala, nomeCurso, nomeProf, nomeMateria, horario, nivel});
-}
-
 
 // Dados Mock para Teste
 function getRoomDetails(roomId) {
@@ -520,6 +510,7 @@ function updateRoomVisual(roomId) {
     if (!room) return "Sala não encontrada";
 
     const details = getRoomDetails(roomId);
+    console.log(roomId, details, room.querySelector(".status-badge"));
     
     // Remove classes antigas de status
     room.querySelector(".status-badge").classList.remove('status-disponivel', 'status-ocupada', 'status-manutencao', 'status-reservada', 'status-restrita');
@@ -541,3 +532,18 @@ function updateAllRoomsVisual() {
         updateRoomVisual(room.dataset.roomId);
     });
 }
+
+// Função auxiliar para obter informações da sala
+function obterInformacoesSala(salaId) {
+    // Aqui você implementará a lógica para buscar os dados da sala no backend
+    // Por enquanto, retornamos dados de exemplo
+    return {
+        id: salaId,
+        nome: 'Sala ' + salaId,
+        tipo: 'laboratorio',
+        capacidade: 30,
+        professor: 'Prof. Silva',
+        recursos: ['projetor', 'computadores'],
+        ocupada: false
+    };
+} 
