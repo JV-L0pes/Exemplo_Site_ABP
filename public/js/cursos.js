@@ -121,10 +121,14 @@ document.addEventListener("DOMContentLoaded", function() {
     function renderCursos(cursosToRender = cursos) {
         cursosList.innerHTML = "";
         
-        cursosToRender.forEach(curso => {
-            const card = createCursoCard(curso);
-            cursosList.appendChild(card);
-        });
+        // Pequeno delay para garantir que a animação seja visível
+        setTimeout(() => {
+            cursosToRender.forEach((curso, index) => {
+                const card = createCursoCard(curso);
+                card.style.animationDelay = `${(index + 1) * 0.1}s`;
+                cursosList.appendChild(card);
+            });
+        }, 100);
     }
     
     // Função para criar um card de curso

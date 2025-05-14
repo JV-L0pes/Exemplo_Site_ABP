@@ -222,27 +222,20 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     
     // Navegação da sidebar
-    document.querySelectorAll('.sidebar-item a:not(.has-submenu)').forEach(link => {
+    document.querySelectorAll('.sidebar-item a[data-protected-link]').forEach(link => {
         link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
             // Remove a classe active de todos os links
             document.querySelectorAll('.sidebar-item a').forEach(item => item.classList.remove('active'));
             
             // Adiciona a classe active ao link clicado
             this.classList.add('active');
             
-            // Atualiza o breadcrumb
-            const sectionName = this.dataset.section;
-            if (sectionName) {
-                UI.updateBreadcrumb(sectionName.charAt(0).toUpperCase() + sectionName.slice(1));
-                
-                // Esconde todas as seções
-                DOM.entityContainer.classList.remove('active');
-                DOM.mapEditor.classList.remove('active');
-                
-                // Se for seção de mapas, mostra o editor
-                if (sectionName === 'mapas') {
-                    DOM.mapEditor.classList.add('active');
-                }
+            // Navega para a página correspondente
+            const page = this.getAttribute('data-page');
+            if (page) {
+                window.location.href = page;
             }
             
             // Fecha o menu móvel
