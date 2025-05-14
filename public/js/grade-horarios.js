@@ -163,6 +163,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Função para buscar ambientes
+    async function getAmbientes() {
+        const token = localStorage.getItem('token');
+        const id = localStorage.getItem('userId');
+        if (!token) {
+            window.location.href = '/public/login.html';
+            return;
+        }
+        try {
+            const response = await fetch(`https://errorsquad-server.onrender.com/admin/${id}/ambientes`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/public/login.html';
+                    return;
+                }
+                throw new Error(`Erro ao buscar ambientes: ${response.status}`);
+            }
+            const result = await response.json();
+            return result.data;
+        } catch (error) {
+            console.error('Erro ao buscar ambientes:', error);
+            throw error;
+        }
+    }
+
     // Função para criar o modal de edição
     function criarModalEdicao() {
         let modal = document.getElementById('modal-edicao');
@@ -176,15 +207,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     <form id="form-edicao">
                         <div>
                             <label>Disciplina:</label>
-                            <input type="text" name="disciplina" class="form-control" required />
+                            <select name="disciplina" class="form-control" required></select>
                         </div>
                         <div>
                             <label>Docente:</label>
-                            <input type="text" name="docente" class="form-control" required />
+                            <select name="docente" class="form-control" required></select>
                         </div>
                         <div>
                             <label>Ambiente:</label>
-                            <input type="text" name="ambiente" class="form-control" />
+                            <select name="ambiente" class="form-control" required></select>
                         </div>
                         <div class="botoes-modal">
                             <button type="button" id="fechar-modal" class="btn-cancelar">Cancelar</button>
@@ -199,25 +230,98 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Função para abrir o modal de edição
-    function abrirModalEdicao(cell, dadosAtuais = {}) {
+    async function abrirModalEdicao(cell, dadosAtuais = {}) {
         const modal = criarModalEdicao();
         modal.style.display = 'block';
         const form = modal.querySelector('#form-edicao');
-        form.disciplina.value = dadosAtuais.nome_disciplina || '';
-        form.docente.value = dadosAtuais.nome_docente || '';
-        form.ambiente.value = dadosAtuais.nome_ambiente || '';
+        const selectDisciplina = form.querySelector('select[name="disciplina"]');
+        const selectDocente = form.querySelector('select[name="docente"]');
+        const selectAmbiente = form.querySelector('select[name="ambiente"]');
 
-        // Ao submeter, atualiza a célula
-        form.onsubmit = function(e) {
+        // Limpar selects
+        selectDisciplina.innerHTML = '<option value="">Selecione</option>';
+        selectDocente.innerHTML = '<option value="">Selecione</option>';
+        selectAmbiente.innerHTML = '<option value="">Selecione</option>';
+
+        // Buscar e preencher opções
+        try {
+            const [{ getDisciplinas }, { getDocentes }] = await Promise.all([
+                import('./fetchFunctions/fetchDisciplinas.js'),
+                import('./fetchFunctions/fetchDocentes.js')
+            ]);
+            const disciplinasData = await getDisciplinas();
+            const docentesData = await getDocentes();
+            const ambientesData = await getAmbientes();
+            console.log('Disciplinas recebidas:', disciplinasData);
+            console.log('Docentes recebidos:', docentesData);
+            console.log('Ambientes recebidos:', ambientesData);
+            const disciplinasArray = disciplinasData?.data || disciplinasData || [];
+            disciplinasArray.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.nome_disciplina;
+                opt.textContent = d.nome_disciplina;
+                if (d.nome_disciplina === dadosAtuais.nome_disciplina) opt.selected = true;
+                selectDisciplina.appendChild(opt);
+            });
+            (docentesData || []).forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.nome;
+                opt.textContent = d.nome;
+                if (d.nome === dadosAtuais.nome_docente) opt.selected = true;
+                selectDocente.appendChild(opt);
+            });
+            (ambientesData || []).forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.nome;
+                opt.textContent = a.nome;
+                if (a.nome === dadosAtuais.nome_ambiente) opt.selected = true;
+                selectAmbiente.appendChild(opt);
+            });
+        } catch (err) {
+            console.error('Erro ao carregar selects:', err);
+        }
+
+        // Ao submeter, envia PUT para o backend
+        form.onsubmit = async function(e) {
             e.preventDefault();
-            cell.innerHTML = `
-                <div class="aula-item">
-                    <strong>${form.disciplina.value}</strong>
-                    <p>${form.docente.value}</p>
-                    <small>${form.ambiente.value}</small>
-                </div>
-            `;
-            modal.style.display = 'none';
+            const id = cell.getAttribute('data-id-periodo');
+            if (!id) {
+                alert('ID do período não encontrado! Não é possível salvar nesta célula.');
+                return;
+            }
+            const userId = localStorage.getItem('userId');
+            const payload = {
+                id: id,
+                nome_disciplina: selectDisciplina.value,
+                nome_docente: selectDocente.value,
+                nome_ambiente: selectAmbiente.value
+            };
+            console.log('Payload enviado:', payload);
+            try {
+                const token = localStorage.getItem('token');
+                const resp = await fetch(`https://errorsquad-server.onrender.com/admin/${userId}/periodos`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (!resp.ok) throw new Error('Erro ao salvar no banco');
+                // Atualiza célula visualmente
+                cell.innerHTML = `
+                    <div class="aula-item">
+                        <strong>${selectDisciplina.value}</strong>
+                        <p>${selectDocente.value}</p>
+                        <small>${selectAmbiente.value}</small>
+                    </div>
+                `;
+                modal.style.display = 'none';
+                showSuccessToast('Período atualizado com sucesso!');
+            } catch (err) {
+                alert('Erro ao salvar no banco!');
+                console.error(err);
+            }
         };
         // Botão cancelar
         modal.querySelector('#fechar-modal').onclick = function() {
