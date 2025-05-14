@@ -72,7 +72,7 @@ async function uploadCSV(file) {
         formData.append('file', file);
 
         console.log('Enviando arquivo CSV...');
-        const response = await fetch(`${API_URL}/admin/${getAdminId()}/grade/upload`, {
+        const response = await fetch(`${API_URL}/admin/${getAdminId()}/grade/import`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`

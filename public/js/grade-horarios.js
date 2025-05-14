@@ -26,6 +26,21 @@ document.addEventListener('DOMContentLoaded', function() {
         docente: []
     };
 
+    // Função para mostrar mensagem de sucesso
+    function showSuccessToast(message) {
+        const toastContainer = document.querySelector('.toast-container');
+        if (toastContainer) {
+            const toast = document.createElement('div');
+            toast.className = 'toast success';
+            toast.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${message}</span>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    }
+
     // Função para mostrar mensagem de erro
     function showErrorToast(message) {
         const toastContainer = document.querySelector('.toast-container');
@@ -39,6 +54,22 @@ document.addEventListener('DOMContentLoaded', function() {
             toastContainer.appendChild(toast);
             setTimeout(() => toast.remove(), 5000);
         }
+    }
+
+    // Função para mostrar mensagem de carregamento
+    function showLoadingToast(message) {
+        const toastContainer = document.querySelector('.toast-container');
+        if (toastContainer) {
+            const toast = document.createElement('div');
+            toast.className = 'toast loading';
+            toast.innerHTML = `
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>${message}</span>
+            `;
+            toastContainer.appendChild(toast);
+            return toast;
+        }
+        return null;
     }
 
     // Função para buscar e processar os dados da grade
@@ -388,25 +419,53 @@ document.addEventListener('DOMContentLoaded', function() {
                         const hrFim = periodo.hr_fim?.value || periodo.hr_fim || '';
                         const hInicio = horario.hr_inicio?.value || horario.hr_inicio;
                         const hFim = horario.hr_fim?.value || horario.hr_fim;
-                        
                         const diaMatch = nomeDia === dia.nome.toLowerCase();
                         const horarioMatch = hrInicio === hInicio && hrFim === hFim;
-                        
-                        if (diaMatch && horarioMatch) {
-                            console.log('Encontrou período para célula:', {
-                                dia: dia.nome,
-                                horario: `${hInicio} - ${hFim}`,
-                                periodo: periodo
-                            });
-                        }
-                        
                         return diaMatch && horarioMatch;
                     });
 
                     if (periodo) {
+                        // Log detalhado do período
+                        console.log('Período completo:', JSON.stringify(periodo, null, 2));
+
                         // Encontrar o docente para obter a cor (case-insensitive, trim)
                         const docente = gradeData.docente.find(d => d.nome && periodo.nome_docente && d.nome.trim().toLowerCase() === periodo.nome_docente.trim().toLowerCase());
                         const corDocente = docente?.cor || '#ffffff';
+
+                        // Encontrar o ID do dia baseado no nome
+                        const diaEncontrado = gradeData.dias.find(d => d.nome.toLowerCase() === periodo.nome_dia.toLowerCase());
+                        const diaId = diaEncontrado ? diaEncontrado.id : null;
+
+                        // Encontrar o ID do horário baseado no início e fim
+                        const horarioEncontrado = gradeData.horarios.find(h => {
+                            const hInicio = h.hr_inicio?.value || h.hr_inicio;
+                            const hFim = h.hr_fim?.value || h.hr_fim;
+                            const pInicio = periodo.hr_inicio?.value || periodo.hr_inicio;
+                            const pFim = periodo.hr_fim?.value || periodo.hr_fim;
+                            return hInicio === pInicio && hFim === pFim;
+                        });
+                        const horarioId = horarioEncontrado ? horarioEncontrado.id : null;
+
+                        // Log detalhado dos IDs encontrados
+                        console.log('IDs encontrados:', {
+                            periodoId: periodo.id,
+                            diaId,
+                            horarioId,
+                            diaEncontrado,
+                            horarioEncontrado
+                        });
+
+                        // Definir os data-attributes
+                        cell.setAttribute('data-id-periodo', periodo.id);
+                        cell.setAttribute('data-id-dia', diaId || '');
+                        cell.setAttribute('data-id-horario', horarioId || '');
+
+                        // Log dos data-attributes após definir
+                        console.log('Data attributes definidos:', {
+                            periodoId: cell.getAttribute('data-id-periodo'),
+                            diaId: cell.getAttribute('data-id-dia'),
+                            horarioId: cell.getAttribute('data-id-horario')
+                        });
 
                         cell.innerHTML = `
                             <div class="aula-item" style="background-color: ${corDocente}">
@@ -418,10 +477,164 @@ document.addEventListener('DOMContentLoaded', function() {
                         cell.classList.add('celula-preenchida');
                         cell.onclick = () => abrirModalEdicao(cell, periodo);
                     } else {
+                        // Remover data-attributes se não houver período
+                        cell.removeAttribute('data-id-periodo');
+                        cell.removeAttribute('data-id-dia');
+                        cell.removeAttribute('data-id-horario');
                         cell.innerHTML = '';
                         cell.classList.remove('celula-preenchida');
                         cell.onclick = () => abrirModalEdicao(cell);
                     }
+
+                    // Drag and drop
+                    cell.setAttribute('draggable', true);
+                    cell.ondragstart = function (e) {
+                        // Verificar se a célula tem todos os IDs necessários
+                        const periodoId = cell.getAttribute('data-id-periodo');
+                        const diaId = cell.getAttribute('data-id-dia');
+                        const horarioId = cell.getAttribute('data-id-horario');
+
+                        console.log('Verificando IDs para drag:', {
+                            periodoId,
+                            diaId,
+                            horarioId,
+                            temTodosIds: periodoId && diaId && horarioId
+                        });
+
+                        if (!periodoId || !diaId || !horarioId) {
+                            e.preventDefault();
+                            showErrorToast('Célula não pode ser arrastada - IDs incompletos');
+                            return;
+                        }
+
+                        e.dataTransfer.setData('text/plain', '');
+                        window.draggedCell = cell;
+                        cell.classList.add('dragging');
+                        
+                        // Adicionar cursor personalizado
+                        document.body.style.cursor = 'grabbing';
+                    };
+
+                    cell.ondragend = function () {
+                        cell.classList.remove('dragging');
+                        document.body.style.cursor = 'default';
+                    };
+
+                    cell.ondragover = function (e) {
+                        e.preventDefault();
+                        if (!cell.classList.contains('drag-over')) {
+                            cell.classList.add('drag-over');
+                        }
+                    };
+
+                    cell.ondragleave = function () {
+                        cell.classList.remove('drag-over');
+                    };
+
+                    cell.ondrop = async function (e) {
+                        e.preventDefault();
+                        cell.classList.remove('drag-over');
+                        const origem = window.draggedCell;
+                        const destino = cell;
+
+                        // Log dos elementos origem e destino
+                        console.log('Elemento origem:', origem);
+                        console.log('Elemento destino:', destino);
+
+                        // Log dos data-attributes
+                        console.log('Data attributes origem:', {
+                            periodoId: origem.getAttribute('data-id-periodo'),
+                            diaSemanaId: origem.getAttribute('data-id-dia'),
+                            horarioId: origem.getAttribute('data-id-horario')
+                        });
+                        console.log('Data attributes destino:', {
+                            periodoId: destino.getAttribute('data-id-periodo'),
+                            diaSemanaId: destino.getAttribute('data-id-dia'),
+                            horarioId: destino.getAttribute('data-id-horario')
+                        });
+
+                        if (origem && destino) {
+                            const origemPeriodoId = origem.getAttribute('data-id-periodo');
+                            const origemDiaSemanaId = origem.getAttribute('data-id-dia');
+                            const origemHorarioId = origem.getAttribute('data-id-horario');
+                            const destinoPeriodoId = destino.getAttribute('data-id-periodo');
+                            const destinoDiaSemanaId = destino.getAttribute('data-id-dia');
+                            const destinoHorarioId = destino.getAttribute('data-id-horario');
+
+                            // Validar se a célula de origem tem todos os IDs necessários
+                            if (!origemPeriodoId || !origemDiaSemanaId || !origemHorarioId) {
+                                showErrorToast('Célula de origem inválida!');
+                                return;
+                            }
+
+                            const body = {
+                                id_card1: Number(origemPeriodoId),
+                                id_dia_card1: Number(origemDiaSemanaId),
+                                id_horario_card1: Number(origemHorarioId),
+                                id_card2: Number(destinoPeriodoId) || 0,
+                                id_dia_card2: Number(destinoDiaSemanaId) || 0,
+                                id_horario_card2: Number(destinoHorarioId) || 0
+                            };
+
+                            // Log do payload final
+                            console.log('Payload final enviado:', JSON.stringify(body, null, 2));
+
+                            // Mostrar toast de carregamento
+                            const loadingToast = showLoadingToast('Realizando troca...');
+
+                            try {
+                                const resp = await fetch(`${API_URL}/admin/${getAdminId()}/grade`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${getToken()}`
+                                    },
+                                    body: JSON.stringify(body)
+                                });
+
+                                // Remover toast de carregamento
+                                if (loadingToast) loadingToast.remove();
+
+                                // Log da resposta
+                                console.log('Status da resposta:', resp.status);
+                                const responseData = await resp.json().catch(() => null);
+                                console.log('Dados da resposta:', responseData);
+
+                                if (resp.ok) {
+                                    // Adicionar animação de swap
+                                    origem.classList.add('swap-animation');
+                                    destino.classList.add('swap-animation');
+                                    
+                                    showSuccessToast('Troca realizada com sucesso!');
+                                    
+                                    // Remover animação após 500ms
+                                    setTimeout(() => {
+                                        origem.classList.remove('swap-animation');
+                                        destino.classList.remove('swap-animation');
+                                        buscarDadosGrade();
+                                    }, 500);
+                                } else {
+                                    // Tentar obter mais detalhes do erro
+                                    let errorMessage = 'Erro ao trocar células!';
+                                    if (responseData && responseData.mensagem) {
+                                        errorMessage += ` ${responseData.mensagem}`;
+                                    }
+                                    if (responseData && responseData.detalhes) {
+                                        console.error('Detalhes do erro:', responseData.detalhes);
+                                    }
+                                    showErrorToast(errorMessage);
+                                    console.error('Erro detalhado:', responseData);
+                                }
+                            } catch (err) {
+                                // Remover toast de carregamento em caso de erro
+                                if (loadingToast) loadingToast.remove();
+                                
+                                console.error('Erro completo:', err);
+                                showErrorToast('Erro de conexão ao trocar células!');
+                            }
+                        }
+                        window.draggedCell = null;
+                    };
                 }
             });
         });
@@ -520,17 +733,21 @@ document.addEventListener('DOMContentLoaded', function() {
         inputCSV.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (file) {
-                feedback.textContent = 'Enviando...';
+                feedback.innerHTML = '<span class="spinner"></span> Enviando...';
                 feedback.style.color = '#b71c1c';
+                importBtn.disabled = true;
                 try {
                     await importarCSV(file);
-                    feedback.textContent = 'CSV importado com sucesso!';
+                    feedback.innerHTML = 'CSV importado com sucesso!';
                     feedback.style.color = 'green';
                 } catch (err) {
-                    feedback.textContent = 'Erro ao importar CSV!';
+                    feedback.innerHTML = 'Erro ao importar CSV!';
                     feedback.style.color = 'red';
                 }
-                setTimeout(() => feedback.textContent = '', 4000);
+                setTimeout(() => {
+                    feedback.innerHTML = '';
+                    importBtn.disabled = false;
+                }, 4000);
             }
         });
     }
@@ -566,4 +783,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Buscar dados iniciais
     buscarDadosGrade();
-}); 
+});
+
+function getAttrNum(cell, attr) {
+    return cell && cell.hasAttribute(attr) ? Number(cell.getAttribute(attr)) : 0;
+} 
