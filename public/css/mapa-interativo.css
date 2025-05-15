@@ -31,14 +31,13 @@
 }
 
 .grid-container {
-    height: 100%;
-    max-width: 100%;
+    height: 100%; /* Altura máxima */
+    max-width: 100%; /* Largura máxima */
     display: grid;
     grid-template-columns: repeat(18, 1fr);
-    grid-template-rows: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr); /* Altura das linhas */
     margin: 0;
-    padding: 8px;
-    gap: 8px;
+    padding: 4px;
     overflow: visible !important;
 }
 
@@ -78,12 +77,6 @@
     grid-row: span 4; /* Ocupa 4 linhas */
 }
 
-.sala-pequena {
-    grid-column: span 1; /* Ocupa 3 colunas */
-    grid-row: span 4; /* Ocupa 4 linhas */
-    max-width: 100%;
-}
-
 /* Estilo do conteúdo das salas */
 .sala .nome-sala {
     font-size: 1.1rem;
@@ -110,51 +103,64 @@
 }
 
 /* Estilo das bibliotecas */
-.biblioteca {
-    background-color: #f8f9fa;
+    .biblioteca {
+        background-color: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-align: center;
+        color: #333;
+  
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+  
+      .biblioteca-parte-1 {
+        grid-column: span 3;
+        grid-row: span 2;
+        border-radius: 4px 4px 0 0;
+        margin-top: 2px;
+      }
+  
+      .biblioteca-parte-2 {
+        grid-column: span 3;
+        grid-row: span 4;
+        border-radius: 4px 0 0 4px;
+      }
+  
+      .biblioteca-parte-3 {
+        grid-column: span 3;
+        grid-row: span 4;
+        border-radius: 0 0 4px 0;
+      }
+  
+      .biblioteca:hover {
+        transform: scale(1.02);
+      }
+  
+      .grid-container:has(.biblioteca:hover) .biblioteca {
+
+            transform: translateY(-2px);
+      }
+
+.btn-search {
+    padding: 10px 15px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
     cursor: pointer;
-    transition: all var(--transition-speed) ease;
-    font-size: 1.2rem;
-    font-weight: 600;
-    text-align: center;
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-    position: relative;
-    overflow: visible;
 }
 
-.biblioteca-parte-1 {
-    grid-column: span 3;
-    grid-row: span 2;
-    border-radius: 4px 4px 0 0;
-    margin-top: 2px;
-}
-
-.biblioteca-parte-2 {
-    grid-column: span 3;
-    grid-row: span 4;
-    border-radius: 4px 0 0 4px;
-}
-
-.biblioteca-parte-3 {
-    grid-column: span 3;
-    grid-row: span 4;
-    border-radius: 0 0 4px 0;
-}
-
-.biblioteca:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-    border-color: rgba(0, 0, 0, 0.1);
-}
-
-.grid-container:has(.biblioteca:hover) .biblioteca {
-    transform: translateY(-2px); 
+.search-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: var(--border-radius);
+    font-size: 14px;
 }
 
 /* Estilo de preenchimento */
@@ -195,7 +201,7 @@
 
 /* Estilo dos banheiros */
 .banheiro {
-    grid-column: span 1;
+    grid-column: span 2;
     grid-row: span 4;
     background-color: #f8f9fa;
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -205,16 +211,6 @@
     align-items: center;
     position: relative;
     padding: 8px;
-}
-
-.banheiro::before {
-    content: '';
-    width: 24px;
-    height: 24px;
-    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>');
-    background-size: contain;
-    background-repeat: no-repeat;
-    margin-bottom: 4px;
 }
 
 .banheiro:hover {
