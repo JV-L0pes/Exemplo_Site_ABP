@@ -46,7 +46,6 @@
     background-color: #f8f9fa;
     padding: 12px;
     margin: 0;
-    border-radius: var(--border-radius);
     cursor: pointer;
     transition: all var(--transition-speed) ease;
     display: flex;
