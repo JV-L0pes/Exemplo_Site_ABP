@@ -114,6 +114,26 @@ document.addEventListener('DOMContentLoaded', function() {
         return null;
     }
 
+    // Função para salvar o estado da grade no localStorage
+    function salvarEstadoGrade() {
+        const gradeEstado = {
+            filtros: recuperarFiltrosDoLocalStorage(),
+            gradeData: gradeData
+        };
+        localStorage.setItem('gradeEstado', JSON.stringify(gradeEstado));
+    }
+
+    // Função para restaurar o estado da grade do localStorage
+    function restaurarEstadoGrade() {
+        const estadoSalvo = localStorage.getItem('gradeEstado');
+        if (estadoSalvo) {
+            const estado = JSON.parse(estadoSalvo);
+            gradeData = estado.gradeData;
+            return true;
+        }
+        return false;
+    }
+
     // Função para buscar e processar os dados da grade
     async function buscarDadosGrade() {
         try {
@@ -140,6 +160,29 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Erro ao carregar a grade:', error);
             showErrorToast('Erro ao carregar a grade de horários. Por favor, tente novamente mais tarde.');
         }
+    }
+
+    // Função para salvar os filtros no localStorage
+    function salvarFiltrosNoLocalStorage(curso, nivel, turno) {
+        localStorage.setItem('gradeFiltros', JSON.stringify({
+            curso: curso,
+            nivel: nivel,
+            turno: turno
+        }));
+    }
+
+    // Função para recuperar os filtros do localStorage
+    function recuperarFiltrosDoLocalStorage() {
+        const filtrosSalvos = localStorage.getItem('gradeFiltros');
+        if (filtrosSalvos) {
+            return JSON.parse(filtrosSalvos);
+        }
+        // Valores padrão caso não exista nada salvo
+        return {
+            curso: 'DSM',
+            nivel: '1',
+            turno: 'noturno'
+        };
     }
 
     // Função para atualizar os filtros com os dados da API
@@ -203,6 +246,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 turnoSelect.appendChild(option);
             });
         }
+
+        // Recuperar filtros salvos ou usar valores padrão
+        const filtros = recuperarFiltrosDoLocalStorage();
+        cursoSelect.value = filtros.curso;
+        nivelSelect.value = filtros.nivel;
+        turnoSelect.value = filtros.turno;
     }
 
     // Função para buscar ambientes
@@ -331,6 +380,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('ID do período não encontrado! Não é possível salvar nesta célula.');
                 return;
             }
+
+            // Desabilitar o botão de salvar e mostrar estado de loading
+            const btnSalvar = form.querySelector('.btn-salvar');
+            const btnOriginalText = btnSalvar.textContent;
+            btnSalvar.disabled = true;
+            btnSalvar.textContent = 'Salvando...';
+            btnSalvar.style.opacity = '0.7';
+            btnSalvar.style.cursor = 'not-allowed';
+
             const userId = localStorage.getItem('userId');
             const payload = {
                 id: id,
@@ -350,9 +408,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify(payload)
                 });
                 if (!resp.ok) throw new Error('Erro ao salvar no banco');
-                // Atualiza célula visualmente
+
+                // Encontrar a cor do docente selecionado
+                const docenteSelecionado = gradeData.docente.find(d => 
+                    d.nome && d.nome.trim().toLowerCase() === selectDocente.value.trim().toLowerCase()
+                );
+                const corDocente = docenteSelecionado?.cor || '#ffffff';
+
+                // Atualiza célula visualmente com a cor do docente
                 cell.innerHTML = `
-                    <div class="aula-item">
+                    <div class="aula-item" style="background-color: ${corDocente}">
                         <strong>${selectDisciplina.value}</strong>
                         <p>${selectDocente.value}</p>
                         <small>${selectAmbiente.value}</small>
@@ -363,6 +428,12 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (err) {
                 alert('Erro ao salvar no banco!');
                 console.error(err);
+            } finally {
+                // Restaurar o botão ao estado original
+                btnSalvar.disabled = false;
+                btnSalvar.textContent = btnOriginalText;
+                btnSalvar.style.opacity = '1';
+                btnSalvar.style.cursor = 'pointer';
             }
         };
         // Botão cancelar
@@ -808,6 +879,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Atualizar a lista de docentes
         atualizarListaDocentes();
+
+        // Salvar o estado após preencher a grade
+        salvarEstadoGrade();
     }
 
     // Função para exportar grade para CSV
@@ -920,17 +994,44 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Adicionar event listeners para os filtros
-    document.querySelector('.btn-secondary:nth-child(1)').addEventListener('change', () => {
+    document.querySelector('.btn-secondary:nth-child(1)').addEventListener('change', (e) => {
+        const filtros = recuperarFiltrosDoLocalStorage();
+        salvarFiltrosNoLocalStorage(e.target.value, filtros.nivel, filtros.turno);
         preencherGrade();
         atualizarListaDocentes();
+        salvarEstadoGrade();
     });
-    document.querySelector('.btn-secondary:nth-child(2)').addEventListener('change', () => {
+    document.querySelector('.btn-secondary:nth-child(2)').addEventListener('change', (e) => {
+        const filtros = recuperarFiltrosDoLocalStorage();
+        salvarFiltrosNoLocalStorage(filtros.curso, e.target.value, filtros.turno);
         preencherGrade();
         atualizarListaDocentes();
+        salvarEstadoGrade();
     });
-    document.querySelector('.btn-secondary:nth-child(3)').addEventListener('change', () => {
+    document.querySelector('.btn-secondary:nth-child(3)').addEventListener('change', (e) => {
+        const filtros = recuperarFiltrosDoLocalStorage();
+        salvarFiltrosNoLocalStorage(filtros.curso, filtros.nivel, e.target.value);
         preencherGrade();
         atualizarListaDocentes();
+        salvarEstadoGrade();
+    });
+
+    // Adicionar evento para salvar o estado antes de fechar a página
+    window.addEventListener('beforeunload', () => {
+        salvarEstadoGrade();
+    });
+
+    // Adicionar evento para salvar a URL atual antes do reload
+    window.addEventListener('beforeunload', () => {
+        sessionStorage.setItem('lastGradeUrl', window.location.href);
+    });
+
+    // Verificar se existe uma URL salva e redirecionar se necessário
+    document.addEventListener('DOMContentLoaded', () => {
+        const lastUrl = sessionStorage.getItem('lastGradeUrl');
+        if (lastUrl && window.location.href !== lastUrl) {
+            window.location.href = lastUrl;
+        }
     });
 
     // Preencher a tabela de horários
