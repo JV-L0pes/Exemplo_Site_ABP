@@ -405,3 +405,35 @@
     font-size: 0.9rem;
     margin-top: 0.5rem;
 }
+
+.mensagem-vazia {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin: 2rem auto;
+    color: var(--text);
+    max-width: 400px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.mensagem-vazia i {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+}
+
+.mensagem-vazia p {
+    font-size: 1.2rem;
+    margin: 0;
+    font-weight: 500;
+    color: var(--text);
+}

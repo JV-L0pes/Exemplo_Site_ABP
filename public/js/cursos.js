@@ -121,6 +121,16 @@ document.addEventListener("DOMContentLoaded", function() {
     function renderCursos(cursosToRender = cursos) {
         cursosList.innerHTML = "";
         
+        if (cursosToRender.length === 0) {
+            cursosList.innerHTML = `
+                <div class="mensagem-vazia">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Nenhum curso cadastrado no momento.</p>
+                </div>
+            `;
+            return;
+        }
+        
         // Pequeno delay para garantir que a animação seja visível
         setTimeout(() => {
             cursosToRender.forEach((curso, index) => {

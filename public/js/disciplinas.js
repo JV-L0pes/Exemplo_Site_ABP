@@ -85,17 +85,27 @@ document.addEventListener("DOMContentLoaded", function() {
                 renderDisciplinas(todasDisciplinas);
             } else {
                 console.error('Resposta inválida da API:', response);
-                disciplinasList.innerHTML = '<p class="erro">Erro ao carregar disciplinas: resposta inválida</p>';
+                renderDisciplinas([]); // Usar a mensagem vazia padronizada
             }
         } catch (error) {
             console.error('Erro ao carregar disciplinas:', error);
-            disciplinasList.innerHTML = '<p class="erro">Erro ao carregar disciplinas.</p>';
+            renderDisciplinas([]); // Usar a mensagem vazia padronizada
         }
     }
     
     // Função para renderizar os cards de disciplinas
     function renderDisciplinas(disciplinasToRender = []) {
         disciplinasList.innerHTML = "";
+        
+        if (disciplinasToRender.length === 0) {
+            disciplinasList.innerHTML = `
+                <div class="mensagem-vazia">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Nenhuma disciplina cadastrada no momento.</p>
+                </div>
+            `;
+            return;
+        }
         
         // Pequeno delay para garantir que a animação seja visível
         setTimeout(() => {

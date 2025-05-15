@@ -245,6 +245,18 @@ function renderDocentes() {
     // Limpar lista atual
     docentesList.innerHTML = '';
 
+    // Verificar se há docentes
+    if (docentes.length === 0) {
+        const mensagemVazia = document.createElement('div');
+        mensagemVazia.className = 'mensagem-vazia';
+        mensagemVazia.innerHTML = `
+            <i class="fas fa-info-circle"></i>
+            <p>Nenhum docente cadastrado no momento.</p>
+        `;
+        docentesList.appendChild(mensagemVazia);
+        return;
+    }
+
     // Criar cards para cada docente
     docentes.forEach((docente, index) => {
         const card = document.createElement('div');

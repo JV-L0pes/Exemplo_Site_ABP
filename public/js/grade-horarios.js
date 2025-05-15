@@ -469,6 +469,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!diasGrade.length || !horariosGrade.length) {
             console.warn('Dias ou horários não encontrados nos dados');
+            const gradeContainer = document.querySelector('.grade-container');
+            if (gradeContainer) {
+                gradeContainer.innerHTML = `
+                    <div class="mensagem-vazia">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Nenhum horário cadastrado no momento.</p>
+                    </div>
+                `;
+            }
             return;
         }
 
