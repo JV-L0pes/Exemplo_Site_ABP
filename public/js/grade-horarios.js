@@ -13,6 +13,48 @@ document.addEventListener('DOMContentLoaded', function() {
     link.href = '/public/css/grade-horarios.css';
     document.head.appendChild(link);
 
+    // Função para verificar o token
+    function verificarToken() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.log('Token não encontrado, redirecionando para login...');
+            window.location.href = '/public/login.html';
+            return;
+        }
+
+        try {
+            // Decodificar o token JWT
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const expiracao = payload.exp * 1000; // Converter para milissegundos
+            const agora = Date.now();
+            const tempoRestante = expiracao - agora;
+
+            console.log('Tempo restante do token:', Math.floor(tempoRestante / 1000), 'segundos');
+
+            // Se o token expirou ou está prestes a expirar (1 segundo)
+            if (agora >= expiracao - 1000) {
+                console.log('Token expirado, redirecionando para login...');
+                localStorage.clear(); // Limpa todo o localStorage
+                window.location.href = '/public/login.html';
+            }
+        } catch (error) {
+            console.error('Erro ao verificar token:', error);
+            localStorage.clear(); // Limpa todo o localStorage em caso de erro
+            window.location.href = '/public/login.html';
+        }
+    }
+
+    // Verificar o token a cada segundo
+    const tokenInterval = setInterval(verificarToken, 1000);
+
+    // Limpar o intervalo quando a página for fechada
+    window.addEventListener('beforeunload', () => {
+        clearInterval(tokenInterval);
+    });
+
+    // Verificar o token imediatamente ao carregar a página
+    verificarToken();
+
     // URL base da API
     const API_URL = 'https://errorsquad-server.onrender.com';
 
@@ -402,9 +444,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Função para atualizar a lista de docentes
     function atualizarListaDocentes() {
         try {
-            const cursoSelecionado = document.querySelector('.btn-secondary:nth-child(1)').value;
-            const nivelSelecionado = document.querySelector('.btn-secondary:nth-child(2)').value;
-            const turnoSelecionado = document.querySelector('.btn-secondary:nth-child(3)').value.toLowerCase();
+            const cursoSelect = document.querySelector('.btn-secondary:nth-child(1)');
+            const nivelSelect = document.querySelector('.btn-secondary:nth-child(2)');
+            const turnoSelect = document.querySelector('.btn-secondary:nth-child(3)');
+
+            if (!cursoSelect || !nivelSelect || !turnoSelect) {
+                console.error('Elementos de seleção não encontrados');
+                return;
+            }
+
+            const cursoSelecionado = cursoSelect.value;
+            const nivelSelecionado = nivelSelect.value;
+            const turnoSelecionado = turnoSelect.value.toLowerCase();
+
+            // Verificar se gradeData existe e tem os dados necessários
+            if (!gradeData || !gradeData.docente || !gradeData.periodos) {
+                const docentesTable = document.querySelector('.docentes-table tbody');
+                if (docentesTable) {
+                    docentesTable.innerHTML = '<tr><td>Nenhum dado disponível</td></tr>';
+                }
+                return;
+            }
 
             // Filtrar docentes usando a função do fetchGrade.js
             const docentesFiltrados = filtrarDocentes(
@@ -416,6 +476,11 @@ document.addEventListener('DOMContentLoaded', function() {
             );
 
             const docentesTable = document.querySelector('.docentes-table tbody');
+            if (!docentesTable) {
+                console.error('Tabela de docentes não encontrada');
+                return;
+            }
+
             docentesTable.innerHTML = '';
             
             if (docentesFiltrados.length > 0) {
@@ -433,12 +498,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             } else {
                 const tr = document.createElement('tr');
-                tr.innerHTML = '<td>Nenhum docente encontrado</td>';
+                tr.innerHTML = '<td>Nenhum docente encontrado para os filtros selecionados</td>';
                 docentesTable.appendChild(tr);
             }
         } catch (error) {
             console.error('Erro ao atualizar lista de docentes:', error);
-            showErrorToast('Erro ao carregar lista de docentes');
+            const docentesTable = document.querySelector('.docentes-table tbody');
+            if (docentesTable) {
+                docentesTable.innerHTML = '<tr><td>Erro ao carregar lista de docentes</td></tr>';
+            }
         }
     }
 
@@ -466,20 +534,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Filtrar horários conforme o turno selecionado
         horariosGrade = filtrarHorariosPorTurno(horariosGrade, turnoSelecionado);
-
-        if (!diasGrade.length || !horariosGrade.length) {
-            console.warn('Dias ou horários não encontrados nos dados');
-            const gradeContainer = document.querySelector('.grade-container');
-            if (gradeContainer) {
-                gradeContainer.innerHTML = `
-                    <div class="mensagem-vazia">
-                        <i class="fas fa-info-circle"></i>
-                        <p>Nenhum horário cadastrado no momento.</p>
-                    </div>
-                `;
-            }
-            return;
-        }
 
         // Montar a tabela dinamicamente
         montarTabelaGrade(diasGrade, horariosGrade);
