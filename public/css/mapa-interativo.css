@@ -84,6 +84,10 @@
     max-width: 100%;
 }
 
+.sala-extra-grande { grid-column: span 4 !important; }
+
+.sala-ultra-grande { grid-column: span 5 !important; }
+
 /* Estilo do conteúdo das salas */
 .sala .nome-sala {
     font-size: 1.1rem;
@@ -189,6 +193,10 @@
 
 /* Estilo das escadas */
 .escada {
+    background: linear-gradient(to bottom, #e0e0e0 0%, #bdbdbd 25%, #9e9e9e 50%, #757575 75%, #616161 100%);
+    border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    border: 1px solid #bdbdbd;
     grid-column: span 1;
     grid-row: span 4;
 }
@@ -570,5 +578,227 @@
     display: none !important;
     opacity: 0 !important;
     pointer-events: none !important;
+}
+
+/* --- PREMIUM MOBILE RESPONSIVO --- */
+@media (max-width: 600px) {
+  .mapa-container {
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    width: 100vw;
+    max-width: 100vw;
+    min-height: 100vh;
+    box-shadow: none;
+  }
+  .mapa-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0 8px;
+  }
+  .mapa-header h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0;
+  }
+  .mapa-actions {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    align-items: stretch;
+    padding: 0 8px;
+  }
+  .mapa-actions button,
+  .mapa-actions select {
+    font-size: 1rem;
+    padding: 12px 0;
+    width: 100%;
+    min-width: 0;
+    border-radius: 8px;
+  }
+  .mapa-content {
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    min-height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    scroll-behavior: smooth;
+    background: #f5f5f5;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .map-content {
+    margin: 0 auto;
+    min-width: 800px;
+    min-height: 600px;
+    width: 800px;
+    height: 600px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    position: relative;
+    overflow: visible;
+    transition: box-shadow 0.3s;
+    padding-bottom: 32px;
+  }
+  .grid-container {
+    grid-template-columns: repeat(10, minmax(120px, 1fr));
+    gap: 28px;
+    padding: 36px 24px;
+    min-width: 1200px;
+    min-height: 700px;
+    box-sizing: border-box;
+  }
+  .sala, .banheiro, .biblioteca {
+    max-width: 100%;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 22px 10px;
+    font-size: 1.12em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-break: normal;
+    overflow-wrap: break-word;
+    white-space: normal;
+    hyphens: auto;
+  }
+  .sala .nome-sala, .banheiro .nome-banheiro {
+    font-size: 1em;
+    font-weight: 600;
+    line-height: 1.25;
+    margin-bottom: 6px;
+    text-align: center;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    hyphens: auto;
+    max-width: 100%;
+  }
+  .status-badge {
+    font-size: 0.95em;
+    padding: 6px 14px;
+    border-radius: 18px;
+    margin-top: 8px;
+    max-width: 100%;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    line-height: 1.2;
+    display: inline-block;
+  }
+  .pop-up {
+    width: 90vw !important;
+    max-width: 320px;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    font-size: 0.95em;
+    padding: 10px !important;
+    border-radius: 12px;
+    z-index: 1000;
+  }
+  .pop-up-nome-sala h1 {
+    font-size: 1.1em;
+  }
+  .pop-up-nome-prof,
+  .pop-up-materia,
+  .pop-up-horario,
+  .pop-up-nivel {
+    font-size: 0.9em;
+  }
+  /* Melhorar experiência de scroll */
+  .mapa-content::-webkit-scrollbar {
+    height: 8px;
+    background: #eee;
+    border-radius: 8px;
+  }
+  .mapa-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 8px;
+  }
+  /* Botões fixos no topo em mobile */
+  .mapa-header, .mapa-actions {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+  }
+  .grid-container {
+    gap: 22px;
+    padding: 32px 18px 32px 18px;
+    min-width: 900px;
+    min-height: 650px;
+    box-sizing: border-box;
+  }
+  .map-content {
+    min-width: 900px;
+    min-height: 650px;
+    width: 900px;
+    height: 650px;
+    padding-bottom: 40px;
+  }
+}
+
+/* Ajuste para garantir que o mapa nunca "quebre" para caber na tela */
+@media (max-width: 600px) {
+  .map-content, .grid-container {
+    min-width: 1100px !important;
+    width: 1100px !important;
+    max-width: 100%;
+  }
+  .grid-container {
+    gap: 28px;
+    padding: 36px 24px 36px 24px;
+    min-height: 700px;
+  }
+  .sala, .banheiro, .biblioteca {
+    width: auto;
+    max-width: 180px;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 22px 10px;
+    font-size: 1.12em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-break: normal;
+    overflow-wrap: break-word;
+    white-space: normal;
+    hyphens: auto;
+  }
+  .sala .nome-sala, .banheiro .nome-banheiro {
+    font-size: 1em;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    text-align: center;
+    word-break: normal;
+    overflow-wrap: break-word;
+    white-space: normal;
+    hyphens: auto;
+    max-width: 100%;
+  }
+  .status-badge {
+    font-size: 1em;
+    padding: 8px 16px;
+    border-radius: 20px;
+    margin-top: 10px;
+    max-width: 100%;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.2;
+    display: inline-block;
+  }
 }
 
