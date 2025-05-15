@@ -799,9 +799,20 @@ document.addEventListener('DOMContentLoaded', function() {
                             const destinoDiaSemanaId = destino.getAttribute('data-id-dia');
                             const destinoHorarioId = destino.getAttribute('data-id-horario');
 
-                            // Validar se a célula de origem tem todos os IDs necessários
-                            if (!origemPeriodoId || !origemDiaSemanaId || !origemHorarioId) {
-                                showErrorToast('Célula de origem inválida!');
+                            // Nova verificação: impedir troca para a mesma célula ou IDs inválidos
+                            if (
+                                origemPeriodoId === destinoPeriodoId &&
+                                origemDiaSemanaId === destinoDiaSemanaId &&
+                                origemHorarioId === destinoHorarioId
+                            ) {
+                                showErrorToast('Não é possível trocar uma célula por ela mesma.');
+                                return;
+                            }
+                            if (
+                                (!origemPeriodoId || !origemDiaSemanaId || !origemHorarioId) &&
+                                (!destinoPeriodoId || !destinoDiaSemanaId || !destinoHorarioId)
+                            ) {
+                                showErrorToast('IDs de origem e destino inválidos para troca.');
                                 return;
                             }
 
@@ -846,10 +857,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                     showSuccessToast('Troca realizada com sucesso!');
                                     
                                     // Remover animação após 500ms
-                                    setTimeout(() => {
+                                    setTimeout(async () => {
                                         origem.classList.remove('swap-animation');
                                         destino.classList.remove('swap-animation');
-                                        buscarDadosGrade();
+                                        console.log('Buscando dados atualizados após troca...');
+                                        await buscarDadosGrade();
+                                        console.log('Dados atualizados:', gradeData);
                                     }, 500);
                                 } else {
                                     // Tentar obter mais detalhes do erro
